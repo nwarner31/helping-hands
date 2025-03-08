@@ -1,0 +1,14 @@
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: var(--card-bg-color);
+    overflow: hidden;
+    width: 100%;
+}
+
+.header {
+    padding: 10px 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+

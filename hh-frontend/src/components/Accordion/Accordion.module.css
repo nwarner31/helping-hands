@@ -1,0 +1,48 @@
+.accordion {
+    border-radius: 10px;
+
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.header {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    text-align: left;
+    color: var(--text-color);
+    background-color: transparent;
+}
+
+.primary .accordion {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.secondary .accordion {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.accent {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.body {
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    margin: 0 10px 10px;
+}
+
+.bodyContent {
+    padding: 12px;
+}

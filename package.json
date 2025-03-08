@@ -1,0 +1,14 @@
+{
+  "name": "helping-hands",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "scripts": {
+    "start:frontend": "cd hh-frontend && npm start",
+    "start:backend": "cd hh-backend && node src/index.js",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
+}
