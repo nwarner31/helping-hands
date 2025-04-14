@@ -1,0 +1,46 @@
+.inputContainer {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    border-bottom: 2px solid var(--text-color);
+}
+
+.input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 8px 0 2px;
+    color: var(--text-color);
+
+}
+
+.label {
+    position: absolute;
+    left: 0;
+    bottom: 2px;
+    font-size: 1rem;
+    color: var(--text-color);
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+.inputContainer.active .label {
+    bottom: 24px;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+}
+
+.inputError {
+    border-bottom-color: red;
+}
+
+.errorText {
+    color: red;
+    font-size: 14px;
+    margin-top: 4px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}

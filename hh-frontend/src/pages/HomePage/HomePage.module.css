@@ -44,7 +44,7 @@ h1 span {
 
 }
 
-.buttonContainer button {
+.buttonContainer a, button {
     width: 100%;
 }
 

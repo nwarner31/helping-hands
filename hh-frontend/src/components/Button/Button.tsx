@@ -12,11 +12,12 @@ const Button: React.FC<ButtonProps> = ({
                                            variant = "primary",
                                            borderWidth = "3px",
                                            children,
+                                            className,
                                            ...props
                                        }) => {
     return (
         <button
-            className={`${styles.button} ${styles[variant]}`}
+            className={`${styles.button} ${styles[variant]} ${className}`}
             style={{ borderWidth }}
             {...props}
         >

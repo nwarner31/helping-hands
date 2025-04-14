@@ -37,10 +37,16 @@
 
 .body {
     overflow: hidden;
-    transition: height 0.3s ease-in-out;
+    transition: max-height 0.3s ease-in-out, margin-bottom 0.3s ease-in-out;
     background-color: var(--card-bg-color);
     border-radius: 10px;
-    margin: 0 10px 10px;
+    margin: 0 10px;
+    max-height: 0;
+}
+
+.bodyOpen {
+    max-height: 1000px;
+    margin-bottom: 10px;
 }
 
 .bodyContent {

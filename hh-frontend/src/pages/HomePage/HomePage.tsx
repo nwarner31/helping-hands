@@ -3,6 +3,7 @@ import styles from "./HomePage.module.css";
 import Card from "../../components/Card/Card";
 import Button from "../../components/Button/Button";
 import Accordian from "../../components/Accordion/Accordion";
+import {Link} from "react-router-dom";
 
 const HomePage: React.FC = () => {
     return (
@@ -15,8 +16,8 @@ const HomePage: React.FC = () => {
                     <span className={styles.secondaryColor}>Employee Portal</span>
                 </h1>
                 <div className={styles.buttonContainer}>
-                    <Button variant="primary">Login</Button>
-                    <Button variant="secondary">Register</Button>
+                    <Link to="/login"><Button variant="primary">Login</Button></Link>
+                    <Link to="/register" ><Button variant="secondary">Register</Button></Link>
                 </div>
                 <Accordian variant="accent" header="What is this site for?" >
                     This site is for tracking the schedules, trainings, pay for the employees if Helping Hands.
