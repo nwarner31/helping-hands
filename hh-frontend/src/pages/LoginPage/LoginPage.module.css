@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--background-color);
+}
+
+.card {
+    padding: 0 15px 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.title {
+    text-align: center;
+    color: var(--accent-color);
+}
+
+.form {
+    max-width: 300px;
+    margin: auto;
+}

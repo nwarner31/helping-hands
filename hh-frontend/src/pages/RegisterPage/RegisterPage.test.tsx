@@ -1,17 +1,25 @@
 import {render, screen, waitFor} from "@testing-library/react";
 import {userEvent} from "@testing-library/user-event";
-import {BrowserRouter} from "react-router-dom";
-
+import  {BrowserRouter, useNavigate} from "react-router-dom";
 import RegisterPage from "./RegisterPage";
+import {AuthProvider} from "../../context/AuthContext";
 
 //jest.mock('../../config', () => ({API_BASE_URL: 'my-dummy-url'}));
 // Mocking the API service (ApiService)
 jest.mock("../../utility/ApiService", () => ({
-    post: jest.fn(() => Promise.resolve({ data: "success" })),
+    post: jest.fn(() => Promise.resolve( { message: "Employee registered successfully", employee: {}, accessToken: "hello" })),
 }));
+// At the top of your test file
+jest.mock("react-router-dom", () => {
+    const actual = jest.requireActual("react-router-dom");
+    return {
+        ...actual,
+        useNavigate: jest.fn(), // override useNavigate
+    };
+});
 
 
-const renderPage = () => render(<BrowserRouter><RegisterPage /></BrowserRouter>);
+const renderPage = () => render(<AuthProvider><BrowserRouter><RegisterPage /></BrowserRouter></AuthProvider>);
 
 describe("Register Page tests", () => {
     it("renders all input fields and buttons", () => {
@@ -64,6 +72,10 @@ describe("Register Page tests", () => {
     it("should submit the form with valid data", async () => {
         renderPage();
 
+        const mockNavigate = jest.fn();
+        (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+
+
         // Fill out the form with valid data
         await userEvent.type(screen.getByLabelText(/employee id/i), "12345");
         await userEvent.type(screen.getByLabelText(/name/i), "John Doe");
@@ -77,6 +89,8 @@ describe("Register Page tests", () => {
         await userEvent.click(submitButton);
 
         // Wait for the API call and check if the submit was successful
-        await waitFor(() => expect(screen.queryByText(/success/i)).toBeInTheDocument()); // assuming you display some success message after API call
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith("/dashboard"); // or wherever you redirect
+        });
     });
 })

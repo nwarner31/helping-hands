@@ -54,6 +54,7 @@ const validateEmployeeData = (employee: EmployeeData) => {
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
         const errors = validateEmployeeData(req.body);
         if (Object.keys(errors).length > 0) {
 
@@ -73,9 +74,30 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token = await loginEmployee(req.body);
-        res.json({ message: "Login successful", token });
+        const data = req.body;
+        const errors: EmployeeErrors = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!data.email || !data.email.trim()) {
+            errors.email = "Email is required.";
+        } else if (!emailRegex.test(data.email)) {
+            errors.email = "Invalid email format.";
+        }
+        if (!data.password || !data.password.trim()) {
+            errors.password = "Password is required.";
+        }
+        if (Object.keys(errors).length > 0) {
+
+            return next({status: 400, message: errors});
+        }
+        const {password, ...employee} = await loginEmployee(req.body);
+        const {accessToken, refreshToken} = generateToken(employee.id);
+        res.cookie("refreshToken", refreshToken, {httpOnly: true});
+        res.status(200).json({ message: "Login successful", accessToken, employee });
     } catch (error) {
+        if (error instanceof Error && error.message === "Invalid credentials") {
+            return next ({status: 400, message: error.message});
+        }
         next(error);
     }
 };

@@ -98,7 +98,6 @@ const RegisterPage: React.FC = () => {
         const validationErrors = validateForm(formData);
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
-            console.log("Form submitted successfully!", formData);
             const response: {message: string, employee?: Employee, accessToken?: string} = await apiService.post('auth/register', formData);
             if(response.message === "Employee registered successfully" && response.employee && response.accessToken) {
                 login(response.employee, response.accessToken);

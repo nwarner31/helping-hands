@@ -14,16 +14,19 @@ export const registerEmployee = async (employee: Employee ) => {
         return newEmployee;
     }
     catch (error) {
-        console.log(error);
         throw error;
     }
 
 };
 export const loginEmployee = async (data: { email: string; password: string }) => {
-    // const user = await prisma.user.findUnique({ where: { email: data.email } });
-    // if (!user || !(await bcrypt.compare(data.password, user.password))) {
-    //     throw new Error("Invalid credentials");
-    // }
-    //
-    // return jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, { expiresIn: "1h" });
+    try {
+        const employee = await prisma.employee.findUnique({ where: { email: data.email } });
+        if (!employee || !(await bcrypt.compare(data.password, employee.password))) {
+            throw new Error("Invalid credentials");
+        }
+        return employee;
+    }
+    catch (error) {
+        throw error;
+    }
 };
