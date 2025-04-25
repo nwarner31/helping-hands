@@ -1,24 +1,29 @@
 import './App.css';
-import {Routes, Route} from 'react-router-dom'
+import {createBrowserRouter, RouterProvider} from 'react-router-dom'
 
 import HomePage from "./pages/HomePage/HomePage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import LoginPage from "./pages/LoginPage/LoginPage";
+import ViewClientsListPage from "./pages/ViewClientsListPage/ViewClientsListPage";
+import AddEditClientPage from "./pages/AddEditClientPage/AddEditClientPage";
 
 function App() {
 
+    const router = createBrowserRouter([
+        {path: "/", element: <HomePage />},
+        {path: '/register', element: <RegisterPage />},
+        {path: "/login", element: <LoginPage />},
+        {path: '/dashboard', element: <ProtectedRoute redirect="/" ><DashboardPage /></ProtectedRoute>},
+        {path: '/view-clients', element: <ProtectedRoute><ViewClientsListPage /></ProtectedRoute>},
+        {path: "/add-client", element: <ProtectedRoute><AddEditClientPage /></ProtectedRoute>}
+    ]);
   return (
     <div className='body'>
-        <Routes>
-            <Route path='/' element={<HomePage />} />
-            <Route path='/register' element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path='/dashboard' element={<ProtectedRoute redirect="/" ><DashboardPage /></ProtectedRoute>} />
-        </Routes>
+        <RouterProvider router={router} />
     </div>
-  )
+  );
 }
 
 export default App

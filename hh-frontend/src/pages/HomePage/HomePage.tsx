@@ -23,7 +23,6 @@ const HomePage: React.FC = () => {
                     This site is for tracking the schedules, trainings, pay for the employees if Helping Hands.
                     It is also used to track the events, and staffing needs for the clients of Helping Hand Home Health Agency.
                 </Accordian>
-
             </Card>
         </div>
     );

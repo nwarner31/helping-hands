@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from "axios";
 import {API_BASE_URL} from "../config";
+import {getAccessToken, setNewAccessToken} from "../context/AuthContext";
 
 class ApiService {
     private api: AxiosInstance;
@@ -19,15 +20,20 @@ class ApiService {
     }
 
     private handleRequest = (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.set("Authorization", `Bearer ${token}`);
+        const accessToken = getAccessToken();
+        if (accessToken) {
+            config.headers.set("Authorization", `Bearer ${accessToken}`);
         }
         return config;
     };
 
-    private handleResponse = (response: AxiosResponse) => response;
-
+    private handleResponse = (response: AxiosResponse) => {
+        const newAccessToken = response.headers['x-access-token'];
+        if (newAccessToken) {
+            setNewAccessToken(newAccessToken);
+        }
+        return response;
+    };
     private handleError = (error: any) => {
         console.error("API Error:", error);
         return Promise.reject(error.response?.data || "An error occurred");

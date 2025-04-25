@@ -4,12 +4,11 @@ import  {BrowserRouter, useNavigate} from "react-router-dom";
 import RegisterPage from "./RegisterPage";
 import {AuthProvider} from "../../context/AuthContext";
 
-//jest.mock('../../config', () => ({API_BASE_URL: 'my-dummy-url'}));
-// Mocking the API service (ApiService)
+
 jest.mock("../../utility/ApiService", () => ({
     post: jest.fn(() => Promise.resolve( { message: "Employee registered successfully", employee: {}, accessToken: "hello" })),
 }));
-// At the top of your test file
+
 jest.mock("react-router-dom", () => {
     const actual = jest.requireActual("react-router-dom");
     return {

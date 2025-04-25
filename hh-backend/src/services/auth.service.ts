@@ -1,8 +1,7 @@
-import { PrismaClient, Employee } from "@prisma/client";
+import { Employee } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import prisma from "../utility/prisma";
 
-const prisma = new PrismaClient();
 
 export const registerEmployee = async (employee: Employee ) => {
     try {
@@ -30,3 +29,15 @@ export const loginEmployee = async (data: { email: string; password: string }) =
         throw error;
     }
 };
+
+export const getEmployeeById = async (employeeId: string) => {
+    try {
+        const employee = await prisma.employee.findUnique({where: {employeeId: employeeId}});
+        if(!employee){
+            throw new Error("Employee not found");
+        }
+        return employee;
+    } catch(error) {
+        throw error;
+    }
+}

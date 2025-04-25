@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
 // Start the server
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
 
     // Test database connection
@@ -17,3 +17,15 @@ app.listen(PORT, async () => {
         process.exit(1);
     }
 });
+
+const shutdown = () => {
+    console.log("Shutting down server...");
+    server.close(() => {
+        console.log("Server closed.");
+        process.exit(0);
+    });
+};
+
+process.on("SIGINT", shutdown);  // Ctrl+C
+process.on("SIGTERM", shutdown); // Nodemon restarts
+

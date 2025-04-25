@@ -45,7 +45,6 @@ const validateEmployeeData = (employee: EmployeeData) => {
     if (employee.hireDate === undefined || employee.hireDate === null || employee.hireDate.toString().trim() === "") {
         errors.hireDate = "Hire date is required.";
     } else if (isNaN(new Date(employee.hireDate).getTime())) {
-        console.log("error hire date");
         errors.hireDate = "Hire date must be of a date format";
     }
 
@@ -57,17 +56,15 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
         const errors = validateEmployeeData(req.body);
         if (Object.keys(errors).length > 0) {
-
             return next({status: 400, message: errors});
         }
         const {confirmPassword, ...employeeData} = req.body;
         employeeData.hireDate = new Date(employeeData.hireDate);
         const {password, ...employee} = await registerEmployee(employeeData);
-        const {accessToken, refreshToken} = generateToken(employee.id);
+        const {accessToken, refreshToken} = generateToken(employee.employeeId);
         res.cookie("refreshToken", refreshToken, {httpOnly: true});
         res.status(201).json({ message: "Employee registered successfully", accessToken, employee });
     } catch (error) {
-        console.log(error);
         return next(error);
     }
 };
@@ -91,7 +88,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             return next({status: 400, message: errors});
         }
         const {password, ...employee} = await loginEmployee(req.body);
-        const {accessToken, refreshToken} = generateToken(employee.id);
+        const {accessToken, refreshToken} = generateToken(employee.employeeId);
         res.cookie("refreshToken", refreshToken, {httpOnly: true});
         res.status(200).json({ message: "Login successful", accessToken, employee });
     } catch (error) {

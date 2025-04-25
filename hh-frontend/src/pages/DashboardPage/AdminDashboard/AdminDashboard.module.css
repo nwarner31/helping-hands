@@ -1,0 +1,14 @@
+.sidebar {
+    max-width: 150px;
+}
+
+.sidebar * {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+.sidebar-button svg {
+    background-color: transparent;
+    fill: currentColor;
+    max-width: 130px;
+    max-height: 90px;
+}

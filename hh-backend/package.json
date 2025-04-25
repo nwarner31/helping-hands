@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon --delay 1500ms src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "start:prod": "node dist/server.js",
@@ -12,7 +12,9 @@
     "test:watch": "jest --watch",
     "prettier": "prettier --write .",
     "migrate": "prisma migrate dev",
-    "seed": "node prisma/seed.ts"
+    "seed": "node prisma/seed.ts",
+    "build:schema": "ts-node scripts/build-schema.ts",
+    "prisma:generate": "npm run build:schema && prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
   "dependencies": {
     "@prisma/client": "^6.4.1",
     "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -33,6 +36,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",

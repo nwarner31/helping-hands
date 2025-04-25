@@ -3,13 +3,8 @@ import app from "../app"; // Ensure this is your Express app instance
 import {afterAll, beforeAll} from "@jest/globals";
 import {execSync} from "child_process";
 
-import { PrismaClient } from "@prisma/client";
+import prisma from "../utility/prisma";
 
-const prisma = new PrismaClient();
-
-beforeAll(async () => {
-    await execSync("npx prisma migrate deploy");
-});
 
 
 afterAll(async () => {
@@ -215,6 +210,13 @@ describe("Auth Routes - Login", () => {
     });
     it("should return 400 for no email", async () => {
         const login = {password: "StrongPass123"};
+        const response = await request(app)
+            .post("/api/auth/login")
+            .send(login);
+        expect(response.status).toBe(400);
+    });
+    it("should return 400 for no password", async () => {
+        const login = {email: "john.doe@example.com"};
         const response = await request(app)
             .post("/api/auth/login")
             .send(login);

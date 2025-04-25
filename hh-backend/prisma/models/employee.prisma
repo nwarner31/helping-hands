@@ -1,0 +1,15 @@
+enum EmployeePosition {
+  ASSOCIATE
+  MANAGER
+  DIRECTOR
+  ADMIN
+}
+model Employee {
+  id String @id @default(uuid())
+  employeeId String @unique @db.VarChar(40)
+  name String @db.VarChar(50)
+  email String @unique @db.VarChar(65)
+  password String @db.VarChar(65)
+  position EmployeePosition @default(ASSOCIATE)
+  hireDate DateTime @db.Date
+}

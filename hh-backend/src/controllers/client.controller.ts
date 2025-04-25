@@ -1,0 +1,43 @@
+import { Request, Response, NextFunction } from "express";
+import { addClient } from "../services/client.service";
+import {Client} from "@prisma/client";
+
+interface ClientErrors {
+    clientId?: string;
+    legalName?: string;
+    dateOfBirth?: string;
+}
+const validateClientData = (client: Client) => {
+    const errors: ClientErrors = {};
+
+    if(!client.clientId || !client.clientId.trim()) {
+        errors.clientId = "Client Id is required";
+    }
+    if(!client.legalName || !client.legalName.trim()) {
+        errors.legalName = "Legal name is required";
+    }
+    if (client.dateOfBirth === undefined || client.dateOfBirth === null || client.dateOfBirth.toString().trim() === "") {
+        errors.dateOfBirth = "Hire date is required.";
+    } else if (isNaN(new Date(client.dateOfBirth).getTime())) {
+        errors.dateOfBirth = "Hire date must be of a date format";
+    }
+
+    return errors;
+}
+
+export const createClient = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validateClientData(req.body);
+        if(Object.keys(errors).length > 0) {
+            return next({status: 400, message: errors})
+        }
+        const clientData = req.body;
+        clientData.dateOfBirth = new Date(clientData.dateOfBirth);
+        const newClient = await addClient(clientData);
+        res.status(201).json({message: "Client added", client: newClient})
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+
+}

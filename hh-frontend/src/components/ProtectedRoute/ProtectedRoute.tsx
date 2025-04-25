@@ -8,7 +8,6 @@ const ProtectedRoute = ({children, redirect = "/"}: {children: ReactNode, redire
     if(!accessToken) {
         return <Navigate to={redirect} replace />
     }
-    console.log(children);
     return children;
 }
 

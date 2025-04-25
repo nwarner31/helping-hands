@@ -1,0 +1,7 @@
+model Client {
+  id String @id @default(uuid())
+  clientId String @unique @db.VarChar(40)
+  legalName String @db.VarChar(50)
+  name String? @db.VarChar(25)
+  dateOfBirth DateTime @db.Date
+}
