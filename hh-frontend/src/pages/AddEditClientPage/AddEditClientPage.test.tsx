@@ -19,7 +19,6 @@ describe("Add Edit Client Page tests", () => {
         renderPage();
         const input = screen.getByLabelText("Client ID");
         await userEvent.type(input, "12345");
-        //fireEvent.change(input, { target: { value: "12345" } });
         expect(input).toHaveValue("12345");
     });
     it("should have an error for all the empty required fields", async () => {

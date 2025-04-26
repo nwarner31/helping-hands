@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { addClient } from "../services/client.service";
+import {addClient, getClients} from "../services/client.service";
 import {Client} from "@prisma/client";
 
 interface ClientErrors {
@@ -40,4 +40,14 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
         return next(error);
     }
 
+}
+
+export const getAllClients = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const clients = await getClients();
+        res.status(200).json({message: "clients successfully retrieved", clients: clients});
+    }
+    catch (error) {
+        throw error
+    }
 }

@@ -21,6 +21,8 @@ import {loginEmployee} from "../services/auth.service";
 // }));
 beforeAll(async () => {
     //seedEmployees();
+    await prisma.employee.deleteMany();
+    await prisma.client.deleteMany();
     const response = await request(app)
         .post("/api/auth/register")
         .send({
@@ -122,5 +124,32 @@ describe("Client Routes - Add Client",  () => {
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("message");
         expect(response.body.message).toHaveProperty("dateOfBirth");
+    });
+});
+
+describe("Client Routes - Get All Clients", () => {
+    let token: string | null = null;
+    beforeAll(async () => {
+        const login = {email: "admin@test.com", password: "StrongPass123"};
+        const loginResponse = await request(app)
+            .post("/api/auth/login")
+            .send(login);
+        token = loginResponse.body.accessToken;
+        const client1Response = await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${token}`)
+            .send({clientId: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12"});
+        const client2Response = await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${token}`)
+            .send({clientId: "C234567", legalName: "Second Client", dateOfBirth: "2000-04-12"});
+    });
+    it("should return all clients with a valid token", async () => {
+        const response = await request(app).get("/api/client")
+            .set("Authorization", `Bearer ${token}`)
+        expect(response.body.message).toBe("clients successfully retrieved");
+        expect(response.body.clients).toHaveLength(2);
+    });
+    it("should return 401 with no token", async () => {
+        const response = await request(app).get("/api/client")
+        expect(response.statusCode).toBe(401);
     });
 })

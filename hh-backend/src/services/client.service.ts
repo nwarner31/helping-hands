@@ -12,3 +12,11 @@ export const addClient = async (client: Client) => {
         throw error;
     }
 }
+export const getClients = async () => {
+    try {
+        const clients = await prisma.client.findMany();
+        return clients;
+    } catch(error) {
+        throw error;
+    }
+}
