@@ -6,7 +6,9 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import LoginPage from "./pages/LoginPage/LoginPage";
-import ViewClientsListPage, {loader as viewClientsLoader} from "./pages/ViewClientsListPage/ViewClientsListPage";
+import ViewClientsListPage, {
+    loader as viewClientsLoader
+} from "./pages/ViewClientsListPage/ViewClientsListPage";
 import AddEditClientPage from "./pages/AddEditClientPage/AddEditClientPage";
 
 function App() {
@@ -15,10 +17,14 @@ function App() {
         {path: "/", element: <HomePage />},
         {path: '/register', element: <RegisterPage />},
         {path: "/login", element: <LoginPage />},
-        {path: '/dashboard', element: <ProtectedRoute redirect="/" ><DashboardPage /></ProtectedRoute>},
-        {path: '/view-clients', element: <ProtectedRoute><ViewClientsListPage /></ProtectedRoute>, loader: viewClientsLoader},
-        {path: "/add-client", element: <ProtectedRoute><AddEditClientPage /></ProtectedRoute>}
-    ]);
+        {element: <ProtectedRoute />,
+            children: [
+                {path: '/dashboard', element: <DashboardPage />},
+                {path: '/view-clients', element: <ViewClientsListPage />, loader: viewClientsLoader},
+                {path: "/add-client", element: <AddEditClientPage isEdit={false} />},
+                {path: "/edit-client/:clientId", element: <AddEditClientPage isEdit={true} />},
+            ]}
+         ]);
   return (
     <div className='body'>
         <RouterProvider router={router} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import styles from "./Input.module.css";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -8,10 +8,12 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 const Input: React.FC<InputProps> = ({ label, error, name, ...props }) => {
     const [isFocused, setIsFocused] = useState(false);
-    const [hasText, setHasText] = useState(false);
+    const [hasText, setHasText] = useState(props.value !== "");
 
     const handleFocus = () => setIsFocused(true);
-
+    useEffect(() => {
+        setHasText(!!props.value);
+    }, [props.value]);
 
     const handleBlur = () => setIsFocused(false);
 

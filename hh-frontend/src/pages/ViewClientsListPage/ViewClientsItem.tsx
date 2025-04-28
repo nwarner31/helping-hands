@@ -1,6 +1,7 @@
 import {Client} from "../../models/Client";
 import Button from "../../components/Button/Button";
 import styles from './ViewClientsListPage.module.css';
+import {Link} from "react-router-dom";
 
 
 const ViewClientsItem = ({client, isAdmin, isOddRow}: {client: Client, isAdmin: boolean, isOddRow: boolean}) => {
@@ -17,7 +18,7 @@ const ViewClientsItem = ({client, isAdmin, isOddRow}: {client: Client, isAdmin: 
             <td>{client.legalName}</td>
             <td className={isAdmin ? styles.hideable : ""}>{client.name ? client.name : "None"}</td>
             <td>{formattedDate}</td>
-            {isAdmin && <td><Button variant={isOddRow ? "accent": "secondary"}>Edit</Button></td>}
+            {isAdmin && <td><Link to={`/edit-client/${client.clientId}`} state={{client: client}} ><Button variant={isOddRow ? "accent": "secondary"}>Edit</Button></Link></td>}
         </tr>
     );
 }

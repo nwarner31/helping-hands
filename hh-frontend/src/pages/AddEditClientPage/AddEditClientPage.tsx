@@ -1,10 +1,10 @@
 import Card from "../../components/Card/Card";
 import {Client} from "../../models/Client";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Input from "../../components/Inputs/Input/Input";
 import DateInput from "../../components/Inputs/DateInput/DateInput";
 import Button from "../../components/Button/Button";
-import {useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate, useParams} from "react-router-dom";
 import apiService from "../../utility/ApiService";
 import styles from './AddEddClientPage.module.css';
 import Toast from "../../components/Toast/Toast";
@@ -22,16 +22,34 @@ interface FormErrors {
     name?: string;
     dateOfBirth?: string;
 }
-const AddEditClientPage = ({client}: {client?: Client}) => {
-    const [clientData, setClientData] = useState<Client>(client? client: emptyClient);
+const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
+    //const {client, message} = useLoaderData();
+    const { clientId } = useParams();
+    const location = useLocation();
+    useEffect(() => {
+        const fetchClient = async () => {
+            const {client} = await apiService.get<{client: Client, message: string}>(`client/${clientId}`);
+            setClientData({...client});
+        }
+        if(isEdit && location.state.client) {
+            setClientData(prevState => ({
+                ...prevState,
+                ...location.state.client,
+                dateOfBirth: location.state.client.dateOfBirth?.split("T")[0] ?? ""
+            }));
+        } else if(isEdit && !location.state.client) {
+            fetchClient();
+        }
+    },[])
+    const [clientData, setClientData] = useState<Client>(emptyClient);
     const [formErrors, setFormErrors] = useState<FormErrors>({
         clientId: "",
         legalName: "",
         dateOfBirth: ""
     });
+
     const [toastInfo, setToastInfo] = useState<{showToast: boolean, toastType: "info"|"success"|"error", toastMessage: string}>({showToast: false,toastType: "info", toastMessage: ""});
     const navigate = useNavigate();
-    const {state} = useLocation();
 
     const validateForm = (values: Client): FormErrors => {
         const errors: FormErrors = {};
@@ -49,7 +67,8 @@ const AddEditClientPage = ({client}: {client?: Client}) => {
 
         return errors;
     }
-    function updateClient(e: React.ChangeEvent<HTMLInputElement>) {
+
+    function updateClientData(e: React.ChangeEvent<HTMLInputElement>) {
         setClientData(prevState => {return {...prevState, [e.target.name]: e.target.value};});
     }
     const handleSubmit = async (e: React.FormEvent) => {
@@ -57,9 +76,11 @@ const AddEditClientPage = ({client}: {client?: Client}) => {
         const validationErrors = validateForm(clientData);
         setFormErrors(validationErrors);
         if(Object.keys(validationErrors).length === 0) {
-            if(!state) {
-                const data = Object.fromEntries(Object.entries(clientData).filter(([_, value]) => value !== "")) as Client;
+            const data = Object.fromEntries(Object.entries(clientData).filter(([_, value]) => value !== "")) as Client;
+            if(!isEdit) {
                 await addClient(data);
+            } else {
+                await updateClient(data);
             }
         }
     }
@@ -71,20 +92,29 @@ const AddEditClientPage = ({client}: {client?: Client}) => {
             setTimeout(() => {navigate("/view-clients")}, 1500);
         }
     }
+    const updateClient = async (data: Client) => {
+        const response: {message: string, client?: Client} = await apiService.put(`client/${clientId}`, data);
+        if(response.message === "client updated successfully" && response.client && response.client.clientId) {
+            setToastInfo({showToast: true, toastType: "success", toastMessage: "Client successfully updated"});
+            setTimeout(() => {navigate("/view-clients")}, 1500);
+        }
+    }
+
     return (
         <div className={styles.container}>
             <Card className={styles.page}>
-                <h1 className={styles.header}>{state ? "Update Client": "Add Client" }</h1>
+                <h1 className={styles.header}>{isEdit ? "Update Client": "Add Client" }</h1>
                 <form className={styles.form} onSubmit={handleSubmit}>
-                    <Input label="Client ID" value={clientData.clientId} name="clientId" onChange={updateClient} error={formErrors.clientId} />
-                    <Input label="Legal Name" value={clientData.legalName} name="legalName" onChange={updateClient} error={formErrors.legalName} />
-                    <Input label="Preferred Name" value={clientData.name} name="name" onChange={updateClient} />
-                    <DateInput label="Date of Birth" value={clientData.dateOfBirth} name="dateOfBirth" onChange={updateClient} error={formErrors.dateOfBirth} />
-                    <Button>{state ? "Update Client": "Add Client" }</Button>
+                    <Input label="Client ID" value={clientData.clientId} name="clientId" onChange={updateClientData} error={formErrors.clientId} disabled={isEdit} />
+                    <Input label="Legal Name" value={clientData.legalName} name="legalName" onChange={updateClientData} error={formErrors.legalName} />
+                    <Input label="Preferred Name" value={clientData.name} name="name" onChange={updateClientData} />
+                    <DateInput label="Date of Birth" value={clientData.dateOfBirth} name="dateOfBirth" onChange={updateClientData} error={formErrors.dateOfBirth} />
+                    <Button>{isEdit ? "Update Client": "Add Client" }</Button>
                     <Button variant="secondary" type="button">Cancel</Button>
                 </form>
             </Card>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}
+
         </div>);
 }
 

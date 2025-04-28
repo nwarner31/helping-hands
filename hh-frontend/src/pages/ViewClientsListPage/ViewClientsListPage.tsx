@@ -9,7 +9,7 @@ import styles from './ViewClientsListPage.module.css';
 
 const ViewClientsListPage = () => {
     const {employee} = useAuth();
-    const {clients, message} = useLoaderData() as {clients: Client[], message: string};
+    const {clients} = useLoaderData() as {clients: Client[], message: string};
     return (
         <div className={styles.container}>
             <Card className={styles.page}>
@@ -42,7 +42,4 @@ const ViewClientsListPage = () => {
 
 export default ViewClientsListPage;
 
-export const loader = async () => {
-    const response = await apiService.get("client");
-    return response
-}
+export const loader = async () => apiService.get("client");

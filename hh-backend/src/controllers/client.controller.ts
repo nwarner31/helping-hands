@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {addClient, getClients} from "../services/client.service";
+import {addClient, getClients, getClientByClientId, updateClient} from "../services/client.service";
 import {Client} from "@prisma/client";
 
 interface ClientErrors {
@@ -49,5 +49,29 @@ export const getAllClients = async (req: Request, res: Response, next: NextFunct
     }
     catch (error) {
         throw error
+    }
+}
+
+export const putClient = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validateClientData(req.body);
+        if (Object.keys(errors).length > 0) {
+            return next({status: 400, message: errors})
+        }
+        const clientData = req.body;
+        clientData.dateOfBirth = new Date(clientData.dateOfBirth);
+        const updatedClient = await updateClient(clientData);
+        res.status(200).json({message: "client updated successfully", client: updatedClient});
+    } catch (error) {
+        throw error;
+    }
+}
+export const getClient = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const clientId =  req.params.clientId;
+        const client = await getClientByClientId(clientId);
+        res.status(200).json({message: "client found", client: client});
+    } catch(error) {
+        throw error;
     }
 }

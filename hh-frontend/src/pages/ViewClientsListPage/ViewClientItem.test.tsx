@@ -1,6 +1,7 @@
 import { screen, render } from "@testing-library/react";
 import {Client} from "../../models/Client";
 import ViewClientsItem from "./ViewClientsItem";
+import {BrowserRouter} from "react-router-dom";
 
 describe("View Client Item tests", () => {
     const mockClient = {
@@ -10,7 +11,7 @@ describe("View Client Item tests", () => {
         dateOfBirth: '2000-01-01T00:00:00Z',
     } as Client;
     function renderComponent(isAdmin: boolean, isOdd: boolean) {
-        return render(<table><tbody><ViewClientsItem client={mockClient} isAdmin={isAdmin} isOddRow={isOdd} /></tbody></table>);
+        return render(<BrowserRouter><table><tbody><ViewClientsItem client={mockClient} isAdmin={isAdmin} isOddRow={isOdd} /></tbody></table></BrowserRouter>);
     }
     it("should render the client correctly", () => {
         renderComponent(false, false);
