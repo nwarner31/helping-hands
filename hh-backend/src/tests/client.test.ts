@@ -47,6 +47,7 @@ beforeAll(async () => {
 })
 afterAll(async () => {
     await prisma.employee.deleteMany();
+    await prisma.client.deleteMany();
     await prisma.$disconnect();
 });
 
@@ -70,7 +71,7 @@ describe("Client Routes - Add Client",  () => {
             .send(validClient);
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("client");
-        expect(response.body.message).toBe("Client added")
+        expect(response.body.message).toBe("Client added");
     });
     it("should come back with a 401 if no token provided", async () => {
         const response = await request(app).post("/api/client")
@@ -111,7 +112,7 @@ describe("Client Routes - Add Client",  () => {
             expect(response.body.message).toHaveProperty(field);
         });
     });
-    it("should successfully add a client with correct data and admin", async () => {
+    it("should return 400 for bad date of birth", async () => {
         const login = {email: "admin@test.com", password: "StrongPass123"};
         const loginResponse = await request(app)
             .post("/api/auth/login")
@@ -125,6 +126,25 @@ describe("Client Routes - Add Client",  () => {
         expect(response.body).toHaveProperty("message");
         expect(response.body.message).toHaveProperty("dateOfBirth");
     });
+    it("should return an error for duplicate client id", async () => {
+        const login = {email: "admin@test.com", password: "StrongPass123"};
+        const loginResponse = await request(app)
+            .post("/api/auth/login")
+            .send(login);
+        const token = loginResponse.body.accessToken;
+        const response = await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${token}`)
+            .send(validClient);
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("client");
+        expect(response.body.message).toBe("Client added");
+        const badResponse = await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${token}`)
+            .send(validClient);
+        expect(badResponse.statusCode).toBe(400);
+        expect(badResponse.body.message).toBe("invalid data");
+        expect(badResponse.body.errors).toHaveProperty("clientId");
+    })
 });
 
 describe("Client Routes - Get All Clients", () => {

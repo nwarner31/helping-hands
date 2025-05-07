@@ -1,0 +1,18 @@
+
+
+model House {
+  id String @id @default(uuid())
+  houseId String @unique @db.VarChar(20)
+  name String @unique @db.VarChar(25)
+  street1 String @db.VarChar(50)
+  street2 String? @db.VarChar(25)
+  city String @db.VarChar(30)
+  state String @db.VarChar(25)
+  maxClients Int @db.Integer
+  femaleEmployeeOnly Boolean
+  clients Client[]
+  primaryHouseManager Employee? @relation("PrimaryManager", fields: [primaryManagerId], references: id)
+  secondaryHouseManager Employee? @relation("SecondaryManager", fields: [secondaryManagerId], references: id)
+  primaryManagerId String? @db.VarChar(40)
+  secondaryManagerId String? @db.VarChar(40)
+}

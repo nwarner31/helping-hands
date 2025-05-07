@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 interface ApiError {
     status?: number;
     message: string;
+    errors?: {[key: string]: string};
 }
 
 // Custom error-handling middleware
@@ -12,6 +13,7 @@ const errorMiddleware = (err: ApiError, req: Request, res: Response, next: NextF
     res.status(statusCode).json({
         success: false,
         message: err.message || "Internal Server Error",
+        errors: err.errors ? err.errors : undefined
     });
 };
 

@@ -3,7 +3,7 @@
 const ClientLogo = () => {
     return (
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-             width="1869.000000pt" height="1458.000000pt" viewBox="0 0 1869.000000 1458.000000"
+             viewBox="0 0 1869.000000 1458.000000"
              preserveAspectRatio="xMidYMid meet">
             <metadata>
                 Created by potrace 1.10, written by Peter Selinger 2001-2011

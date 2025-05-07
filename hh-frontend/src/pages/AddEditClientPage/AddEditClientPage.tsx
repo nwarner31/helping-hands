@@ -19,11 +19,9 @@ const emptyClient = {
 interface FormErrors {
     clientId?: string;
     legalName?: string;
-    name?: string;
     dateOfBirth?: string;
 }
 const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
-    //const {client, message} = useLoaderData();
     const { clientId } = useParams();
     const location = useLocation();
     useEffect(() => {
@@ -69,7 +67,7 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
     }
 
     function updateClientData(e: React.ChangeEvent<HTMLInputElement>) {
-        setClientData(prevState => {return {...prevState, [e.target.name]: e.target.value};});
+        setClientData(prevState => ({...prevState, [e.target.name]: e.target.value}));
     }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

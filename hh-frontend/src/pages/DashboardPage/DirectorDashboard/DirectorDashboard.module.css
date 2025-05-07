@@ -1,0 +1,9 @@
+.button {
+    max-width: 150px;
+}
+
+.button svg {
+    fill: currentColor;
+    max-width: 130px;
+    display: block;
+}

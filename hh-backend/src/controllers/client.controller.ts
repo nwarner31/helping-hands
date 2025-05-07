@@ -31,12 +31,15 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
         if(Object.keys(errors).length > 0) {
             return next({status: 400, message: errors})
         }
+        const clientWithSameId = await getClientByClientId(req.body.clientId);
+        if (clientWithSameId) {
+            return next({status: 400, message: "invalid data", errors: {clientId: "Client ID already exists"}});
+        }
         const clientData = req.body;
         clientData.dateOfBirth = new Date(clientData.dateOfBirth);
         const newClient = await addClient(clientData);
         res.status(201).json({message: "Client added", client: newClient})
     } catch (error) {
-        console.log(error);
         return next(error);
     }
 

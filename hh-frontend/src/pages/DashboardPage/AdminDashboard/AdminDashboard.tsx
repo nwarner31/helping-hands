@@ -1,8 +1,8 @@
 import Button from "../../../components/Button/Button";
-//import clientLogo from '../../../assets/client-logo.png';
 import styles from './AdminDashboard.module.css';
 import ClientIcon from '../../../assets/ClientLogo';
 import {Link} from "react-router-dom";
+
 const AdminDashboard = () => {
     return (
         <main>

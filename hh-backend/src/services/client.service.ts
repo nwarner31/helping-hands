@@ -23,7 +23,7 @@ export const getClients = async () => {
 
 export const getClientByClientId = async (clientId: string) => {
     try {
-        const client = await prisma.client.findUniqueOrThrow({where: {clientId: clientId}});
+        const client = await prisma.client.findUnique({where: {clientId: clientId}});
         return client;
     } catch(error) {
         throw error;

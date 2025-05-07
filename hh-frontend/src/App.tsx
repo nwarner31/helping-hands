@@ -9,7 +9,9 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import ViewClientsListPage, {
     loader as viewClientsLoader
 } from "./pages/ViewClientsListPage/ViewClientsListPage";
+import ViewHousesListPage from "./pages/ViewHousesListPage/ViewHousesListPage";
 import AddEditClientPage from "./pages/AddEditClientPage/AddEditClientPage";
+import AddEditHousePage from "./pages/AddEditHousePage/AddEditHousePage";
 
 function App() {
 
@@ -23,6 +25,8 @@ function App() {
                 {path: '/view-clients', element: <ViewClientsListPage />, loader: viewClientsLoader},
                 {path: "/add-client", element: <AddEditClientPage isEdit={false} />},
                 {path: "/edit-client/:clientId", element: <AddEditClientPage isEdit={true} />},
+                {path: "/view-houses", element: <ViewHousesListPage />},
+                {path: "/add-house", element: <AddEditHousePage isEdit={false} />}
             ]}
          ]);
   return (
