@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {addHouse, checkForDuplicateHouse} from "../services/house.service";
+import {addHouse, checkForDuplicateHouse, getHouses} from "../services/house.service";
 import {House} from "@prisma/client";
 
 interface HouseErrors {
@@ -60,7 +60,16 @@ export const createHouse = async (req: Request, res: Response, next: NextFunctio
         const houseData = { ...req.body };
         houseData.maxClients = +houseData.maxClients;
         const newHouse = await addHouse(houseData);
-        res.status(201).json({message: "House added", house: newHouse});
+        res.status(201).json({message: "House successfully added", house: newHouse});
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const getAllHouses = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const houses = await getHouses();
+        res.status(200).json({message: "houses successfully retrieved", houses: houses});
     } catch (error) {
         return next(error);
     }

@@ -12,6 +12,14 @@ export const addHouse = async (house: House) => {
     }
 }
 
+export const getHouses = async () => {
+    try {
+        return await prisma.house.findMany({include: {clients: true}});
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const checkForDuplicateHouse = async (houseId: string, name: string) => {
     try {
         const errors: { [key: string]: string } = {};

@@ -1,3 +1,4 @@
+import {Client} from "./Client";
 
 
 export interface House {
@@ -9,4 +10,7 @@ export interface House {
     state: string;
     maxClients: number;
     femaleEmployeeOnly: boolean;
+    clients?: Client[];
+    primaryManagerId?: string;
+    secondaryManagerId?: string;
 }

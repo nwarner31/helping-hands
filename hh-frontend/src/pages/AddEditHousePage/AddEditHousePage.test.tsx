@@ -98,7 +98,6 @@ describe('AddEditHousePage', () => {
        await userEvent.type(screen.getByLabelText("State"), "TX");
 
        await userEvent.click(screen.getByRole("button", {name: "Add House"}));
-
        expect(screen.findByText("House successfully added"));
     });
 });

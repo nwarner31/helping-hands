@@ -54,7 +54,7 @@ describe('House Routes', () => {
                 .send(validHouse);
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty("house");
-            expect(response.body.message).toBe("House added");
+            expect(response.body.message).toBe("House successfully added");
         });
         it("should return a 401 if no token provided", async () => {
             const response = await request(app).post("/api/house")
@@ -130,4 +130,87 @@ describe('House Routes', () => {
       });
 
   });
+
+    describe("get all houses", () => {
+        const endpoint = "/api/house";
+
+        beforeEach(async () => {
+            await prisma.house.deleteMany();
+            await prisma.employee.deleteMany();
+
+            // Create a director
+            await request(app).post("/api/auth/register").send({
+                employeeId: "dir001",
+                name: "Director",
+                email: "director@test.com",
+                password: "StrongPass123",
+                confirmPassword: "StrongPass123",
+                position: "DIRECTOR",
+                hireDate: "2024-03-09",
+            });
+
+            // Create a house
+            await prisma.house.create({
+                data: {
+                    houseId: "H1234",
+                    name: "Alpha House",
+                    street1: "100 Main St",
+                    city: "Townsville",
+                    state: "TS",
+                    maxClients: 3,
+                    femaleEmployeeOnly: false,
+                },
+            });
+        });
+
+        it("should return all houses for an authenticated user", async () => {
+            const loginRes = await request(app).post("/api/auth/login").send({
+                email: "director@test.com",
+                password: "StrongPass123",
+            });
+
+            const token = loginRes.body.accessToken;
+
+            const res = await request(app)
+                .get(endpoint)
+                .set("Authorization", `Bearer ${token}`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("message", "houses successfully retrieved");
+            expect(Array.isArray(res.body.houses)).toBe(true);
+            expect(res.body.houses.length).toBeGreaterThan(0);
+            expect(res.body.houses[0]).toHaveProperty("houseId", "H1234");
+        });
+
+        it("should return 401 if no token is provided", async () => {
+            const res = await request(app).get(endpoint);
+            expect(res.status).toBe(401);
+        });
+
+        // Optional: simulate a server error
+        it("should handle internal server errors", async () => {
+            const loginRes = await request(app).post("/api/auth/login").send({
+                email: "director@test.com",
+                password: "StrongPass123",
+            });
+
+            const token = loginRes.body.accessToken;
+
+            jest.spyOn(require("../services/house.service"), "getHouses")
+                .mockRejectedValue(new Error("Database connection failed"));
+
+            // Temporarily override getHouses to throw
+            // const originalGetHouses = jest.requireActual("../services/house.service").getHouses;
+            // jest.mock("../services/house.service", () => ({
+            //     getHouses: jest.fn().mockRejectedValue(new Error("DB failure")),
+            // }));
+
+            const res = await request(app)
+                .get(endpoint)
+                .set("Authorization", `Bearer ${token}`);
+
+            expect(res.status).toBe(500); // If your error middleware sets 500
+        });
+    });
+
 });
