@@ -61,7 +61,7 @@ export const putClient = async (req: Request, res: Response, next: NextFunction)
         if (Object.keys(errors).length > 0) {
             return next({status: 400, message: errors})
         }
-        const clientData = req.body;
+        const clientData = { ...req.body};
         clientData.dateOfBirth = new Date(clientData.dateOfBirth);
         const updatedClient = await updateClient(clientData);
         res.status(200).json({message: "client updated successfully", client: updatedClient});

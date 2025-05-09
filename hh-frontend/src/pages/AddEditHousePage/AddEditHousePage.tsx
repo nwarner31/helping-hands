@@ -121,7 +121,10 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
 
     const updateHouse = async (data: House) => {
         const response: {message: string, house?:House, errors: any} = await apiService.put(`house/${data.houseId}`, data);
-
+        if(response.message === "House successfully updated" && response.house && response.house.houseId) {
+            setToastInfo({showToast: true, toastType: "success", toastMessage: "House successfully updated"});
+            setTimeout(() => {navigate("/view-houses")}, 1500);
+        }
     }
 
     return (
@@ -129,7 +132,7 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
             <Card className={styles.page}>
                 <h1 className={styles.header}>{isEdit ? "Update House" : "Add House"}</h1>
                 <form className={styles.form} onSubmit={submitHouse}>
-                    <Input label="House ID" value={houseData.houseId} name="houseId" error={formErrors.houseId} onChange={updateHouseData} />
+                    <Input label="House ID" value={houseData.houseId} name="houseId" error={formErrors.houseId} onChange={updateHouseData} disabled={isEdit} />
                     <Input label="House Name" value={houseData.name} name="name" error={formErrors.name} onChange={updateHouseData} />
                     <Input label="Street 1" value={houseData.street1} name="street1" error={formErrors.street1} onChange={updateHouseData} />
                     <Input label="Street 2" value={houseData.street2} name="street2" onChange={updateHouseData} />

@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import ViewHouseListItem from "./ViewHouseListItem";
 import { House } from "../../models/House";
+import {BrowserRouter} from "react-router-dom";
+import {userEvent} from "@testing-library/user-event";
 
 const house: House = {
     houseId: "H001",
@@ -21,7 +23,7 @@ const house: House = {
 
 describe("ViewHouseListItem Component", () => {
     it("renders collapsed row with key info", () => {
-        render(<ViewHouseListItem house={house} isOdd={true} />);
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} /></BrowserRouter>);
         expect(screen.getByText("House Id")).toBeInTheDocument();
         expect(screen.getByText("H001")).toBeInTheDocument();
         expect(screen.getByText("Safe Haven")).toBeInTheDocument();
@@ -32,7 +34,7 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("expands to show address, managers, and clients", () => {
-        render(<ViewHouseListItem house={house} isOdd={false} />);
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
         expect(screen.getByText("Address:")).toBeInTheDocument();
         expect(screen.getByText("123 Elm St, Apt 4B, Testville, TS")).toBeInTheDocument();
@@ -53,7 +55,7 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("renders correct number of Add and Remove buttons", () => {
-        render(<ViewHouseListItem house={house} isOdd={false} />);
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
 
         const addButtons = screen.getAllByRole("button", { name: /Add/i });
@@ -63,14 +65,23 @@ describe("ViewHouseListItem Component", () => {
         expect(addButtons.length).toBe(1);    // 1 empty slot
     });
 
+    it("hides Edit, Add, and Remove buttons when canEdit is false", async () => {
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={false} /></BrowserRouter>);
+        await userEvent.click(screen.getByRole("button", { name: /▶/i }));
+
+        expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+        expect(screen.queryByText("Remove")).not.toBeInTheDocument();
+        expect(screen.queryByText("Add")).not.toBeInTheDocument();
+    });
+
     it("applies the 'odd-row' class when isOdd is true", () => {
-        const { container } = render(<ViewHouseListItem house={house} isOdd={true} />);
+        const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} /></BrowserRouter>);
         const rootDiv = container.firstChild as HTMLElement;
         expect(rootDiv.className).toMatch(/odd-row/);
     });
 
     it("applies the 'even-row' class when isOdd is false", () => {
-        const { container } = render(<ViewHouseListItem house={house} isOdd={false} />);
+        const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} /></BrowserRouter>);
         const rootDiv = container.firstChild as HTMLElement;
         expect(rootDiv.className).toMatch(/even-row/);
     });

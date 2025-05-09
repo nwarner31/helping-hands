@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import styles from "./ViewHouseListItem.module.css";
 import Button from "../../components/Button/Button";
 import {House} from "../../models/House";
+import {Link} from "react-router-dom";
 
 
 type Props = {
     house: House;
     isOdd: boolean;
+    canEdit: boolean;
 };
 
-const ViewHouseListItem: React.FC<Props> = ({ house, isOdd }) => {
+const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit }) => {
     const [expanded, setExpanded] = useState(false);
     const buttonVariant = isOdd ? "accent" : "secondary";
     const toggleExpanded = () => setExpanded((prev) => !prev);
@@ -25,14 +27,14 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd }) => {
                 <tr key={clients[index].clientId}>
                     <td>{clients[index].clientId}</td>
                     <td>{clients[index].legalName}</td>
-                    <td className={styles.dob}>{clients[index].dateOfBirth}</td>
-                    <td><Button className={styles["client-action-button"]} variant={buttonVariant}>Remove</Button></td>
+                    <td className={canEdit ? styles.dob : ""}>{clients[index].dateOfBirth}</td>
+                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant}>Remove</Button></td>}
                 </tr>);
         } else {
             clientList.push(
                 <tr key={index}>
                     <td colSpan={3} >Empty</td>
-                    <td><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></td>
+                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></td>}
                 </tr>
             )
         }
@@ -41,7 +43,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd }) => {
     return (
         <div className={`${styles.container} ${styles[isOdd ? "odd-row" : "even-row"]}`}>
 
-            <div className={styles["display-row"]}>
+            <div className={styles[canEdit ? "display-row-edit" : "display-row-no-edit"]}>
                 <Button onClick={toggleExpanded} className={styles["expand-button"]} variant={buttonVariant}>
                     {expanded ? '▼' : '▶'}
                 </Button>
@@ -55,21 +57,25 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd }) => {
                 <div className={styles["house-female"]}>
                     {house.femaleEmployeeOnly ? 'Yes' : 'No'}
                 </div>
-                <Button className={styles["edit-button"]} variant={buttonVariant}>
-                    Edit
-                </Button>
+                {canEdit &&
+                    <div className={styles["edit-button"]}>
+                        <Link to={`/edit-house/${house.houseId}`} state={{house: house}}><Button variant={buttonVariant}>
+                            Edit
+                        </Button></Link>
+                    </div>
+                   }
             </div>
 
             {expanded && (
                 <div className={styles["expand-container"]}>
-                    <div className="mb-2 text-sm text-gray-700">
+                    <div>
                         <strong>Address:</strong> {address}
                     </div>
-                    <div className="mb-2 flex text-sm text-gray-700">
-                        <div className="flex-1">
+                    <div>
+                        <div>
                             <strong>Primary Manager:</strong> {house.primaryManagerId || 'N/A'}
                         </div>
-                        <div className="flex-1">
+                        <div>
                             <strong>Secondary Manager:</strong> {house.secondaryManagerId || 'N/A'}
                         </div>
                         <div className={styles["female-only"]}>
@@ -77,12 +83,12 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd }) => {
                         </div>
                     </div>
 
-                    <table className="w-full mt-2 border-t border-gray-300 text-sm">
+                    <table className={styles["client-table"]}>
                         <thead>
                         <tr>
-                            <th className={styles["client-data"]}>Client ID</th>
-                            <th className={styles["client-data"]}>Legal Name</th>
-                            <th className={styles.dob}>Date of Birth</th>
+                            <th className={styles[canEdit ? "client-data-edit" : "client-data-no-edit"]}>Client ID</th>
+                            <th className={styles[canEdit ? "client-data-edit" : "client-data-no-edit"]}>Legal Name</th>
+                            <th className={styles[canEdit ? "dob" : "client-data-no-edit"]}>Date of Birth</th>
                         </tr>
                         </thead>
                         <tbody key={1}>

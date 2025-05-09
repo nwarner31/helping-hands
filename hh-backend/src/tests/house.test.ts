@@ -199,17 +199,131 @@ describe('House Routes', () => {
             jest.spyOn(require("../services/house.service"), "getHouses")
                 .mockRejectedValue(new Error("Database connection failed"));
 
-            // Temporarily override getHouses to throw
-            // const originalGetHouses = jest.requireActual("../services/house.service").getHouses;
-            // jest.mock("../services/house.service", () => ({
-            //     getHouses: jest.fn().mockRejectedValue(new Error("DB failure")),
-            // }));
 
             const res = await request(app)
                 .get(endpoint)
                 .set("Authorization", `Bearer ${token}`);
 
             expect(res.status).toBe(500); // If your error middleware sets 500
+        });
+    });
+
+    describe("update house", () => {
+        const updatedHouse = {
+            houseId: "H1234",
+            name: "Updated Name",
+            street1: "456 New Street",
+            city: "Tacoma",
+            state: "WA",
+            maxClients: 3,
+            femaleEmployeeOnly: true,
+        };
+
+        beforeEach(async () => {
+            await prisma.house.deleteMany();
+            await prisma.house.create({
+                data: {
+                    houseId: "H1234",
+                    name: "Original Name",
+                    street1: "123 Test Loop",
+                    city: "Seattle",
+                    state: "WA",
+                    maxClients: 2,
+                    femaleEmployeeOnly: false,
+                }
+            });
+        });
+
+        it("should successfully update the house for a director", async () => {
+            const login = { email: "director@test.com", password: "StrongPass123" };
+            const loginResponse = await request(app).post("/api/auth/login").send(login);
+            const token = loginResponse.body.accessToken;
+
+            const response = await request(app)
+                .put("/api/house/H1234")
+                .set("Authorization", `Bearer ${token}`)
+                .send(updatedHouse);
+
+            expect(response.status).toBe(200);
+            expect(response.body.message).toBe("House successfully updated");
+            expect(response.body.house.name).toBe("Updated Name");
+            expect(response.body.house.city).toBe("Tacoma");
+        });
+
+        it("should return 401 if no token provided", async () => {
+            const response = await request(app).put("/api/house/H1234").send(updatedHouse);
+            expect(response.status).toBe(401);
+        });
+
+        it("should return 403 for associate-level user", async () => {
+            const login = { email: "john@test.com", password: "StrongPass123" };
+            const loginResponse = await request(app).post("/api/auth/login").send(login);
+            const token = loginResponse.body.accessToken;
+
+            const response = await request(app)
+                .put("/api/house/H1234")
+                .set("Authorization", `Bearer ${token}`)
+                .send(updatedHouse);
+
+            expect(response.status).toBe(403);
+        });
+
+        const requiredFields = [
+            "houseId",
+            "name",
+            "street1",
+            "city",
+            "state",
+            "maxClients",
+            "femaleEmployeeOnly",
+        ];
+
+        requiredFields.forEach((field) => {
+            it(`should return 400 when '${field}' is missing`, async () => {
+                const validHouse = {
+                    houseId: "H1234",
+                    name: "Updated Name",
+                    street1: "456 New Street",
+                    city: "Tacoma",
+                    state: "WA",
+                    maxClients: 3,
+                    femaleEmployeeOnly: true,
+                };
+
+                const invalidData = { ...validHouse };
+                delete invalidData[field as keyof typeof validHouse];
+
+                const login = { email: "director@test.com", password: "StrongPass123" };
+                const loginResponse = await request(app)
+                    .post("/api/auth/login")
+                    .send(login);
+                const token = loginResponse.body.accessToken;
+
+                const response = await request(app)
+                    .put(`/api/house/${validHouse.houseId}`)
+                    .set("Authorization", `Bearer ${token}`)
+                    .send(invalidData);
+
+                expect(response.status).toBe(400);
+                expect(response.body).toHaveProperty("message", "invalid data");
+                expect(response.body.errors).toHaveProperty(field);
+            });
+        });
+
+
+        it("should return 400 if house does not exist", async () => {
+            const login = { email: "director@test.com", password: "StrongPass123" };
+            const loginResponse = await request(app).post("/api/auth/login").send(login);
+            const token = loginResponse.body.accessToken;
+
+            const response = await request(app)
+                .put("/api/house/NON_EXISTENT")
+                .set("Authorization", `Bearer ${token}`)
+                .send({ ...updatedHouse, houseId: "NON_EXISTENT" });
+
+            expect(response.status).toBe(400);
+            expect(response.body.message).toBe("invalid data");
+            expect(response.body.errors).toHaveProperty("houseId");
         });
     });
 

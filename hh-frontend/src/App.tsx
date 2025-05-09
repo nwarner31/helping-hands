@@ -26,6 +26,7 @@ function App() {
                 {path: "/add-client", element: <AddEditClientPage isEdit={false} />},
                 {path: "/edit-client/:clientId", element: <AddEditClientPage isEdit={true} />},
                 {path: "/view-houses", element: <ViewHousesListPage />, loader: viewHousesLoader},
+                {path: "/edit-house/:houseId", element: <AddEditHousePage isEdit={true} /> },
                 {path: "/add-house", element: <AddEditHousePage isEdit={false} />}
             ]}
          ]);

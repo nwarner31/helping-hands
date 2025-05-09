@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {addHouse, checkForDuplicateHouse, getHouses} from "../services/house.service";
+import {addHouse, checkForDuplicateHouse, getHouseByHouseId, getHouses, updateHouse} from "../services/house.service";
 import {House} from "@prisma/client";
 
 interface HouseErrors {
@@ -74,3 +74,22 @@ export const getAllHouses = async (req: Request, res: Response, next: NextFuncti
         return next(error);
     }
 }
+
+export const putHouse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validateHouseData(req.body);
+        if(Object.keys(errors).length > 0) {
+            return next({status: 400, message: "invalid data", errors: errors});
+        }
+        const houseIdCheck = await getHouseByHouseId(req.body.houseId);
+        if (!houseIdCheck) return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
+        const {clients, ...houseData} = { ...req.body };
+        houseData.maxClients = +houseData.maxClients;
+        const updatedHouse = await updateHouse(houseData);
+        res.status(200).json({message: "House successfully updated", house: updatedHouse});
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+

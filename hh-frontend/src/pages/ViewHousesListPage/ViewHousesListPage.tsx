@@ -10,13 +10,14 @@ import styles from "./ViewHouseListPage.module.css";
 
 const ViewHousesListPage = () => {
     const {employee} = useAuth();
+    const canEdit = ["ADMIN", "DIRECTOR"].includes(employee?.position as string);
     const {houses} = useLoaderData() as {houses: House[], message: string};
     return (
         <div className={styles.container}>
             <Card className={styles.page}>
                 <h1 className={styles.title}>Houses</h1>
-                {["ADMIN", "DIRECTOR"].includes(employee?.position as string) && <div><Link to="/add-house"><Button>Add House</Button></Link></div>}
-                {houses.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.houseId} />)}
+                {canEdit && <div><Link to="/add-house"><Button>Add House</Button></Link></div>}
+                {houses.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.houseId} canEdit={canEdit} />)}
             </Card>
         </div>
     );
