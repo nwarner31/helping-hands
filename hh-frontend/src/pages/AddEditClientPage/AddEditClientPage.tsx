@@ -13,7 +13,8 @@ const emptyClient = {
     clientId: "",
     legalName: "",
     name: "",
-    dateOfBirth: ""
+    dateOfBirth: "",
+    sex: "F"
 }
 
 interface FormErrors {

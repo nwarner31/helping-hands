@@ -56,7 +56,7 @@ afterEach(() => {
 });
 
 describe("Client Routes - Add Client",  () => {
-    const validClient = {clientId: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12"}
+    const validClient = {clientId: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "M"}
     afterEach(async () => {
         await prisma.client.deleteMany();
     })
@@ -232,3 +232,68 @@ describe("Client Routes - Update Client", () => {
         });
     });
 });
+
+describe("Client Routes - Get no house", () => {
+    let token: string;
+    beforeAll(async () => {
+        const login = await request(app).post("/api/auth/login").send({
+            email: "admin@test.com",
+            password: "StrongPass123"});
+        token = login.body.accessToken;
+        await prisma.client.deleteMany();
+        await prisma.house.deleteMany();
+        await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${token}`)
+            .send({clientId: "C4001",
+                legalName: "Unhoused Client",
+                dateOfBirth: new Date("1985-06-06"),
+                sex: "M"});
+        await request(app).post("/api/house")
+            .set("Authorization", `Bearer ${token}`)
+            .send( {
+                houseId: "H3001",
+                name: "Safe Haven",
+                street1: "3 Shelter St",
+                city: "Refuge",
+                state: "TX",
+                maxClients: 3,
+                femaleEmployeeOnly: false,
+            });
+        await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${token}`)
+            .send({clientId: "C4002",
+                    legalName: "Housed Client",
+                    dateOfBirth: new Date("1991-04-10"),
+                sex: "M"});
+        await request(app).patch("/api/house/H3001/clients")
+            .set("Authorization", `Bearer ${token}`)
+            .send({clientId: "C4002"});
+    });
+    it("should return a list of clients without a house", async () => {
+        const res = await request(app)
+            .get("/api/client/no-house")
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.message).toBe("clients found");
+        expect(Array.isArray(res.body.clients)).toBe(true);
+        expect(res.body.clients.length).toBe(1);
+        expect(res.body.clients[0].clientId).toBe("C4001");
+    });
+    it("should return 401 if not authenticated", async () => {
+        const res = await request(app).get("/api/house/no-house");
+        expect(res.status).toBe(401);
+    });
+    it("should return 403 if user does not have ADMIN or DIRECTOR role", async () => {
+       const associate = await request(app).post("/api/auth/login")
+           .send({email: "john@test.com",
+               password: "StrongPass123"})
+           const associateToken = associate.body.accessToken;
+
+        const res = await request(app)
+            .get("/api/client/no-house")
+            .set("Authorization", `Bearer ${associateToken}`);
+
+        expect(res.status).toBe(403);
+    });
+})

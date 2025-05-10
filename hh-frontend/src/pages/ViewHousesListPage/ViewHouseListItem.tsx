@@ -3,6 +3,7 @@ import styles from "./ViewHouseListItem.module.css";
 import Button from "../../components/Button/Button";
 import {House} from "../../models/House";
 import {Link} from "react-router-dom";
+import {formatDate} from "../../utility/formatting";
 
 
 type Props = {
@@ -27,14 +28,14 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit }) => {
                 <tr key={clients[index].clientId}>
                     <td>{clients[index].clientId}</td>
                     <td>{clients[index].legalName}</td>
-                    <td className={canEdit ? styles.dob : ""}>{clients[index].dateOfBirth}</td>
+                    <td className={canEdit ? styles.dob : ""}>{formatDate(clients[index].dateOfBirth)}</td>
                     {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant}>Remove</Button></td>}
                 </tr>);
         } else {
             clientList.push(
                 <tr key={index}>
                     <td colSpan={3} >Empty</td>
-                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></td>}
+                    {canEdit && <td><Link to={`/house/${house.houseId}/add-client`} ><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></Link></td>}
                 </tr>
             )
         }

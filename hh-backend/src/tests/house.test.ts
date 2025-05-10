@@ -6,11 +6,24 @@ describe('House Routes', () => {
   // let app: Express;
 
   beforeAll(async () => {
+      await prisma.house.deleteMany();
+      await prisma.client.deleteMany();
       await prisma.employee.deleteMany();
-      await request(app)
+      const adminRegister = await request(app)
           .post("/api/auth/register")
           .send({
               employeeId: "test123",
+              name: "John Doe",
+              email: "admin@test.com",
+              password: "StrongPass123",
+              confirmPassword: "StrongPass123",
+              position: "ADMIN",
+              hireDate: "2024-03-09",
+          });
+      await request(app)
+          .post("/api/auth/register")
+          .send({
+              employeeId: "test456",
               name: "John Doe",
               email: "director@test.com",
               password: "StrongPass123",
@@ -21,7 +34,7 @@ describe('House Routes', () => {
       await request(app)
           .post("/api/auth/register")
           .send({
-              employeeId: "test456",
+              employeeId: "test789",
               name: "John Doe",
               email: "john@test.com",
               password: "StrongPass123",
@@ -30,6 +43,8 @@ describe('House Routes', () => {
           });
   });
   afterAll(async () => {
+      await prisma.house.deleteMany();
+      await prisma.client.deleteMany();
       await prisma.employee.deleteMany();
   })
   beforeEach(() => {
@@ -134,20 +149,8 @@ describe('House Routes', () => {
     describe("get all houses", () => {
         const endpoint = "/api/house";
 
-        beforeEach(async () => {
+        beforeAll(async () => {
             await prisma.house.deleteMany();
-            await prisma.employee.deleteMany();
-
-            // Create a director
-            await request(app).post("/api/auth/register").send({
-                employeeId: "dir001",
-                name: "Director",
-                email: "director@test.com",
-                password: "StrongPass123",
-                confirmPassword: "StrongPass123",
-                position: "DIRECTOR",
-                hireDate: "2024-03-09",
-            });
 
             // Create a house
             await prisma.house.create({
@@ -166,7 +169,7 @@ describe('House Routes', () => {
         it("should return all houses for an authenticated user", async () => {
             const loginRes = await request(app).post("/api/auth/login").send({
                 email: "director@test.com",
-                password: "StrongPass123",
+                password: "StrongPass123"
             });
 
             const token = loginRes.body.accessToken;
@@ -327,4 +330,93 @@ describe('House Routes', () => {
         });
     });
 
+    describe('add client to house', () => {
+        let token: string;
+        const house = {
+            houseId: "H1001",
+            name: "Harmony Home",
+            street1: "1 Peaceful Way",
+            city: "Calmville",
+            state: "WA",
+            maxClients: 2,
+            femaleEmployeeOnly: false,
+        };
+        const client = {
+            clientId: "T12345",
+            legalName: "Test Client",
+            dateOfBirth: "2000-04-12",
+            sex: "M"
+        };
+        beforeEach(async () => {
+            const admin = await request(app).post("/api/auth/login")
+                .send({email: "admin@test.com",
+                    password: "StrongPass123"});
+            await request(app).post("/api/client")
+                .set("Authorization", `Bearer ${admin.body.accessToken}`)
+                .send(client);
+            token = admin.body.accessToken;
+
+            await request(app).post("/api/house")
+                .set("Authorization", `Bearer ${admin.body.accessToken}`)
+                .send(house);
+        });
+        afterEach(async () => {
+           prisma.house.deleteMany();
+           prisma.client.deleteMany();
+        });
+        afterAll(async () => {
+            await prisma.house.deleteMany();
+            await prisma.client.deleteMany();
+            await prisma.employee.deleteMany();
+        });
+
+        it("should successfully add a client to a house", async () => {
+            const res = await request(app)
+                .patch(`/api/house/${house.houseId}/clients`)
+                .set("Authorization", `Bearer ${token}`)
+                .send({ clientId: client.clientId });
+
+            expect(res.status).toBe(209);
+            expect(res.body.message).toBe("client added to house");
+            expect(res.body.house).toHaveProperty("houseId", house.houseId);
+        });
+        it("should return 400 if house ID is invalid", async () => {
+            const res = await request(app)
+                .patch("/api/house/INVALID_ID/clients")
+                .set("Authorization", `Bearer ${token}`)
+                .send({ clientId: client.clientId });
+
+            expect(res.status).toBe(400);
+            expect(res.body.message).toBe("invalid data");
+            expect(res.body.errors).toHaveProperty("houseId");
+        });
+        it("should return 400 if client ID is invalid", async () => {
+            const res = await request(app)
+                .patch(`/api/house/${house.houseId}/clients`)
+                .set("Authorization", `Bearer ${token}`)
+                .send({ clientId: "NON_EXISTENT_CLIENT" });
+
+            expect(res.status).toBe(400);
+            expect(res.body.message).toBe("invalid data");
+            expect(res.body.errors).toHaveProperty("clientId");
+        });
+        it("should return 401 if not authenticated", async () => {
+            const res = await request(app)
+                .patch("/api/house/H1001/clients")
+                .send({ clientId: "C2001" });
+
+            expect(res.status).toBe(401);
+        });
+        it("should return 403 for a MANAGER", async () => {
+            const associate = await request(app).post("/api/auth/login").send({email: "john@test.com",
+                password: "StrongPass123"});
+
+            const res = await request(app)
+                .patch(`/api/house/${house.houseId}/clients`)
+                .set("Authorization", `Bearer ${associate.body.accessToken}`)
+                .send({ clientId: client.clientId });
+
+            expect(res.status).toBe(403);
+        })
+    });
 });

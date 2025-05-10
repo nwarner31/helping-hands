@@ -34,3 +34,11 @@ export const updateClient = async (client: Client) => {
         throw error;
     }
 }
+
+export const getHomelessClients = async () => {
+    try {
+        return await prisma.client.findMany({where: {houseId: null}});
+    } catch (error) {
+        throw error;
+    }
+}

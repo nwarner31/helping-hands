@@ -47,6 +47,11 @@ class ApiService {
         return this.api.post<T>(url, data, config).then((res) => res.data);
     }
 
+    patch<T>(url: string, data?: any, config?: InternalAxiosRequestConfig<T>): Promise<T> {
+        return this.api.patch<T>(url, data, config).then((res) => res.data);
+    }
+
+
     put<T>(url: string, data?: any, config?: InternalAxiosRequestConfig<T>): Promise<T> {
         return this.api.put<T>(url, data, config).then((res) => res.data);
     }

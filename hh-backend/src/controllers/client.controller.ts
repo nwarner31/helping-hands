@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {addClient, getClients, getClientByClientId, updateClient} from "../services/client.service";
+import {addClient, getClients, getClientByClientId, updateClient, getHomelessClients} from "../services/client.service";
 import {Client} from "@prisma/client";
 
 interface ClientErrors {
@@ -51,7 +51,7 @@ export const getAllClients = async (req: Request, res: Response, next: NextFunct
         res.status(200).json({message: "clients successfully retrieved", clients: clients});
     }
     catch (error) {
-        throw error
+        return next(error);
     }
 }
 
@@ -66,7 +66,7 @@ export const putClient = async (req: Request, res: Response, next: NextFunction)
         const updatedClient = await updateClient(clientData);
         res.status(200).json({message: "client updated successfully", client: updatedClient});
     } catch (error) {
-        throw error;
+        return next(error);
     }
 }
 export const getClient = async (req: Request, res: Response, next: NextFunction) => {
@@ -75,6 +75,15 @@ export const getClient = async (req: Request, res: Response, next: NextFunction)
         const client = await getClientByClientId(clientId);
         res.status(200).json({message: "client found", client: client});
     } catch(error) {
-        throw error;
+        return next(error);
+    }
+}
+
+export const getAllUnhousedClients = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const clients = await getHomelessClients();
+        res.status(200).json({message: "clients found", clients: clients});
+    } catch (error) {
+        return next(error);
     }
 }

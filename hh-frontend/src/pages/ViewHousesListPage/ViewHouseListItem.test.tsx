@@ -14,8 +14,8 @@ const house: House = {
     maxClients: 3,
     femaleEmployeeOnly: true,
     clients: [
-        { clientId: "C001", legalName: "Alice Smith", dateOfBirth: "1990-01-01" },
-        { clientId: "C002", legalName: "Bob Jones", dateOfBirth: "1985-05-05" }
+        { clientId: "C001", legalName: "Alice Smith", dateOfBirth: "1990-01-01", sex: "F" },
+        { clientId: "C002", legalName: "Bob Jones", dateOfBirth: "1985-05-05", sex: "M" }
     ],
     primaryManagerId: "E001",
     secondaryManagerId: undefined
@@ -45,11 +45,11 @@ describe("ViewHouseListItem Component", () => {
 
         expect(screen.getByText("C001")).toBeInTheDocument();
         expect(screen.getByText("Alice Smith")).toBeInTheDocument();
-        expect(screen.getByText("1990-01-01")).toBeInTheDocument();
+        expect(screen.getByText("01/01/1990")).toBeInTheDocument();
 
         expect(screen.getByText("C002")).toBeInTheDocument();
         expect(screen.getByText("Bob Jones")).toBeInTheDocument();
-        expect(screen.getByText("1985-05-05")).toBeInTheDocument();
+        expect(screen.getByText("05/05/1985")).toBeInTheDocument();
 
         expect(screen.getByText("Empty")).toBeInTheDocument(); // one client slot left
     });

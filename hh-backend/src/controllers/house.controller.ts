@@ -1,6 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import {addHouse, checkForDuplicateHouse, getHouseByHouseId, getHouses, updateHouse} from "../services/house.service";
+import {
+    addHouse,
+    addHouseClient,
+    checkForDuplicateHouse,
+    getHouseByHouseId,
+    getHouses,
+    updateHouse
+} from "../services/house.service";
 import {House} from "@prisma/client";
+import {getClientByClientId} from "../services/client.service";
 
 interface HouseErrors {
     houseId?: string;
@@ -75,6 +83,16 @@ export const getAllHouses = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
+export const getHouse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const houseId = req.params.houseId;
+        const house = await getHouseByHouseId(houseId);
+        res.status(200).json({message: "House found", house: house})
+    } catch (error) {
+        return next(error);
+    }
+}
+
 export const putHouse = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const errors = validateHouseData(req.body);
@@ -88,7 +106,21 @@ export const putHouse = async (req: Request, res: Response, next: NextFunction) 
         const updatedHouse = await updateHouse(houseData);
         res.status(200).json({message: "House successfully updated", house: updatedHouse});
     } catch (error) {
-        console.log(error);
+        return next(error);
+    }
+}
+
+export const addClientToHouse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const houseId = req.params.houseId;
+        const clientId = req.body.clientId;
+        const houseIdCheck = await getHouseByHouseId(houseId);
+        if(!houseIdCheck)  return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
+        const clientIdCheck = await getClientByClientId(clientId);
+        if(!clientIdCheck) return next({status: 400, message: "invalid data", errors: {clientId: "Client ID not found"}});
+        const house = await addHouseClient(houseIdCheck, clientId);
+        res.status(209).json({message: "client added to house", house: house});
+    } catch (error) {
         return next(error);
     }
 }

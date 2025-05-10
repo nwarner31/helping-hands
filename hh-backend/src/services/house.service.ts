@@ -30,6 +30,24 @@ export const updateHouse = async (house: House) => {
     }
 }
 
+export const getHouseByHouseId = async (houseId: string) => {
+    try {
+        return await prisma.house.findFirst({where: {houseId: houseId},include: {clients: true}});
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const addHouseClient = async (house: House, clientId: string) => {
+    try {
+        //const house = await getHouseByHouseId(houseId);
+        await prisma.client.update({where: {clientId: clientId}, data: {houseId: house.id}});
+        return getHouseByHouseId(house.houseId);
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const checkForDuplicateHouse = async (houseId: string, name: string) => {
     try {
         const errors: { [key: string]: string } = {};
@@ -45,14 +63,6 @@ export const checkForDuplicateHouse = async (houseId: string, name: string) => {
 
         return errors;
     } catch(error) {
-        throw error;
-    }
-}
-
-export const getHouseByHouseId = async (houseId: string) => {
-    try {
-        return await prisma.house.findFirst({where: {houseId: houseId}});
-    } catch (error) {
         throw error;
     }
 }
