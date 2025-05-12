@@ -3,6 +3,9 @@ import ViewHousesListPage from "./ViewHousesListPage";
 import { useAuth } from "../../context/AuthContext";
 import { useLoaderData } from "react-router-dom";
 import { MemoryRouter } from "react-router-dom";
+import {userEvent} from "@testing-library/user-event";
+import {Client} from "../../models/Client";
+import apiService from "../../utility/ApiService";
 
 jest.mock("../../context/AuthContext", () => ({
     useAuth: jest.fn(),
@@ -14,16 +17,20 @@ jest.mock("react-router-dom", () => ({
 }));
 
 jest.mock("../../utility/ApiService", () => ({
-    get: jest.fn(() => Promise.resolve( { message: "Employee registered successfully", employee: {}, accessToken: "hello" })),
+    get: jest.fn(() => Promise.resolve( { message: "Nothing special", employee: {}, accessToken: "hello" })),
+    delete: jest.fn(() => Promise.resolve({message: "deleted"}))
 }));
 
 jest.mock("./ViewHouseListItem", () => (props: any) => (
-    <div data-testid="house-item">{props.house.name}</div>
+    <div key={props.house.houseId}>
+        <div data-testid="house-item">{props.house.name}</div>
+        {props.house.clients.map((client: Client) => <button key={client.clientId} onClick={() => props.onRemoveClicked(props.house, client)}>{client.legalName}</button> )}
+    </div>
 ));
 
 const sampleHouses = [
     { houseId: "H1", name: "Test House 1", maxClients: 2, clients: [], femaleEmployeeOnly: false },
-    { houseId: "H2", name: "Test House 2", maxClients: 3, clients: [], femaleEmployeeOnly: true },
+    { houseId: "H2", name: "Test House 2", maxClients: 3, clients: [{clientId: "C1", legalName: "Bob Smith"}], femaleEmployeeOnly: true },
 ];
 
 // Inside each test
@@ -63,5 +70,18 @@ describe("ViewHousesListPage", () => {
     it("does NOT show the 'Add House' button for MANAGER", () => {
         renderPage("MANAGER");
         expect(screen.queryByText("Add House")).not.toBeInTheDocument();
+    });
+    it("displays modal when a client is being removed", async () => {
+        renderPage("DIRECTOR");
+        await userEvent.click(screen.getByText("Bob Smith"));
+        expect(screen.getByText("Remove Client from House")).toBeInTheDocument();
+        expect(screen.getByText(/House: H2/)).toBeInTheDocument();
+        expect(screen.getByText(/Client: C1/)).toBeInTheDocument();
+    });
+    it("calls the delete api when the remove modal button clicked", async () => {
+        renderPage("DIRECTOR");
+        await userEvent.click(screen.getByText("Bob Smith"));
+        await userEvent.click(screen.getByText("Remove"));
+        expect(apiService.delete).toHaveBeenCalled();
     });
 });

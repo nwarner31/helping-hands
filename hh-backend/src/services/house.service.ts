@@ -40,9 +40,17 @@ export const getHouseByHouseId = async (houseId: string) => {
 
 export const addHouseClient = async (house: House, clientId: string) => {
     try {
-        //const house = await getHouseByHouseId(houseId);
         await prisma.client.update({where: {clientId: clientId}, data: {houseId: house.id}});
-        return getHouseByHouseId(house.houseId);
+        return await getHouseByHouseId(house.houseId);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const removeHouseClient = async (houseId: string, clientId: string) => {
+    try {
+        await prisma.client.update({where: {clientId: clientId}, data: {houseId: null}});
+        return await getHouseByHouseId(houseId);
     } catch (error) {
         throw error;
     }

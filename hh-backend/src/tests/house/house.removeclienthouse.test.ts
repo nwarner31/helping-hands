@@ -1,0 +1,103 @@
+import request from "supertest";
+import app from "../../app"; // Your Express app
+import prisma from "../../utility/prisma"; // Your Prisma client
+import{ setupHouseTest, teardownHouseTests } from "./house.setuptest";
+
+describe("DELETE /api/house/:houseId/clients/:clientId", () => {
+    let adminToken: string;
+    let directorToken: string;
+    let associateToken: string;
+
+    const house = {
+        id: "",
+        houseId: "H1001",
+        name: "Harmony Home",
+        street1: "1 Peaceful Way",
+        city: "Calmville",
+        state: "WA",
+        maxClients: 2,
+        femaleEmployeeOnly: false,
+    };
+    const client = {
+        clientId: "T12345",
+        legalName: "Test Client",
+        dateOfBirth: "2000-04-12",
+        sex: "M",
+        houseId: ""
+    };
+    beforeAll(async () => {
+        const tokens = await setupHouseTest();
+        adminToken = tokens.adminToken;
+        directorToken = tokens.directorToken;
+        associateToken = tokens.associateToken;
+
+        const response = await request(app).post("/api/house")
+            .set("Authorization", `Bearer ${directorToken}`)
+            .send(house);
+        house.id = response.body.house.id;
+        client.houseId = response.body.house.id;
+    });
+    beforeEach(async () => {
+        await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(client);
+    });
+
+    afterEach(async () => {
+        // Clean DB
+        await prisma.client.deleteMany();
+    });
+
+    afterAll(async () => {
+        await teardownHouseTests();
+    });
+
+    it("should remove a client from a house and return updated house", async () => {
+        const res = await request(app)
+            .delete(`/api/house/${house.houseId}/clients/${client.clientId}`)
+            .set("Authorization", `Bearer ${directorToken}`);
+
+        expect(res.statusCode).toBe(209);
+        expect(res.body.message).toBe("client removed from house");
+        expect(res.body.house.clients).not.toContainEqual(
+            expect.objectContaining({ clientId: client.clientId })
+        );
+
+        // Double check DB
+        const clientCheck = await prisma.client.findFirst({ where: { clientId: client.clientId } });
+        expect(clientCheck?.houseId).toBeNull();
+    });
+
+    it("should return 400 if houseId is invalid", async () => {
+        const res = await request(app)
+            .delete(`/api/house/invalid-house/clients/${client.clientId}`)
+            .set("Authorization", `Bearer ${directorToken}`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.errors.houseId).toBe("House ID not found");
+    });
+
+    it("should return 400 if clientId is invalid", async () => {
+        const res = await request(app)
+            .delete(`/api/house/${house.houseId}/clients/invalid-client`)
+            .set("Authorization", `Bearer ${directorToken}`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.errors.clientId).toBe("Client ID not found");
+    });
+
+    it("should return 401 if not authenticated", async () => {
+        const res = await request(app)
+            .delete(`/api/house/${house.houseId}/clients/${client.clientId}`);
+
+        expect(res.statusCode).toBe(401);
+    });
+
+    it("should return 403 if user lacks permissions", async () => {
+        const res = await request(app)
+            .delete(`/api/house/${house.houseId}/clients/${client.clientId}`)
+            .set("Authorization", `Bearer ${associateToken}`);
+
+        expect(res.statusCode).toBe(403);
+    });
+});

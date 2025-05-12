@@ -4,7 +4,7 @@ import {
     addHouseClient,
     checkForDuplicateHouse,
     getHouseByHouseId,
-    getHouses,
+    getHouses, removeHouseClient,
     updateHouse
 } from "../services/house.service";
 import {House} from "@prisma/client";
@@ -120,6 +120,21 @@ export const addClientToHouse = async (req: Request, res: Response, next: NextFu
         if(!clientIdCheck) return next({status: 400, message: "invalid data", errors: {clientId: "Client ID not found"}});
         const house = await addHouseClient(houseIdCheck, clientId);
         res.status(209).json({message: "client added to house", house: house});
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const removeClientFromHouse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const houseId = req.params.houseId;
+        const clientId = req.params.clientId;
+        const houseIdCheck = await getHouseByHouseId(houseId);
+        if(!houseIdCheck)  return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
+        const clientIdCheck = await getClientByClientId(clientId);
+        if(!clientIdCheck) return next({status: 400, message: "invalid data", errors: {clientId: "Client ID not found"}});
+        const house = await removeHouseClient(houseId, clientId);
+        res.status(209).json({message: "client removed from house", house: house});
     } catch (error) {
         return next(error);
     }

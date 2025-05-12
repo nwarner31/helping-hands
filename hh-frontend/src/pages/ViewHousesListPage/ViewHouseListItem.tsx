@@ -4,15 +4,17 @@ import Button from "../../components/Button/Button";
 import {House} from "../../models/House";
 import {Link} from "react-router-dom";
 import {formatDate} from "../../utility/formatting";
+import {Client} from "../../models/Client";
 
 
 type Props = {
     house: House;
     isOdd: boolean;
     canEdit: boolean;
+    onRemoveClicked: (house: House, client: Client) => void;
 };
 
-const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit }) => {
+const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveClicked }) => {
     const [expanded, setExpanded] = useState(false);
     const buttonVariant = isOdd ? "accent" : "secondary";
     const toggleExpanded = () => setExpanded((prev) => !prev);
@@ -29,12 +31,14 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit }) => {
                     <td>{clients[index].clientId}</td>
                     <td>{clients[index].legalName}</td>
                     <td className={canEdit ? styles.dob : ""}>{formatDate(clients[index].dateOfBirth)}</td>
-                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant}>Remove</Button></td>}
+                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant} onClick={() => onRemoveClicked(house, clients[index])}>Remove</Button></td>}
                 </tr>);
         } else {
             clientList.push(
                 <tr key={index}>
-                    <td colSpan={3} >Empty</td>
+                    <td >Empty</td>
+                    <td></td>
+                    <td className={canEdit ? styles.dob : ""}></td>
                     {canEdit && <td><Link to={`/house/${house.houseId}/add-client`} ><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></Link></td>}
                 </tr>
             )
