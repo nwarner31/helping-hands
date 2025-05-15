@@ -77,11 +77,23 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                         <strong>Address:</strong> {address}
                     </div>
                     <div>
-                        <div>
-                            <strong>Primary Manager:</strong> {house.primaryManagerId || 'N/A'}
+                        <div className={styles["manager-line"]}>
+                            <strong>Primary Manager:</strong> {house.primaryHouseManager ?
+                            <><div>{house.primaryHouseManager.name}</div>
+                            {canEdit && <Button>Remove</Button>}</> :
+                            <><div>N/A</div>
+                            {canEdit && <Link to={`/house/${house.houseId}/add-manager?position=primary`}><Button>Add</Button></Link>}</>}
                         </div>
-                        <div>
-                            <strong>Secondary Manager:</strong> {house.secondaryManagerId || 'N/A'}
+                        <div className={styles["manager-line"]}>
+                            <strong>Secondary Manager:</strong> {house.secondaryHouseManager ?
+                            <>
+                                <div>{house.secondaryHouseManager.name}</div>
+                                {canEdit && <Button>Remove</Button>}
+                            </> :
+                            <>
+                                <div>N/A</div>
+                                {canEdit && <Link to={`/house/${house.houseId}/add-manager?position=secondary`}><Button>Add</Button></Link>}
+                        </>}
                         </div>
                         <div className={styles["female-only"]}>
                             <strong>Female Employees Only:</strong> {house.femaleEmployeeOnly ? 'Yes' : 'No'}

@@ -1,14 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import {
     addHouse,
-    addHouseClient,
-    checkForDuplicateHouse,
+    addHouseClient, addHouseManager,
+    checkForDuplicateHouse, getAvailableManagers,
     getHouseByHouseId,
     getHouses, removeHouseClient,
     updateHouse
 } from "../services/house.service";
 import {House} from "@prisma/client";
 import {getClientByClientId} from "../services/client.service";
+import advanceTimersToNextTimerAsync = jest.advanceTimersToNextTimerAsync;
 
 interface HouseErrors {
     houseId?: string;
@@ -139,4 +140,33 @@ export const removeClientFromHouse = async (req: Request, res: Response, next: N
         return next(error);
     }
 }
+
+export const getAvailableManagersForHouse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const houseId = req.params.houseId;
+        console.log(req.body);
+        const availableManagers = await getAvailableManagers(houseId);
+        res.status(200).json({message: "available mangers found", managers: availableManagers});
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const addManagerToHouse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const houseId = req.params.houseId;
+        const { employeeId, positionType } = req.body;
+
+        if(!["primary", "secondary"].includes(positionType)) {
+            return next({status: 400, message: "invalid data", errors: {positionType: "invalid position type"}});
+        }
+
+        const updatedHouse = await addHouseManager(houseId, employeeId, positionType);
+        res.status(209).json({message: "manager added to house", house: updatedHouse});
+    } catch (error) {
+        return next(error);
+    }
+}
+
+
 

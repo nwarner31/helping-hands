@@ -17,6 +17,7 @@ const house: House = {
         { clientId: "C001", legalName: "Alice Smith", dateOfBirth: "1990-01-01", sex: "F" },
         { clientId: "C002", legalName: "Bob Jones", dateOfBirth: "1985-05-05", sex: "M" }
     ],
+    primaryHouseManager: {name: "Bob Smith"} as any,
     primaryManagerId: "E001",
     secondaryManagerId: undefined
 };
@@ -41,7 +42,7 @@ describe("ViewHouseListItem Component", () => {
         expect(screen.getByText("Address:")).toBeInTheDocument();
         expect(screen.getByText("123 Elm St, Apt 4B, Testville, TS")).toBeInTheDocument();
         expect(screen.getByText("Primary Manager:")).toBeInTheDocument();
-        expect(screen.getByText("E001")).toBeInTheDocument();
+        expect(screen.getByText("Bob Smith")).toBeInTheDocument();
         expect(screen.getByText("Secondary Manager:")).toBeInTheDocument();
         expect(screen.getByText("N/A")).toBeInTheDocument();
 
@@ -57,20 +58,20 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("renders correct number of Add and Remove buttons", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} /></BrowserRouter>);
+        const {container} = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
+        const clientTable = container.querySelector(".client-table");
+        const buttons = clientTable!.querySelectorAll('button');
+        const addButtons = Array.from(buttons).filter(btn => btn.textContent === 'Add');
+        const removeButtons = Array.from(buttons).filter(btn => btn.textContent === 'Remove');
 
-        const addButtons = screen.getAllByRole("button", { name: /Add/i });
-        const removeButtons = screen.getAllByRole("button", { name: /Remove/i });
-
-        expect(removeButtons.length).toBe(2); // 2 clients
-        expect(addButtons.length).toBe(1);    // 1 empty slot
+        expect(removeButtons?.length).toBe(2); // 2 clients
+        expect(addButtons?.length).toBe(1);    // 1 empty slot
     });
 
     it("hides Edit, Add, and Remove buttons when canEdit is false", async () => {
         render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={false} onRemoveClicked={mockRemove} /></BrowserRouter>);
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
-
         expect(screen.queryByText("Edit")).not.toBeInTheDocument();
         expect(screen.queryByText("Remove")).not.toBeInTheDocument();
         expect(screen.queryByText("Add")).not.toBeInTheDocument();
@@ -88,14 +89,18 @@ describe("ViewHouseListItem Component", () => {
         expect(rootDiv.className).toMatch(/even-row/);
     });
     it("calls onRemoveClicked when a Remove button is clicked", async () => {
-        render(
+        const {container} = render(
             <BrowserRouter>
                 <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} />
             </BrowserRouter>
         );
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
 
-        const removeButtons = screen.getAllByRole("button", { name: /Remove/i });
+        const clientTable = container.querySelector(".client-table");
+        const buttons = clientTable!.querySelectorAll('button');
+        const removeButtons = Array.from(buttons).filter(btn => btn.textContent === 'Remove');
+
+        //const removeButtons = screen.getAllByRole("button", { name: /Remove/i });
         await userEvent.click(removeButtons[0]);
 
         expect(mockRemove).toHaveBeenCalledWith(house, house.clients![0]); // or however you pass clientId
@@ -145,7 +150,7 @@ describe("ViewHouseListItem Component", () => {
     it("navigates to add-client page when Add link is clicked", async () => {
         const user = userEvent.setup();
 
-        render(
+        const {container} = render(
             <MemoryRouter initialEntries={["/"]}>
                 <Routes>
                     <Route
@@ -170,11 +175,74 @@ describe("ViewHouseListItem Component", () => {
         // Expand the row to reveal Add links
         await user.click(screen.getByRole("button", { name: /▶/i }));
 
-        const addLink = screen.getByRole("link", { name: /Add/i });
-        expect(addLink).toBeInTheDocument();
+        const clientTable = container.querySelector(".client-table");
+        const buttons = clientTable!.querySelectorAll('button');
+        const addButtons = Array.from(buttons).filter(btn => btn.textContent === 'Add');//const removeButtons = Array.from(buttons).filter(btn => btn.textContent === 'Remove');
 
-        await user.click(addLink);
+        await user.click(addButtons[0]);
 
         expect(screen.getByText("Add Client Page")).toBeInTheDocument();
     });
+    const partialEmployee = { employeeId: "t100", email: "test@mail.com", position: "MANAGER", hireDate: "2024-01-01" }
+    const houseWithManagers = {
+        ...house,
+        primaryHouseManager: { name: "Jane Doe", ...partialEmployee },
+        secondaryHouseManager: { name: "John Doe", ...partialEmployee }
+    };
+
+    it("displays manager names when present", () => {
+        render(<BrowserRouter>
+            <ViewHouseListItem house={houseWithManagers} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} />
+        </BrowserRouter>);
+
+        fireEvent.click(screen.getByRole("button", { name: /▶/i }));
+        expect(screen.getByText("Jane Doe")).toBeInTheDocument();
+        expect(screen.getByText("John Doe")).toBeInTheDocument();
+    });
+    it("displays remove buttons when house has managers", () => {
+        const houseNoClients = {...houseWithManagers, clients: []};
+        render(<BrowserRouter>
+            <ViewHouseListItem house={houseNoClients} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} />
+        </BrowserRouter>);
+
+        fireEvent.click(screen.getByRole("button", { name: /▶/i }));
+        expect(screen.getAllByRole("button", {name: "Remove"})).toHaveLength(2);
+    });
+
+
+    it("renders correctly when there are no clients", () => {
+        const houseNoClients = { ...house, clients: [] };
+        render(<BrowserRouter>
+            <ViewHouseListItem house={houseNoClients} isOdd={true} canEdit={true} onRemoveClicked={mockRemove} />
+        </BrowserRouter>);
+
+        fireEvent.click(screen.getByRole("button", { name: /▶/i }));
+
+        expect(screen.getAllByText("Empty").length).toBe(3); // maxClients = 3
+    });
+
+    it("renders incomplete address when some fields are missing", () => {
+        const houseWithMissingAddress = {
+            ...house,
+            street1: "123 Main St",
+            street2: "",
+            city: undefined,
+            state: undefined,
+        } as any;
+
+         render(
+             <BrowserRouter>
+            <ViewHouseListItem
+                house={houseWithMissingAddress}
+                isOdd={true}
+                canEdit={false}
+                onRemoveClicked={jest.fn()}
+            />
+             </BrowserRouter>
+        );
+        fireEvent.click(screen.getByRole("button", { name: "▶" }));
+
+        expect(screen.getByText(/Address:/).parentElement).toHaveTextContent("Address: 123 Main St");
+    });
+
 });

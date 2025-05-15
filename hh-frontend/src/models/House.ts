@@ -1,4 +1,5 @@
 import {Client} from "./Client";
+import {Employee} from "./Employee";
 
 
 export interface House {
@@ -13,4 +14,6 @@ export interface House {
     clients?: Client[];
     primaryManagerId?: string;
     secondaryManagerId?: string;
+    primaryHouseManager?: Employee;
+    secondaryHouseManager?: Employee;
 }

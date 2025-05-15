@@ -1,5 +1,6 @@
 import { House } from "@prisma/client";
 import prisma from "../utility/prisma";
+import {HttpError} from "../utility/httperror";
 
 export const addHouse = async (house: House) => {
     try {
@@ -14,7 +15,7 @@ export const addHouse = async (house: House) => {
 
 export const getHouses = async () => {
     try {
-        return await prisma.house.findMany({include: {clients: true}});
+        return await prisma.house.findMany({include: {clients: true, primaryHouseManager: true, secondaryHouseManager: true}});
     } catch (error) {
         throw error;
     }
@@ -51,6 +52,53 @@ export const removeHouseClient = async (houseId: string, clientId: string) => {
     try {
         await prisma.client.update({where: {clientId: clientId}, data: {houseId: null}});
         return await getHouseByHouseId(houseId);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getAvailableManagers = async (houseId: string) => {
+    try {
+        if(!houseId) throw new HttpError(400, "invalid data",{houseId: "No House ID provided"});
+        // Check for the house
+        const house = await prisma.house.findFirst({where: {houseId: houseId}});
+        if(!house) throw new HttpError(400, "invalid data", {houseId: "House ID does not exist"});
+
+        const managers = await prisma.employee.findMany({where: {position: "MANAGER"}, include: {primaryHouses: true, secondaryHouses: true}});
+
+        console.log(houseId);
+        return managers.filter(manager => {
+            console.log(manager.id);
+            console.log(house.primaryManagerId);
+            console.log(manager.id !== house.primaryManagerId);
+            return manager.id !== house.primaryManagerId && manager.id !== house.secondaryManagerId
+        }
+          );
+    } catch (error) {
+        throw error;
+    }
+
+}
+
+export const addHouseManager = async (houseId: string, employeeId: string, positionType: string) => {
+    try {
+        // Check for house
+        const house = await prisma.house.findFirst({where: {houseId: houseId}});
+        if(!house) throw new HttpError(400, "invalid input", {houseId: "House ID does not exist"});
+
+        // Check employee for existence an is a manager
+        const manager = await prisma.employee.findFirst({where: {employeeId: employeeId}});
+        if(!manager || manager.position !== "MANAGER") throw new HttpError(400, "invalid input", {employeeId: "Employee does not exist or is not a manager"});
+
+        // Check if the employee is already a manager in the house
+        if(house.primaryManagerId === manager.id || house.secondaryManagerId === manager.id) throw new HttpError(400, "invalid input", {employeeId: "Employee is already a manager in the house"});
+
+        const updateData = positionType === "primary" ?
+            {primaryManagerId: manager.id} :
+            {secondaryManagerId: manager.id}
+
+        return await prisma.house.update({where: {houseId: houseId}, data: updateData,
+            include: { primaryHouseManager: true, secondaryHouseManager: true }});
     } catch (error) {
         throw error;
     }

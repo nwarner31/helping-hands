@@ -1,0 +1,27 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.page {
+    padding: 12px 8px;
+    max-width: 450px;
+}
+
+.title {
+    color: var(--accent-color);
+    margin-bottom: 16px;
+}
+
+.house-table {
+    margin: 4px auto 12px;
+    text-align: center;
+}
+.house-table th, .house-table td {
+    padding: 4px 8px;
+}
+
+.cancel-button {
+    margin-bottom: 16px;
+}

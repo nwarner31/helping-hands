@@ -65,6 +65,18 @@
     padding: 3px 5px 5px;
 }
 
+.manager-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.manager-line div {
+    flex-grow: 1;
+}
+.manager-line a, .manager-line button {
+    width: 100px;
+}
+
 @media screen and (max-width: 560px) {
     .display-row-edit {
         grid-template-columns: 65px repeat(3, 1fr) 110px;;

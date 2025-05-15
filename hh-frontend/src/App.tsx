@@ -13,6 +13,7 @@ import ViewHousesListPage, {loader as viewHousesLoader} from "./pages/ViewHouses
 import AddEditClientPage from "./pages/AddEditClientPage/AddEditClientPage";
 import AddEditHousePage from "./pages/AddEditHousePage/AddEditHousePage";
 import AddHouseClientPage from "./pages/AddHouseClientPage/AddHouseClientPage";
+import AddHouseManagerPage, { loader as addHouseManagerLoader } from "./pages/AddHouseManagerPage/AddHouseManagerPage";
 
 function App() {
 
@@ -29,7 +30,8 @@ function App() {
                 {path: "/view-houses", element: <ViewHousesListPage />, loader: viewHousesLoader},
                 {path: "/edit-house/:houseId", element: <AddEditHousePage isEdit={true} /> },
                 {path: "/add-house", element: <AddEditHousePage isEdit={false} />},
-                {path: "/house/:houseId/add-client", element: <AddHouseClientPage />}
+                {path: "/house/:houseId/add-client", element: <AddHouseClientPage />},
+                {path: "/house/:houseId/add-manager", element: <AddHouseManagerPage />, loader: addHouseManagerLoader}
             ]}
          ]);
   return (
