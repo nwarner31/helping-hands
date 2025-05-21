@@ -23,10 +23,11 @@ const house: House = {
 };
 
 describe("ViewHouseListItem Component", () => {
-    const mockRemove = jest.fn();
+    const mockRemoveClient = jest.fn();
+    const mockRemoveManager = jest.fn();
 
     it("renders collapsed row with key info", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} onRemoveClicked={mockRemove} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         expect(screen.getByText("House Id")).toBeInTheDocument();
         expect(screen.getByText("H001")).toBeInTheDocument();
         expect(screen.getByText("Safe Haven")).toBeInTheDocument();
@@ -37,7 +38,7 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("expands to show address, managers, and clients", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
         expect(screen.getByText("Address:")).toBeInTheDocument();
         expect(screen.getByText("123 Elm St, Apt 4B, Testville, TS")).toBeInTheDocument();
@@ -58,7 +59,7 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("renders correct number of Add and Remove buttons", () => {
-        const {container} = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} /></BrowserRouter>);
+        const {container} = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
         const clientTable = container.querySelector(".client-table");
         const buttons = clientTable!.querySelectorAll('button');
@@ -70,7 +71,7 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("hides Edit, Add, and Remove buttons when canEdit is false", async () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={false} onRemoveClicked={mockRemove} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={false} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
         expect(screen.queryByText("Edit")).not.toBeInTheDocument();
         expect(screen.queryByText("Remove")).not.toBeInTheDocument();
@@ -78,20 +79,20 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("applies the 'odd-row' class when isOdd is true", () => {
-        const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} onRemoveClicked={mockRemove} /></BrowserRouter>);
+        const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         const rootDiv = container.firstChild as HTMLElement;
         expect(rootDiv.className).toMatch(/odd-row/);
     });
 
     it("applies the 'even-row' class when isOdd is false", () => {
-        const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} /></BrowserRouter>);
+        const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         const rootDiv = container.firstChild as HTMLElement;
         expect(rootDiv.className).toMatch(/even-row/);
     });
     it("calls onRemoveClicked when a Remove button is clicked", async () => {
         const {container} = render(
             <BrowserRouter>
-                <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} />
+                <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
             </BrowserRouter>
         );
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -103,12 +104,12 @@ describe("ViewHouseListItem Component", () => {
         //const removeButtons = screen.getAllByRole("button", { name: /Remove/i });
         await userEvent.click(removeButtons[0]);
 
-        expect(mockRemove).toHaveBeenCalledWith(house, house.clients![0]); // or however you pass clientId
+        expect(mockRemoveClient).toHaveBeenCalledWith(house, house.clients![0]); // or however you pass clientId
     });
     it("navigates to the edit page when Edit button is clicked", async () => {
         render(
             <BrowserRouter>
-                <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} />
+                <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
             </BrowserRouter>
         );
 
@@ -129,7 +130,8 @@ describe("ViewHouseListItem Component", () => {
                                 house={house}
                                 isOdd={false}
                                 canEdit={true}
-                                onRemoveClicked={jest.fn()}
+                                onRemoveClient={mockRemoveClient}
+                                onRemoveManager={mockRemoveManager}
                             />
                         }
                     />
@@ -160,7 +162,8 @@ describe("ViewHouseListItem Component", () => {
                                 house={house}
                                 isOdd={false}
                                 canEdit={true}
-                                onRemoveClicked={jest.fn()}
+                                onRemoveClient={mockRemoveClient}
+                                onRemoveManager={mockRemoveManager}
                             />
                         }
                     />
@@ -192,7 +195,7 @@ describe("ViewHouseListItem Component", () => {
 
     it("displays manager names when present", () => {
         render(<BrowserRouter>
-            <ViewHouseListItem house={houseWithManagers} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} />
+            <ViewHouseListItem house={houseWithManagers} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
         </BrowserRouter>);
 
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -202,7 +205,7 @@ describe("ViewHouseListItem Component", () => {
     it("displays remove buttons when house has managers", () => {
         const houseNoClients = {...houseWithManagers, clients: []};
         render(<BrowserRouter>
-            <ViewHouseListItem house={houseNoClients} isOdd={false} canEdit={true} onRemoveClicked={mockRemove} />
+            <ViewHouseListItem house={houseNoClients} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
         </BrowserRouter>);
 
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -213,7 +216,7 @@ describe("ViewHouseListItem Component", () => {
     it("renders correctly when there are no clients", () => {
         const houseNoClients = { ...house, clients: [] };
         render(<BrowserRouter>
-            <ViewHouseListItem house={houseNoClients} isOdd={true} canEdit={true} onRemoveClicked={mockRemove} />
+            <ViewHouseListItem house={houseNoClients} isOdd={true} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
         </BrowserRouter>);
 
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -236,13 +239,43 @@ describe("ViewHouseListItem Component", () => {
                 house={houseWithMissingAddress}
                 isOdd={true}
                 canEdit={false}
-                onRemoveClicked={jest.fn()}
+                onRemoveClient={mockRemoveClient}
+                onRemoveManager={mockRemoveManager}
             />
              </BrowserRouter>
         );
         fireEvent.click(screen.getByRole("button", { name: "▶" }));
 
         expect(screen.getByText(/Address:/).parentElement).toHaveTextContent("Address: 123 Main St");
+    });
+
+    it("calls onRemoveManager when a manager's Remove button is clicked", async () => {
+        const houseWithManagers = {
+            ...house,
+            primaryHouseManager: { name: "Jane Doe", employeeId: "P001" },
+            secondaryHouseManager: { name: "John Smith", employeeId: "S001" }
+        } as any;
+
+        render(
+            <BrowserRouter>
+                <ViewHouseListItem
+                    house={houseWithManagers}
+                    isOdd={false}
+                    canEdit={true}
+                    onRemoveClient={mockRemoveClient}
+                    onRemoveManager={mockRemoveManager}
+                />
+            </BrowserRouter>
+        );
+
+        await userEvent.click(screen.getByRole("button", { name: /▶/i }));
+
+        const managerRemoveButtons = screen.getAllByRole("button", { name: "Remove" });
+
+        // click primary manager remove
+        await userEvent.click(managerRemoveButtons[0]);
+
+        expect(mockRemoveManager).toHaveBeenCalledWith(houseWithManagers, houseWithManagers.primaryHouseManager);
     });
 
 });

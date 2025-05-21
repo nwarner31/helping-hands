@@ -104,6 +104,35 @@ export const addHouseManager = async (houseId: string, employeeId: string, posit
     }
 }
 
+export const removeHouseManager = async (houseId: string, managerId: string) => {
+    try {
+        // Check for house
+        const house = await prisma.house.findFirst({where: {houseId: houseId}});
+        if(!house) throw new HttpError(400, "invalid input", {houseId: "House ID does not exist"});
+
+        const manager = await prisma.employee.findFirst({where: {employeeId: managerId}});
+        if(!manager) throw new HttpError(400, "invalid input", {managerId: "Manager ID does not exist"})
+        const updateData: any = {};
+        if(house.primaryManagerId === manager.id) {
+            updateData.primaryManagerId = null;
+        } else if (house.secondaryManagerId === manager.id) {
+            updateData.secondaryManagerId = null;
+        } else {
+            throw new HttpError(400, "invalid input", {employeeId: "Employee is not a manager in the house"});
+        }
+
+        // Error check to make sure
+        if (Object.keys(updateData).length === 0) {
+            throw new HttpError(500, "server error")
+        }
+
+        return await prisma.house.update({where: {houseId: houseId}, data: updateData,
+            include: { primaryHouseManager: true, secondaryHouseManager: true }});
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const checkForDuplicateHouse = async (houseId: string, name: string) => {
     try {
         const errors: { [key: string]: string } = {};

@@ -4,7 +4,7 @@ import {
     addHouseClient, addHouseManager,
     checkForDuplicateHouse, getAvailableManagers,
     getHouseByHouseId,
-    getHouses, removeHouseClient,
+    getHouses, removeHouseClient, removeHouseManager,
     updateHouse
 } from "../services/house.service";
 import {House} from "@prisma/client";
@@ -163,6 +163,18 @@ export const addManagerToHouse = async (req: Request, res: Response, next: NextF
 
         const updatedHouse = await addHouseManager(houseId, employeeId, positionType);
         res.status(209).json({message: "manager added to house", house: updatedHouse});
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const removeManagerFromHouse = async (req: Request, res: Response, next: NextFunction)=> {
+    try {
+        const houseId = req.params.houseId;
+        const managerId = req.params.managerId;
+
+        const updatedHouse = await removeHouseManager(houseId, managerId);
+        res.status(200).json({message: "manager removed from house", house: updatedHouse})
     } catch (error) {
         return next(error);
     }

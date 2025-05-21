@@ -24,12 +24,16 @@ jest.mock("../../utility/ApiService", () => ({
 jest.mock("./ViewHouseListItem", () => (props: any) => (
     <div key={props.house.houseId}>
         <div data-testid="house-item">{props.house.name}</div>
-        {props.house.clients.map((client: Client) => <button key={client.clientId} onClick={() => props.onRemoveClicked(props.house, client)}>{client.legalName}</button> )}
+        <div>Manager:
+            {props.house.primaryHouseManager ?
+                <button onClick={() => props.onRemoveManager(props.house, props.house.primaryHouseManager)}>{props.house.primaryHouseManager.name}</button>
+                : "N/A"}</div>
+        {props.house.clients.map((client: Client) => <button key={client.clientId} onClick={() => props.onRemoveClient(props.house, client)}>{client.legalName}</button> )}
     </div>
 ));
 
 const sampleHouses = [
-    { houseId: "H1", name: "Test House 1", maxClients: 2, clients: [], femaleEmployeeOnly: false },
+    { houseId: "H1", name: "Test House 1", maxClients: 2, clients: [], femaleEmployeeOnly: false, primaryHouseManager:{employeeId: "E1", name: "Alice Williams"} },
     { houseId: "H2", name: "Test House 2", maxClients: 3, clients: [{clientId: "C1", legalName: "Bob Smith"}], femaleEmployeeOnly: true },
 ];
 
@@ -84,4 +88,23 @@ describe("ViewHousesListPage", () => {
         await userEvent.click(screen.getByText("Remove"));
         expect(apiService.delete).toHaveBeenCalled();
     });
+
+    it("displays modal when a manager is being removed", async () => {
+        renderPage("DIRECTOR");
+
+        await userEvent.click(screen.getByText("Alice Williams"));
+        expect(screen.getByText("Remove Manager from House")).toBeInTheDocument(); // modal heading stays same
+        expect(screen.getByText(/Manager: E1/)).toBeInTheDocument();
+    });
+
+    it("calls the delete API when remove manager modal button clicked", async () => {
+
+        renderPage("ADMIN");
+
+        await userEvent.click(screen.getByText("Alice Williams"));
+        await userEvent.click(screen.getByText("Remove"));
+
+        expect(apiService.delete).toHaveBeenCalledWith("house/H1/manager/E1");
+    });
+
 });

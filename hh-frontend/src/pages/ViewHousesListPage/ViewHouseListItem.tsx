@@ -5,16 +5,18 @@ import {House} from "../../models/House";
 import {Link} from "react-router-dom";
 import {formatDate} from "../../utility/formatting";
 import {Client} from "../../models/Client";
+import {Employee} from "../../models/Employee";
 
 
 type Props = {
     house: House;
     isOdd: boolean;
     canEdit: boolean;
-    onRemoveClicked: (house: House, client: Client) => void;
+    onRemoveClient: (house: House, client: Client) => void;
+    onRemoveManager: (house: House, manager: Employee) => void;
 };
 
-const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveClicked }) => {
+const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveClient, onRemoveManager }) => {
     const [expanded, setExpanded] = useState(false);
     const buttonVariant = isOdd ? "accent" : "secondary";
     const toggleExpanded = () => setExpanded((prev) => !prev);
@@ -31,7 +33,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                     <td>{clients[index].clientId}</td>
                     <td>{clients[index].legalName}</td>
                     <td className={canEdit ? styles.dob : ""}>{formatDate(clients[index].dateOfBirth)}</td>
-                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant} onClick={() => onRemoveClicked(house, clients[index])}>Remove</Button></td>}
+                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant} onClick={() => onRemoveClient(house, clients[index])}>Remove</Button></td>}
                 </tr>);
         } else {
             clientList.push(
@@ -80,7 +82,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                         <div className={styles["manager-line"]}>
                             <strong>Primary Manager:</strong> {house.primaryHouseManager ?
                             <><div>{house.primaryHouseManager.name}</div>
-                            {canEdit && <Button>Remove</Button>}</> :
+                            {canEdit && <Button onClick={() => onRemoveManager(house, house.primaryHouseManager!)}>Remove</Button>}</> :
                             <><div>N/A</div>
                             {canEdit && <Link to={`/house/${house.houseId}/add-manager?position=primary`}><Button>Add</Button></Link>}</>}
                         </div>
@@ -88,7 +90,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                             <strong>Secondary Manager:</strong> {house.secondaryHouseManager ?
                             <>
                                 <div>{house.secondaryHouseManager.name}</div>
-                                {canEdit && <Button>Remove</Button>}
+                                {canEdit && <Button onClick={() => onRemoveManager(house, house.secondaryHouseManager!)}>Remove</Button>}
                             </> :
                             <>
                                 <div>N/A</div>

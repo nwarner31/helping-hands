@@ -7,7 +7,7 @@ import {
     getAllHouses, getAvailableManagersForHouse,
     getHouse,
     putHouse,
-    removeClientFromHouse
+    removeClientFromHouse, removeManagerFromHouse
 } from "../controllers/house.controller";
 
 
@@ -21,5 +21,6 @@ router.patch("/:houseId/clients", authenticateToken, requirePositions("ADMIN", "
 router.delete("/:houseId/clients/:clientId", authenticateToken, requirePositions("ADMIN", "DIRECTOR"), removeClientFromHouse);
 router.get("/:houseId/available-managers", authenticateToken, requirePositions("ADMIN", "DIRECTOR"), getAvailableManagersForHouse);
 router.post("/:houseId/manager", authenticateToken, requirePositions("ADMIN", "DIRECTOR"), addManagerToHouse);
+router.delete("/:houseId/manager/:managerId", authenticateToken, requirePositions("ADMIN", "DIRECTOR"), removeManagerFromHouse);
 
 export default router;

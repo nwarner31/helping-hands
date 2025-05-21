@@ -9,48 +9,65 @@ import styles from "./ViewHouseListPage.module.css";
 import Modal from "../../components/Modal/Modal";
 import {useState} from "react";
 import {Client} from "../../models/Client";
+import {Employee} from "../../models/Employee";
 
 
 const ViewHousesListPage = () => {
     const {employee} = useAuth();
     const canEdit = ["ADMIN", "DIRECTOR"].includes(employee?.position as string);
-    const [modalData, setModalData] = useState<{show: boolean, client: Client|undefined, house: House|undefined}>({show: false, client: undefined, house: undefined});
+    const [modalData, setModalData] = useState<{show: boolean, client: Client|undefined, house: House|undefined, manager: Employee | undefined}>({show: false, client: undefined, house: undefined, manager: undefined});
     const {houses} = useLoaderData() as {houses: House[], message: string};
     const [houseList, setHouseList] = useState(houses);
-    const removeHandler = (house: House, client: Client) => {
-        setModalData({show: true, client: client, house: house});
+    const removeHandlerClient = (house: House, client: Client) => {
+        setModalData({show: true, client: client, house: house, manager: undefined});
+    }
+    const removeHandlerManager = (house: House, manager: Employee) => {
+        setModalData({show: true, house: house, manager: manager, client: undefined});
     }
 
-    const removeClientHandler = async () => {
-        const response = await apiService.delete<{message: string, house?: House}>(`house/${modalData.house?.houseId}/clients/${modalData.client?.clientId}`);
+    const removeHandler = async () => {
+        const url = `house/${modalData.house?.houseId}/${modalData.client ? `clients/${modalData.client.clientId}` : `manager/${modalData.manager?.employeeId}`}`;
+        const response = await apiService.delete<{message: string, house?: House}>(url);
         if(response.house) {
             const updatedHouse = response.house;
+            const update: {clients?: Client[], primaryHouseManager?: Employee, secondaryHouseManager?: Employee} = {};
+            if (response.message === "client removed from house") {
+                update.clients = updatedHouse.clients;
+            } else if (response.message === "manager removed from house") {
+                update.primaryHouseManager = updatedHouse.primaryHouseManager;
+                update.secondaryHouseManager = updatedHouse.secondaryHouseManager;
+
+            }
+
+            console.log(update);
             setHouseList(prevHouses =>
+
                 prevHouses.map(house =>
-                    house.houseId === updatedHouse.houseId ? { ...house, clients: updatedHouse.clients } : house
+                    house.houseId === updatedHouse.houseId ? { ...house, ...update } : house
                 )
             );
-            setModalData({show: false, client: undefined, house: undefined});
+            setModalData({show: false, client: undefined, house: undefined, manager: undefined});
         }
     }
     const closeModal = () => {
-        setModalData({show: false, client: undefined, house: undefined});
+        setModalData({show: false, client: undefined, house: undefined, manager: undefined});
     }
     return (
         <div className={styles.container}>
             <Card className={styles.page}>
                 <h1 className={styles.title}>Houses</h1>
                 {canEdit && <div><Link to="/add-house"><Button>Add House</Button></Link></div>}
-                {houseList.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.houseId} canEdit={canEdit} onRemoveClicked={removeHandler} />)}
+                {houseList.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.houseId} canEdit={canEdit} onRemoveClient={removeHandlerClient} onRemoveManager={removeHandlerManager} />)}
             </Card>
             {modalData.show && (
                 <Modal onClose={closeModal}>
-                    <h2 className={styles["modal-head"]} >Remove Client from House</h2>
+                    <h2 className={styles["modal-head"]} >Remove {modalData.client ? "Client" : "Manager"} from House</h2>
                     <div className={styles["modal-body"]}>
                         <p>Do you want to remove this client from this house?</p>
                         <p>House: {modalData.house?.houseId}: {modalData.house?.name}</p>
-                        <p>Client: {modalData.client?.clientId}: {modalData.client?.legalName}</p>
-                        <Button onClick={removeClientHandler}>Remove</Button>
+                        {modalData.client && <p>Client: {modalData.client.clientId}: {modalData.client.legalName}</p>}
+                        {modalData.manager && <p>Manager: {modalData.manager.employeeId}: {modalData.manager.name}</p>}
+                        <Button onClick={removeHandler}>Remove</Button>
                         <Button onClick={closeModal} variant="accent">Cancel</Button>
                     </div>
                 </Modal>
