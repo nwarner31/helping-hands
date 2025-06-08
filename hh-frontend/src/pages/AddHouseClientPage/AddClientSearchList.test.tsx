@@ -6,7 +6,7 @@ import {userEvent} from "@testing-library/user-event";
 
 // Mock API + useNavigate
 jest.mock("../../utility/ApiService", () => ({
-    patch: jest.fn(() => Promise.resolve( { message: "client added to house", house: { houseId: "123" }})),
+    patch: jest.fn(() => Promise.resolve( { message: "client added to house", house: { id: "123" }})),
    }));
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
@@ -15,13 +15,13 @@ jest.mock("react-router-dom", () => ({
 
 const mockClients = [
     {
-        clientId: "1",
+        id: "1",
         legalName: "Alice Johnson",
         dateOfBirth: "1990-01-01",
         sex: "F",
     },
     {
-        clientId: "2",
+        id: "2",
         legalName: "Bob Smith",
         dateOfBirth: "1985-05-05",
         sex: "M",

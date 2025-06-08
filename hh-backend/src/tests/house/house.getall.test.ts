@@ -13,7 +13,7 @@ describe("HOUSE - get all houses", () => {
         // Create a house
         await prisma.house.create({
             data: {
-                houseId: "H1234",
+                id: "H1234",
                 name: "Alpha House",
                 street1: "100 Main St",
                 city: "Townsville",
@@ -36,7 +36,7 @@ describe("HOUSE - get all houses", () => {
         expect(res.body).toHaveProperty("message", "houses successfully retrieved");
         expect(Array.isArray(res.body.houses)).toBe(true);
         expect(res.body.houses.length).toBeGreaterThan(0);
-        expect(res.body.houses[0]).toHaveProperty("houseId", "H1234");
+        expect(res.body.houses[0]).toHaveProperty("id", "H1234");
     });
 
     it("should return 401 if no token is provided", async () => {

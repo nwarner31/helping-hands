@@ -13,7 +13,7 @@ describe("POST /house/:houseId/manager", () => {
     let directorToken: string;
     let associateToken: string;
     const mockHouse = {
-        houseId: "H1001",
+        id: "H1001",
         name: "Harmony Home",
         street1: "1 Peaceful Way",
         city: "Calmville",
@@ -30,13 +30,14 @@ describe("POST /house/:houseId/manager", () => {
         const response = await request(app)
             .post("/api/auth/register")
             .send({
-                employeeId: "testabc",
+                id: "testabc",
                 name: "John Doe",
                 email: "manager@test.com",
                 password: "StrongPass123",
                 confirmPassword: "StrongPass123",
                 hireDate: "2024-03-09",
-                position: "MANAGER"
+                position: "MANAGER",
+                sex: "M"
             });
         manager = response.body.employee;
     })
@@ -58,7 +59,6 @@ describe("POST /house/:houseId/manager", () => {
             .post("/api/house/H1001/manager")
             .set("Authorization", `Bearer ${directorToken}`)
             .send({ employeeId: "testabc", positionType: "primary" });
-
         expect(response.status).toBe(209);
         expect(response.body.house.primaryManagerId).toEqual(manager?.id);
     });

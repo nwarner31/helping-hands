@@ -34,6 +34,18 @@
     max-width: 300px;
 }
 
+.radio {
+    width: 100%;
+    display: flex;
+}
+
+.radio-input {
+    width: 50%;
+
+}
+
+
+
 .button {
     margin-top: 1rem;
     width: 100%;

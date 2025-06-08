@@ -10,34 +10,37 @@ export const setupHouseTest = async () => {
     const adminPromise = request(app)
         .post("/api/auth/register")
         .send({
-            employeeId: "test123",
+            id: "test123",
             name: "John Doe",
             email: "admin@test.com",
             password: "StrongPass123",
             confirmPassword: "StrongPass123",
             position: "ADMIN",
             hireDate: "2024-03-09",
+            sex: "M"
         });
     const directorPromise = request(app)
         .post("/api/auth/register")
         .send({
-            employeeId: "test456",
+            id: "test456",
             name: "John Doe",
             email: "director@test.com",
             password: "StrongPass123",
             confirmPassword: "StrongPass123",
             position: "DIRECTOR",
             hireDate: "2024-03-09",
+            sex: "M"
         });
     const associatePromise = request(app)
         .post("/api/auth/register")
         .send({
-            employeeId: "test789",
+            id: "test789",
             name: "John Doe",
             email: "john@test.com",
             password: "StrongPass123",
             confirmPassword: "StrongPass123",
             hireDate: "2024-03-09",
+            sex: "M"
         });
     const [adminResponse, directorResponse, associateResponse] = await Promise.all([adminPromise, directorPromise, associatePromise]);
     return {

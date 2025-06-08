@@ -5,17 +5,18 @@ import {BrowserRouter} from "react-router-dom";
 
 describe("View Client Item tests", () => {
     const mockClient = {
-        clientId: '123',
-        legalName: 'Test Client LLC',
+        id: '123',
+        legalName: 'Test Client',
         name: '',
         dateOfBirth: '2000-01-01T00:00:00Z',
+        sex: "M"
     } as Client;
     function renderComponent(isAdmin: boolean, isOdd: boolean) {
         return render(<BrowserRouter><table><tbody><ViewClientsItem client={mockClient} isAdmin={isAdmin} isOddRow={isOdd} /></tbody></table></BrowserRouter>);
     }
     it("should render the client correctly", () => {
         renderComponent(false, false);
-        expect(screen.getByText(mockClient.clientId)).toBeInTheDocument();
+        expect(screen.getByText(mockClient.id)).toBeInTheDocument();
         expect(screen.getByText(mockClient.legalName)).toBeInTheDocument();
         expect(screen.getByText('None')).toBeInTheDocument(); // if name is missing
         expect(screen.getByText("01/01/2000")).toBeInTheDocument();

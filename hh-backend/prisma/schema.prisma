@@ -13,11 +13,10 @@ enum Sex {
 }
 
 model Client {
-  id String @id @default(uuid())
-  clientId String @unique @db.VarChar(40)
+  id String @id @db.VarChar(40)
   legalName String @db.VarChar(50)
   name String? @db.VarChar(25)
-  sex Sex?
+  sex Sex
   dateOfBirth DateTime @db.Date
   requiresStaff Boolean?
   house House? @relation(fields: [houseId], references: id)
@@ -32,10 +31,9 @@ enum EmployeePosition {
   ADMIN
 }
 model Employee {
-  id String @id @default(uuid())
-  employeeId String @unique @db.VarChar(40)
+  id String @id @db.VarChar(40)
   name String @db.VarChar(50)
-  sex Sex?
+  sex Sex
   email String @unique @db.VarChar(65)
   password String @db.VarChar(65)
   position EmployeePosition @default(ASSOCIATE)
@@ -47,8 +45,7 @@ model Employee {
 
 
 model House {
-  id String @id @default(uuid())
-  houseId String @unique @db.VarChar(20)
+  id String @id @db.VarChar(20)
   name String @unique @db.VarChar(25)
   street1 String @db.VarChar(50)
   street2 String? @db.VarChar(25)

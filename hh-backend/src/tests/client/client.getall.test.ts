@@ -11,10 +11,10 @@ describe("Client Routes - Get All Clients", () => {
         token = tokens.adminToken;
         const client1Promise = request(app).post("/api/client")
             .set("Authorization", `Bearer ${token}`)
-            .send({clientId: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12"});
+            .send({id: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "F"});
         const client2Promise = request(app).post("/api/client")
             .set("Authorization", `Bearer ${token}`)
-            .send({clientId: "C234567", legalName: "Second Client", dateOfBirth: "2000-04-12"});
+            .send({id: "C234567", legalName: "Second Client", dateOfBirth: "2000-04-12", sex: "M"});
         await Promise.all([client1Promise, client2Promise]);
     });
     afterAll(async () => {

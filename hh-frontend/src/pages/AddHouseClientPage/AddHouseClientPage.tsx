@@ -9,7 +9,7 @@ import {Client} from "../../models/Client";
 import {formatDate} from "../../utility/formatting";
 
 const emptyHouse = {
-    houseId: "",
+    id: "",
     name: "",
     street1: "",
     street2: "",
@@ -23,6 +23,7 @@ const AddHouseClientPage = () => {
     const location = useLocation();
     useEffect(() => {
         const fetchHouse = async () => {
+            console.log("get house");
             const {house} = await apiService.get<{house: House}>(`house/${houseId}`);
             setHouseData({...house});
         }
@@ -30,6 +31,7 @@ const AddHouseClientPage = () => {
             const {clients} = await apiService.get<{clients: Client[]}>("client/no-house");
             setClientsData(clients);
         }
+        console.log(location.state);
         if(location.state && location.state.house) {
             setHouseData(prevState => ({
                 ...prevState,
@@ -57,7 +59,7 @@ const AddHouseClientPage = () => {
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{houseData.houseId}</td>
+                            <td>{houseData.id}</td>
                             <td>{houseData.name}</td>
                         </tr>
                     </tbody>
@@ -76,8 +78,8 @@ const AddHouseClientPage = () => {
                     </thead>
                     <tbody>
                     {houseData.clients.map((client) => (
-                        <tr key={client.clientId}>
-                            <td>{client.clientId}</td>
+                        <tr key={client.id}>
+                            <td>{client.id}</td>
                             <td>{client.legalName}</td>
                             <td>{formatDate(client.dateOfBirth)}</td>
                             <td>{client.sex}</td>
@@ -85,7 +87,7 @@ const AddHouseClientPage = () => {
                         ))}
                     </tbody>
                 </table>}
-                <AddClientSearchList clients={clientsData} houseId={houseData.houseId} />
+                <AddClientSearchList clients={clientsData} houseId={houseData.id} />
             </Card>
         </div>
     );

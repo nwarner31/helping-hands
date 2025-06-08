@@ -4,8 +4,8 @@ import AddEditClientPage from "./AddEditClientPage";
 import {BrowserRouter, MemoryRouter, Route, Routes} from "react-router-dom";
 
 jest.mock("../../utility/ApiService", () => ({
-    post: jest.fn(() => Promise.resolve( { message: "Client added", client: { clientId: "123" }})),
-    put: jest.fn(() => Promise.resolve({ message: "client updated successfully", client: { clientId: "123" }})),
+    post: jest.fn(() => Promise.resolve( { message: "Client added", client: { id: "123" }})),
+    put: jest.fn(() => Promise.resolve({ message: "client updated successfully", client: { id: "123" }})),
 }));
 
 const renderPage = (isEdit: boolean) => render(<BrowserRouter><AddEditClientPage isEdit={isEdit} /></BrowserRouter>)
@@ -67,7 +67,7 @@ describe("Add Edit Client Page tests", () => {
     });
     it("should prefill form fields with client data on edit", () => {
         render(
-            <MemoryRouter initialEntries={[{ pathname: '/test', state: { client: {clientId: "111", legalName: "John Doe", dateOfBirth: "2000-01-01"} } }]}>
+            <MemoryRouter initialEntries={[{ pathname: '/test', state: { client: {id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01", sex: "M"} } }]}>
                 <Routes>
                     <Route path="/test" element={<AddEditClientPage isEdit={true} />} />
                 </Routes>
@@ -79,7 +79,7 @@ describe("Add Edit Client Page tests", () => {
     });
     it("submits update form correctly", async () => {
         render(
-            <MemoryRouter initialEntries={[{ pathname: '/test', state: { client: {clientId: "111", legalName: "John Doe", dateOfBirth: "2000-01-01"} } }]}>
+            <MemoryRouter initialEntries={[{ pathname: '/test', state: { client: {id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01", sex: "M"} } }]}>
                 <Routes>
                     <Route path="/test" element={<AddEditClientPage isEdit={true} />} />
                 </Routes>

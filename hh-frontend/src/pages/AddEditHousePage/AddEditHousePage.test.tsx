@@ -5,8 +5,8 @@ import {BrowserRouter, MemoryRouter, Route, Routes} from "react-router-dom";
 import apiService from "../../utility/ApiService";
 
 jest.mock("../../utility/ApiService", () => ({
-    post: jest.fn(() => Promise.resolve( { message: "Client added", client: { clientId: "123" }})),
-    put: jest.fn(() => Promise.resolve({ message: "client updated successfully", client: { clientId: "123" }})),
+    post: jest.fn(() => Promise.resolve( { message: "Client added", client: { id: "123" }})),
+    put: jest.fn(() => Promise.resolve({ message: "client updated successfully", client: { id: "123" }})),
 }));
 
 
@@ -100,7 +100,7 @@ describe('AddEditHousePage', () => {
     });
     describe("Edit House", () => {
         const testHouse = {
-            houseId: "H12345",
+            id: "H12345",
             name: "Test House",
             street1: "123 Edit Rd",
             street2: "Suite 100",
@@ -120,13 +120,13 @@ describe('AddEditHousePage', () => {
 
         beforeEach(() => {
             // Simulate `location.state.house`
-            window.history.pushState({ house: testHouse }, '', `/edit-house/${testHouse.houseId}`);
+            window.history.pushState({ house: testHouse }, '', `/edit-house/${testHouse.id}`);
         });
 
         it('should render form with pre-filled data in edit mode', () => {
             renderEdit();
 
-            expect(screen.getByLabelText('House ID')).toHaveValue(testHouse.houseId);
+            expect(screen.getByLabelText('House ID')).toHaveValue(testHouse.id);
             expect(screen.getByLabelText('House Name')).toHaveValue(testHouse.name);
             expect(screen.getByLabelText('Street 1')).toHaveValue(testHouse.street1);
             expect(screen.getByLabelText('Street 2')).toHaveValue(testHouse.street2);
@@ -145,7 +145,7 @@ describe('AddEditHousePage', () => {
             await userEvent.click(screen.getByRole("button", { name: "Update House" }));
 
             expect(apiService.put).toHaveBeenCalledWith(
-                `house/${testHouse.houseId}`,
+                `house/${testHouse.id}`,
                 expect.objectContaining({
                     ...testHouse,
                     name: "Updated House"

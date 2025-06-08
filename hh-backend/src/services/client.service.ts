@@ -21,7 +21,7 @@ export const getClients = async () => {
 
 export const getClientByClientId = async (clientId: string) => {
     try {
-        return await prisma.client.findUnique({where: {clientId: clientId}});
+        return await prisma.client.findUnique({where: {id: clientId}});
     } catch(error) {
         throw error;
     }
@@ -29,7 +29,7 @@ export const getClientByClientId = async (clientId: string) => {
 
 export const updateClient = async (client: Client) => {
     try {
-        return await prisma.client.update({where: {clientId: client.clientId}, data: client});
+        return await prisma.client.update({where: {id: client.id}, data: client});
     } catch(error) {
         throw error;
     }

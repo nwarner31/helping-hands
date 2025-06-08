@@ -16,7 +16,7 @@ jest.mock("react-router-dom", () => ({
 
 describe("AddHouseManagePage tests", () => {
     it("renders house data from location state and manager list", () => {
-        const house = { houseId: "H1", name: "Sample House" };
+        const house = { id: "H1", name: "Sample House" };
         const managers = [
             { id: "E1", employeeId: "EMP1", name: "Alice", position: "MANAGER" },
             { id: "E2", employeeId: "EMP2", name: "Bob", position: "MANAGER" }

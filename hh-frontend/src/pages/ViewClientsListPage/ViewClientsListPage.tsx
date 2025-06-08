@@ -30,7 +30,7 @@ const ViewClientsListPage = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {clients.map((client, index) => (<ViewClientsItem key={client.clientId} client={client} isAdmin={employee?.position === "ADMIN"} isOddRow={index % 2 === 0} /> ))}
+                            {clients.map((client, index) => (<ViewClientsItem key={client.id} client={client} isAdmin={employee?.position === "ADMIN"} isOddRow={index % 2 === 0} /> ))}
                             </tbody>
                             </table>
                     </div>

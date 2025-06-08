@@ -6,7 +6,7 @@ import {setupHouseTest, teardownHouseTests} from "./house.setuptest";
 
 describe("HOUSE - update house", () => {
     const updatedHouse = {
-        houseId: "H1234",
+        id: "H1234",
         name: "Updated Name",
         street1: "456 New Street",
         city: "Tacoma",
@@ -22,7 +22,7 @@ describe("HOUSE - update house", () => {
         associateToken = tokens.associateToken;
         await prisma.house.create({
             data: {
-                houseId: "H1234",
+                id: "H1234",
                 name: "Original Name",
                 street1: "123 Test Loop",
                 city: "Seattle",
@@ -63,7 +63,7 @@ describe("HOUSE - update house", () => {
     });
 
     const requiredFields = [
-        "houseId",
+        "id",
         "name",
         "street1",
         "city",
@@ -75,7 +75,7 @@ describe("HOUSE - update house", () => {
     requiredFields.forEach((field) => {
         it(`should return 400 when '${field}' is missing`, async () => {
             const validHouse = {
-                houseId: "H1234",
+                id: "H1234",
                 name: "Updated Name",
                 street1: "456 New Street",
                 city: "Tacoma",
@@ -88,7 +88,7 @@ describe("HOUSE - update house", () => {
             delete invalidData[field as keyof typeof validHouse];
 
             const response = await request(app)
-                .put(`/api/house/${validHouse.houseId}`)
+                .put(`/api/house/${validHouse.id}`)
                 .set("Authorization", `Bearer ${directorToken}`)
                 .send(invalidData);
 

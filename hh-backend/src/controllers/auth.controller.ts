@@ -4,7 +4,7 @@ import { generateToken } from "../utility/token.utility";
 import {Employee} from "@prisma/client";
 
 interface EmployeeErrors {
-    employeeId?: string;
+    id?: string;
     name?: string;
     email?: string;
     password?: string;
@@ -16,8 +16,8 @@ const validateEmployeeData = (employee: EmployeeData) => {
     const errors: EmployeeErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!employee.employeeId || !employee.employeeId.trim()) {
-        errors.employeeId = "Employee ID is required.";
+    if (!employee.id || !employee.id.trim()) {
+        errors.id = "Employee ID is required.";
     }
 
     if (!employee.name || !employee.name.trim()) {
@@ -61,7 +61,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         const {confirmPassword, ...employeeData} = req.body;
         employeeData.hireDate = new Date(employeeData.hireDate);
         const {password, ...employee} = await registerEmployee(employeeData);
-        const {accessToken, refreshToken} = generateToken(employee.employeeId);
+        const {accessToken, refreshToken} = generateToken(employee.id);
         res.cookie("refreshToken", refreshToken, {httpOnly: true});
         res.status(201).json({ message: "Employee registered successfully", accessToken, employee });
     } catch (error) {
@@ -88,7 +88,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             return next({status: 400, message: errors});
         }
         const {password, ...employee} = await loginEmployee(req.body);
-        const {accessToken, refreshToken} = generateToken(employee.employeeId);
+        const {accessToken, refreshToken} = generateToken(employee.id);
         res.cookie("refreshToken", refreshToken, {httpOnly: true});
         res.status(200).json({ message: "Login successful", accessToken, employee });
     } catch (error) {

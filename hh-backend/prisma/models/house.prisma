@@ -1,8 +1,7 @@
 
 
 model House {
-  id String @id @default(uuid())
-  houseId String @unique @db.VarChar(20)
+  id String @id @db.VarChar(20)
   name String @unique @db.VarChar(25)
   street1 String @db.VarChar(50)
   street2 String? @db.VarChar(25)

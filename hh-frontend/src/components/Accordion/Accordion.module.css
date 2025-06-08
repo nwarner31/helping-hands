@@ -3,7 +3,6 @@
 
     overflow: hidden;
     width: 100%;
-    max-width: 500px;
     box-sizing: border-box;
 }
 
@@ -20,12 +19,12 @@
     background-color: transparent;
 }
 
-.primary .accordion {
+.primary  {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
 
-.secondary .accordion {
+.secondary {
     background-color: var(--secondary-color);
     border-color: var(--secondary-color);
 }

@@ -9,7 +9,7 @@ describe('HOUSE - add client to house', () => {
     let directorToken: string;
     let associateToken: string;
     const house = {
-        houseId: "H1001",
+        id: "H1001",
         name: "Harmony Home",
         street1: "1 Peaceful Way",
         city: "Calmville",
@@ -18,7 +18,7 @@ describe('HOUSE - add client to house', () => {
         femaleEmployeeOnly: false,
     };
     const client = {
-        clientId: "T12345",
+        id: "T12345",
         legalName: "Test Client",
         dateOfBirth: "2000-04-12",
         sex: "M"
@@ -48,19 +48,19 @@ describe('HOUSE - add client to house', () => {
 
     it("should successfully add a client to a house", async () => {
         const res = await request(app)
-            .patch(`/api/house/${house.houseId}/clients`)
+            .patch(`/api/house/${house.id}/clients`)
             .set("Authorization", `Bearer ${directorToken}`)
-            .send({ clientId: client.clientId });
+            .send({ clientId: client.id });
 
         expect(res.status).toBe(209);
         expect(res.body.message).toBe("client added to house");
-        expect(res.body.house).toHaveProperty("houseId", house.houseId);
+        expect(res.body.house).toHaveProperty("id", house.id);
     });
     it("should return 400 if house ID is invalid", async () => {
         const res = await request(app)
             .patch("/api/house/INVALID_ID/clients")
             .set("Authorization", `Bearer ${directorToken}`)
-            .send({ clientId: client.clientId });
+            .send({ clientId: client.id });
 
         expect(res.status).toBe(400);
         expect(res.body.message).toBe("invalid data");
@@ -68,7 +68,7 @@ describe('HOUSE - add client to house', () => {
     });
     it("should return 400 if client ID is invalid", async () => {
         const res = await request(app)
-            .patch(`/api/house/${house.houseId}/clients`)
+            .patch(`/api/house/${house.id}/clients`)
             .set("Authorization", `Bearer ${directorToken}`)
             .send({ clientId: "NON_EXISTENT_CLIENT" });
 
@@ -85,9 +85,9 @@ describe('HOUSE - add client to house', () => {
     });
     it("should return 403 for an ASSOCIATE", async () => {
         const res = await request(app)
-            .patch(`/api/house/${house.houseId}/clients`)
+            .patch(`/api/house/${house.id}/clients`)
             .set("Authorization", `Bearer ${associateToken}`)
-            .send({ clientId: client.clientId });
+            .send({ clientId: client.id });
 
         expect(res.status).toBe(403);
     })

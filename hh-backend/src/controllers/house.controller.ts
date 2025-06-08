@@ -12,7 +12,7 @@ import {getClientByClientId} from "../services/client.service";
 import advanceTimersToNextTimerAsync = jest.advanceTimersToNextTimerAsync;
 
 interface HouseErrors {
-    houseId?: string;
+    id?: string;
     name?: string;
     street1?: string;
     city?: string;
@@ -23,8 +23,8 @@ interface HouseErrors {
 
 const validateHouseData = (house: House) => {
     const errors: HouseErrors = {};
-    if(!house.houseId || !house.houseId.trim()) {
-        errors.houseId = "House ID is required";
+    if(!house.id || !house.id.trim()) {
+        errors.id = "House ID is required";
     }
 
     if(!house.name || !house.name.trim()) {
@@ -88,6 +88,7 @@ export const getHouse = async (req: Request, res: Response, next: NextFunction) 
     try {
         const houseId = req.params.houseId;
         const house = await getHouseByHouseId(houseId);
+        if(!house) return next({status: 404, message: "House not found"});
         res.status(200).json({message: "House found", house: house})
     } catch (error) {
         return next(error);

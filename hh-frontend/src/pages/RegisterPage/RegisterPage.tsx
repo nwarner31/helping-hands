@@ -10,17 +10,19 @@ import {useAuth} from "../../context/AuthContext";
 import PasswordInput from "../../components/Inputs/PasswordInput/PasswordInput";
 import apiService from "../../utility/ApiService";
 import {Employee} from "../../models/Employee";
+import RadioInput from "../../components/Inputs/RadioInput/RadioInput";
 
 interface FormValues {
-    employeeId: string;
+    id: string;
     name: string;
     email: string;
     password: string;
     confirmPassword: string;
     hireDate: string;
+    sex: string;
 }
 interface FormErrors {
-    employeeId?: string;
+    id?: string;
     name?: string;
     email?: string;
     password?: string;
@@ -31,16 +33,17 @@ const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
     const {login} = useAuth();
     const [formData, setFormData] = useState<FormValues>({
-        employeeId: "",
+        id: "",
         name: "",
         email: "",
         password: "",
         confirmPassword: "",
         hireDate: "",
+        sex: "F"
     });
 
     const [errors, setErrors] = useState<FormErrors>({
-        employeeId: "",
+        id: "",
         name: "",
         email: "",
         password: "",
@@ -53,8 +56,8 @@ const RegisterPage: React.FC = () => {
         const errors: FormErrors = {};
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!values.employeeId.trim()) {
-            errors.employeeId = "Employee ID is required.";
+        if (!values.id.trim()) {
+            errors.id = "Employee ID is required.";
         }
 
         if (!values.name.trim()) {
@@ -112,13 +115,16 @@ const RegisterPage: React.FC = () => {
                 <h2 className={styles.title}>Register</h2>
                 <form onSubmit={handleSubmit} className={styles.inputs}>
                     <div className={styles.inputs}>
-                        <Input label="Employee ID" name="employeeId" type="text" onChange={handleChange} error={errors.employeeId} />
+                        <Input label="Employee ID" name="id" type="text" onChange={handleChange} error={errors.id} />
                         <Input label="Name" name="name" type="text" onChange={handleChange} error={errors.name} />
                         <Input label="Email" name="email" type="text" onChange={handleChange} error={errors.email} />
                         <DateInput label="Hire Date" name="hireDate" value={formData.hireDate} onChange={handleChange} error={errors.hireDate}/>
                         <PasswordInput value={formData.password} label="Password" name="password" onChange={handleChange} error={errors.password} />
                         <PasswordInput label="Confirm Password" name="confirmPassword" onChange={handleChange} value={formData.confirmPassword} error={errors.confirmPassword} />
-
+                        <div className={styles.radio}>
+                            <RadioInput label="Female" name="sex" value="F" onChange={handleChange} variant="accent" isChecked={formData.sex === "F"} className={styles["radio-input"]} />
+                            <RadioInput name="sex" isChecked={formData.sex === "M"} value="M" onChange={handleChange} label="Male" variant="accent" className={styles["radio-input"]} />
+                        </div>
                         <Button type="submit" variant="primary" className={styles.button}>Register</Button>
                         <Link to='/login' style={{width: '100%'}}><Button variant="secondary" className={styles.button}>Login</Button></Link>
                     </div>

@@ -1,7 +1,7 @@
 import {House} from "./House";
 
 export interface Employee {
-    employeeId: string;
+    id: string;
     name: string;
     email: string;
     password?: string;

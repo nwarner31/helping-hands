@@ -22,15 +22,17 @@ describe("Auth Routes - Register", () => {
     });
 
     it("should register an employee and return 201", async () => {
+        //await prisma.employee.deleteMany();
         const response = await request(app)
             .post("/api/auth/register")
             .send({
-                employeeId: "test123",
+                id: "test123",
                 name: "John Doe",
                 email: "john.doe@example.com",
                 password: "StrongPass123",
                 confirmPassword: "StrongPass123",
                 hireDate: "2024-03-09",
+                sex: "M"
             });
 
         expect(response.status).toBe(201);
@@ -42,7 +44,7 @@ describe("Auth Routes - Register", () => {
 
     describe("POST /auth/register - Field Validation", () => {
         const validEmployee = {
-            employeeId: "jdoe31",
+            id: "jdoe31",
             name: "John Doe",
             email: "johndoe@example.com",
             password: "SecurePassword123",
@@ -50,7 +52,7 @@ describe("Auth Routes - Register", () => {
             hireDate: "2024-03-09"
         };
 
-        const requiredFields = ["employeeId", "name", "email", "password", "confirmPassword", "hireDate"];
+        const requiredFields = ["id", "name", "email", "password", "confirmPassword", "hireDate"];
 
         requiredFields.forEach((field) => {
             it(`should return 400 when '${field}' is missing`, async () => {
@@ -111,12 +113,13 @@ describe("Auth Routes - Register", () => {
 
     it("should return 500 for a duplicate employee id", async () => {
         const employee = {
-            employeeId: "test123",
+            id: "test123",
             name: "John Doe",
             email: "john.doe@example.com",
             password: "StrongPass123",
             confirmPassword: "StrongPass123",
             hireDate: "2024-03-09",
+            sex: "M"
         }
         const response = await request(app)
             .post("/api/auth/register")
@@ -137,12 +140,13 @@ describe("Auth Routes - Register", () => {
 
     it("should return 500 for a duplicate email", async () => {
         const employee = {
-            employeeId: "test123",
+            id: "test123",
             name: "John Doe",
             email: "john.doe@example.com",
             password: "StrongPass123",
             confirmPassword: "StrongPass123",
             hireDate: "2024-03-09",
+            sex: "M"
         }
         const response = await request(app)
             .post("/api/auth/register")
@@ -153,7 +157,7 @@ describe("Auth Routes - Register", () => {
         expect(response.body).toHaveProperty("accessToken");
         expect(response.body).toHaveProperty("employee");
 
-        employee.employeeId = "newtest456";
+        employee.id = "newtest456";
         const invalidResponse = await request(app)
             .post("/api/auth/register")
             .send(employee);
@@ -167,12 +171,13 @@ describe("Auth Routes - Register", () => {
         const response = await request(app)
             .post("/api/auth/register")
             .send({
-                employeeId: "test123",
+                id: "test123",
                 name: "John Doe",
                 email: "john.doe@example.com",
                 password: "StrongPass123",
                 confirmPassword: "StrongPass123",
                 hireDate: "2024-03-09",
+                sex: "M"
             });
 
         expect(response.status).toBe(500);
@@ -185,12 +190,13 @@ describe("Auth Routes - Login", () => {
         const response = await request(app)
             .post("/api/auth/register")
             .send({
-                employeeId: "test123",
+                id: "test123",
                 name: "John Doe",
                 email: "john.doe@example.com",
                 password: "StrongPass123",
                 confirmPassword: "StrongPass123",
                 hireDate: "2024-03-09",
+                sex: "M"
             });
         if (response.statusCode !== 201) {
             console.log(response);

@@ -1,18 +1,38 @@
 -- CreateEnum
 CREATE TYPE "Sex" AS ENUM ('M', 'F');
 
--- AlterTable
-ALTER TABLE "Client" ADD COLUMN     "houseId" VARCHAR(45),
-ADD COLUMN     "requiresStaff" BOOLEAN,
-ADD COLUMN     "sex" "Sex";
+-- CreateEnum
+CREATE TYPE "EmployeePosition" AS ENUM ('ASSOCIATE', 'MANAGER', 'DIRECTOR', 'ADMIN');
 
--- AlterTable
-ALTER TABLE "Employee" ADD COLUMN     "sex" "Sex";
+-- CreateTable
+CREATE TABLE "Client" (
+    "id" VARCHAR(40) NOT NULL,
+    "legalName" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(25),
+    "sex" "Sex" NOT NULL,
+    "dateOfBirth" DATE NOT NULL,
+    "requiresStaff" BOOLEAN,
+    "houseId" VARCHAR(45),
+
+    CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Employee" (
+    "id" VARCHAR(40) NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
+    "sex" "Sex" NOT NULL,
+    "email" VARCHAR(65) NOT NULL,
+    "password" VARCHAR(65) NOT NULL,
+    "position" "EmployeePosition" NOT NULL DEFAULT 'ASSOCIATE',
+    "hireDate" DATE NOT NULL,
+
+    CONSTRAINT "Employee_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "House" (
-    "id" TEXT NOT NULL,
-    "houseId" VARCHAR(20) NOT NULL,
+    "id" VARCHAR(20) NOT NULL,
     "name" VARCHAR(25) NOT NULL,
     "street1" VARCHAR(50) NOT NULL,
     "street2" VARCHAR(25),
@@ -27,7 +47,7 @@ CREATE TABLE "House" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "House_houseId_key" ON "House"("houseId");
+CREATE UNIQUE INDEX "Employee_email_key" ON "Employee"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "House_name_key" ON "House"("name");

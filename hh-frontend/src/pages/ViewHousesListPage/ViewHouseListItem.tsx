@@ -29,8 +29,8 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
     for(let index = 0; index < maxClients; index++) {
         if(index < clients.length) {
             clientList.push(
-                <tr key={clients[index].clientId}>
-                    <td>{clients[index].clientId}</td>
+                <tr key={clients[index].id}>
+                    <td>{clients[index].id}</td>
                     <td>{clients[index].legalName}</td>
                     <td className={canEdit ? styles.dob : ""}>{formatDate(clients[index].dateOfBirth)}</td>
                     {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant} onClick={() => onRemoveClient(house, clients[index])}>Remove</Button></td>}
@@ -41,7 +41,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                     <td >Empty</td>
                     <td></td>
                     <td className={canEdit ? styles.dob : ""}></td>
-                    {canEdit && <td><Link to={`/house/${house.houseId}/add-client`} ><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></Link></td>}
+                    {canEdit && <td><Link to={`/house/${house.id}/add-client`} state={{house: house}} ><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></Link></td>}
                 </tr>
             )
         }
@@ -55,7 +55,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                     {expanded ? '▼' : '▶'}
                 </Button>
                 <div className={styles["house-id-head"]}>House Id</div>
-                <div className={styles["house-id"]}>{house.houseId}</div>
+                <div className={styles["house-id"]}>{house.id}</div>
                 <div className={styles["house-name-head"]}>House Name</div>
                 <div className={styles["house-name"]}>{house.name}</div>
                 <div className={styles["house-clients-head"]}>Clients</div>
@@ -66,7 +66,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                 </div>
                 {canEdit &&
                     <div className={styles["edit-button"]}>
-                        <Link to={`/edit-house/${house.houseId}`} state={{house: house}}><Button variant={buttonVariant}>
+                        <Link to={`/edit-house/${house.id}`} state={{house: house}}><Button variant={buttonVariant}>
                             Edit
                         </Button></Link>
                     </div>
@@ -82,19 +82,19 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                         <div className={styles["manager-line"]}>
                             <strong>Primary Manager:</strong> {house.primaryHouseManager ?
                             <><div>{house.primaryHouseManager.name}</div>
-                            {canEdit && <Button onClick={() => onRemoveManager(house, house.primaryHouseManager!)}>Remove</Button>}</> :
+                            {canEdit && <Button onClick={() => onRemoveManager(house, house.primaryHouseManager!)} variant={buttonVariant} >Remove</Button>}</> :
                             <><div>N/A</div>
-                            {canEdit && <Link to={`/house/${house.houseId}/add-manager?position=primary`}><Button>Add</Button></Link>}</>}
+                            {canEdit && <Link to={`/house/${house.id}/add-manager?position=primary`}><Button variant={buttonVariant} >Add</Button></Link>}</>}
                         </div>
                         <div className={styles["manager-line"]}>
                             <strong>Secondary Manager:</strong> {house.secondaryHouseManager ?
                             <>
                                 <div>{house.secondaryHouseManager.name}</div>
-                                {canEdit && <Button onClick={() => onRemoveManager(house, house.secondaryHouseManager!)}>Remove</Button>}
+                                {canEdit && <Button onClick={() => onRemoveManager(house, house.secondaryHouseManager!)} variant={buttonVariant} >Remove</Button>}
                             </> :
                             <>
                                 <div>N/A</div>
-                                {canEdit && <Link to={`/house/${house.houseId}/add-manager?position=secondary`}><Button>Add</Button></Link>}
+                                {canEdit && <Link to={`/house/${house.id}/add-manager?position=secondary`}><Button variant={buttonVariant}>Add</Button></Link>}
                         </>}
                         </div>
                         <div className={styles["female-only"]}>

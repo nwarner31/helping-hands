@@ -9,7 +9,7 @@ import styles from "./AddEditHousePage.module.css";
 import Toast from "../../components/Toast/Toast";
 
 const emptyHouse = {
-    houseId: "",
+    id: "",
     name: "",
     street1: "",
     street2: "",
@@ -19,7 +19,7 @@ const emptyHouse = {
     femaleEmployeeOnly: false
 }
 interface FormErrors {
-    houseId?: string;
+    id?: string;
     name?: string;
     street1?: string;
     city?: string;
@@ -50,7 +50,7 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
     }, []);
     const [houseData, setHouseData] = useState<House>(emptyHouse);
     const [formErrors, setFormErrors] = useState<FormErrors>({
-        houseId: "",
+        id: "",
         name: "",
         street1: "",
         city: "",
@@ -60,8 +60,8 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
 
     const validateForm = () => {
         const errors: FormErrors = {};
-        if(!houseData.houseId.trim()) {
-            errors.houseId = "House ID is required";
+        if(!houseData.id.trim()) {
+            errors.id = "House ID is required";
         }
 
         if(!houseData.name.trim()) {
@@ -120,8 +120,8 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
     }
 
     const updateHouse = async (data: House) => {
-        const response: {message: string, house?:House, errors: any} = await apiService.put(`house/${data.houseId}`, data);
-        if(response.message === "House successfully updated" && response.house && response.house.houseId) {
+        const response: {message: string, house?:House, errors: any} = await apiService.put(`house/${data.id}`, data);
+        if(response.message === "House successfully updated" && response.house && response.house.id) {
             setToastInfo({showToast: true, toastType: "success", toastMessage: "House successfully updated"});
             setTimeout(() => {navigate("/view-houses")}, 1500);
         }
@@ -132,7 +132,7 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
             <Card className={styles.page}>
                 <h1 className={styles.header}>{isEdit ? "Update House" : "Add House"}</h1>
                 <form className={styles.form} onSubmit={submitHouse}>
-                    <Input label="House ID" value={houseData.houseId} name="houseId" error={formErrors.houseId} onChange={updateHouseData} disabled={isEdit} />
+                    <Input label="House ID" value={houseData.id} name="id" error={formErrors.id} onChange={updateHouseData} disabled={isEdit} />
                     <Input label="House Name" value={houseData.name} name="name" error={formErrors.name} onChange={updateHouseData} />
                     <Input label="Street 1" value={houseData.street1} name="street1" error={formErrors.street1} onChange={updateHouseData} />
                     <Input label="Street 2" value={houseData.street2} name="street2" onChange={updateHouseData} />

@@ -17,7 +17,7 @@ jest.mock("react-router-dom", () => {
 });
 
 describe("AddManagerListItem tests", () => {
-    const manager = { employeeId: "EMP1", name: "Jane", position: "MANAGER", primaryHouses: [], secondaryHouses: [], email: "test@email.com", hireDate: "2024-01-01" };
+    const manager = { id: "EMP1", name: "Jane", position: "MANAGER", primaryHouses: [], secondaryHouses: [], email: "test@email.com", hireDate: "2024-01-01" };
     it("renders employee info correctly", () => {
         render(
             <MemoryRouter>
@@ -62,8 +62,8 @@ describe("AddManagerListItem tests", () => {
                 <AddManagerListItem
                     employee={{
                         ...manager,
-                        primaryHouses: [{ houseId: "H100", name: "Main House", ...partialHouse }],
-                        secondaryHouses: [{ houseId: "H200", name: "Side House", ...partialHouse }]
+                        primaryHouses: [{ id: "H100", name: "Main House", ...partialHouse }],
+                        secondaryHouses: [{ id: "H200", name: "Side House", ...partialHouse }]
                     }}
                     houseId="H2"
                     isOdd={true}

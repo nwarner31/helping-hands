@@ -22,19 +22,19 @@ jest.mock("../../utility/ApiService", () => ({
 }));
 
 jest.mock("./ViewHouseListItem", () => (props: any) => (
-    <div key={props.house.houseId}>
+    <div key={props.house.id}>
         <div data-testid="house-item">{props.house.name}</div>
         <div>Manager:
             {props.house.primaryHouseManager ?
                 <button onClick={() => props.onRemoveManager(props.house, props.house.primaryHouseManager)}>{props.house.primaryHouseManager.name}</button>
                 : "N/A"}</div>
-        {props.house.clients.map((client: Client) => <button key={client.clientId} onClick={() => props.onRemoveClient(props.house, client)}>{client.legalName}</button> )}
+        {props.house.clients.map((client: Client) => <button key={client.id} onClick={() => props.onRemoveClient(props.house, client)}>{client.legalName}</button> )}
     </div>
 ));
 
 const sampleHouses = [
-    { houseId: "H1", name: "Test House 1", maxClients: 2, clients: [], femaleEmployeeOnly: false, primaryHouseManager:{employeeId: "E1", name: "Alice Williams"} },
-    { houseId: "H2", name: "Test House 2", maxClients: 3, clients: [{clientId: "C1", legalName: "Bob Smith"}], femaleEmployeeOnly: true },
+    { id: "H1", name: "Test House 1", maxClients: 2, clients: [], femaleEmployeeOnly: false, primaryHouseManager:{id: "E1", name: "Alice Williams"} },
+    { id: "H2", name: "Test House 2", maxClients: 3, clients: [{id: "C1", legalName: "Bob Smith"}], femaleEmployeeOnly: true },
 ];
 
 // Inside each test

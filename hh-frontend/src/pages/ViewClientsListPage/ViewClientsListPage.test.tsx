@@ -18,8 +18,8 @@ jest.mock("react-router-dom", () => ({
 }));
 describe("View Clients List Page tests", () => {
     const mockClients = [
-        { clientId: "1", legalName: "John Doe LLC", name: "Johnny", dateOfBirth: "2000-01-01" },
-        { clientId: "2", legalName: "Jane Smith Corp", name: "Janey", dateOfBirth: "1995-05-05" },
+        { id: "1", legalName: "John Doe", name: "Johnny", dateOfBirth: "2000-01-01", sex: "M" },
+        { id: "2", legalName: "Jane Smith", name: "Janey", dateOfBirth: "1995-05-05", sex: "F" },
     ];
 
     function setup(role: "ADMIN" | "EMPLOYEE") {
@@ -53,8 +53,8 @@ describe("View Clients List Page tests", () => {
 
     it('renders clients in the table', () => {
         setup("ADMIN");
-        expect(screen.getByText("John Doe LLC")).toBeInTheDocument();
-        expect(screen.getByText("Jane Smith Corp")).toBeInTheDocument();
+        expect(screen.getByText("John Doe")).toBeInTheDocument();
+        expect(screen.getByText("Jane Smith")).toBeInTheDocument();
     });
 
     it('shows the "Add Client" button for admins', () => {

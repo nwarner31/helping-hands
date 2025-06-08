@@ -4,11 +4,10 @@ enum Sex {
 }
 
 model Client {
-  id String @id @default(uuid())
-  clientId String @unique @db.VarChar(40)
+  id String @id @db.VarChar(40)
   legalName String @db.VarChar(50)
   name String? @db.VarChar(25)
-  sex Sex?
+  sex Sex
   dateOfBirth DateTime @db.Date
   requiresStaff Boolean?
   house House? @relation(fields: [houseId], references: id)

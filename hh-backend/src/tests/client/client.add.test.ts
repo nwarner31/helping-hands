@@ -6,7 +6,7 @@ import {string} from "zod";
 
 
 describe("Client Routes - Add Client",  () => {
-    const validClient = {clientId: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "M"};
+    const validClient = {id: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "M"};
     let adminToken: string;
     let associateToken: string;
     beforeAll(async () => {
@@ -30,7 +30,7 @@ describe("Client Routes - Add Client",  () => {
     });
     it("should come back with a 401 if no token provided", async () => {
         const response = await request(app).post("/api/client")
-            .send({clientId: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12"});
+            .send({id: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12"});
         expect(response.status).toBe(401);
     });
     it("should come back with a 403 if not an admin", async () => {
@@ -40,7 +40,7 @@ describe("Client Routes - Add Client",  () => {
         expect(response.status).toBe(403);
     });
 
-    const requiredFields = ["clientId", "legalName", "dateOfBirth"];
+    const requiredFields = ["id", "legalName", "dateOfBirth"];
 
     requiredFields.forEach((field) => {
         it(`should return 400 when '${field}' is missing`, async () => {

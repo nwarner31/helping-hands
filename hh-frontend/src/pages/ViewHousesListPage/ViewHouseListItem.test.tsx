@@ -5,7 +5,7 @@ import {BrowserRouter, MemoryRouter, Route, Routes} from "react-router-dom";
 import {userEvent} from "@testing-library/user-event";
 
 const house: House = {
-    houseId: "H001",
+    id: "H001",
     name: "Safe Haven",
     street1: "123 Elm St",
     street2: "Apt 4B",
@@ -14,8 +14,8 @@ const house: House = {
     maxClients: 3,
     femaleEmployeeOnly: true,
     clients: [
-        { clientId: "C001", legalName: "Alice Smith", dateOfBirth: "1990-01-01", sex: "F" },
-        { clientId: "C002", legalName: "Bob Jones", dateOfBirth: "1985-05-05", sex: "M" }
+        { id: "C001", legalName: "Alice Smith", dateOfBirth: "1990-01-01", sex: "F" },
+        { id: "C002", legalName: "Bob Jones", dateOfBirth: "1985-05-05", sex: "M" }
     ],
     primaryHouseManager: {name: "Bob Smith"} as any,
     primaryManagerId: "E001",
@@ -115,7 +115,7 @@ describe("ViewHouseListItem Component", () => {
 
         const editLink = screen.getByRole("link", { name: /edit/i });
         expect(editLink).toBeInTheDocument();
-        expect(editLink).toHaveAttribute("href", `/edit-house/${house.houseId}`);
+        expect(editLink).toHaveAttribute("href", `/edit-house/${house.id}`);
     });
     it("navigates to the edit page when Edit link is clicked", async () => {
         const user = userEvent.setup();
@@ -136,8 +136,8 @@ describe("ViewHouseListItem Component", () => {
                         }
                     />
                     <Route
-                        path={`/edit-house/${house.houseId}`}
-                        element={<div>Edit Page for {house.houseId}</div>}
+                        path={`/edit-house/${house.id}`}
+                        element={<div>Edit Page for {house.id}</div>}
                     />
                 </Routes>
             </MemoryRouter>
@@ -147,7 +147,7 @@ describe("ViewHouseListItem Component", () => {
         expect(editLink).toBeInTheDocument();
 
         await user.click(editLink);
-        expect(screen.getByText(`Edit Page for ${house.houseId}`)).toBeInTheDocument();
+        expect(screen.getByText(`Edit Page for ${house.id}`)).toBeInTheDocument();
     });
     it("navigates to add-client page when Add link is clicked", async () => {
         const user = userEvent.setup();
@@ -186,7 +186,7 @@ describe("ViewHouseListItem Component", () => {
 
         expect(screen.getByText("Add Client Page")).toBeInTheDocument();
     });
-    const partialEmployee = { employeeId: "t100", email: "test@mail.com", position: "MANAGER", hireDate: "2024-01-01" }
+    const partialEmployee = { id: "t100", email: "test@mail.com", position: "MANAGER", hireDate: "2024-01-01" }
     const houseWithManagers = {
         ...house,
         primaryHouseManager: { name: "Jane Doe", ...partialEmployee },

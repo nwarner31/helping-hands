@@ -21,3 +21,13 @@
     align-items: center;
     gap: 1rem;
 }
+
+.radio {
+    width: 100%;
+    display: flex;
+}
+
+.radio-input {
+    width: 50%;
+
+}

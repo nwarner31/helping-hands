@@ -13,13 +13,14 @@ describe("DELETE /house/:houseId/manager/:managerId", () => {
         directorToken = tokens.directorToken;
 
         const response = await request(app).post("/api/auth/register").send({
-            employeeId: "mgr200",
+            id: "mgr200",
             name: "Manager M",
             email: "manager200@test.com",
             password: "StrongPass123",
             confirmPassword: "StrongPass123",
             hireDate: "2024-03-09",
             position: "MANAGER",
+            sex: "M"
         });
         manager = response.body.employee;
     });
@@ -29,7 +30,7 @@ describe("DELETE /house/:houseId/manager/:managerId", () => {
         await request(app).post("/api/house")
             .set("Authorization", `Bearer ${directorToken}`)
             .send({
-                houseId: "H2002",
+                id: "H2002",
                 name: "Test House",
                 street1: "2 Example Rd",
                 city: "Testville",
@@ -80,13 +81,14 @@ describe("DELETE /house/:houseId/manager/:managerId", () => {
     it("should return 400 if manager is not assigned to house", async () => {
         // register another manager
         await request(app).post("/api/auth/register").send({
-            employeeId: "mgr201",
+            id: "mgr201",
             name: "Unassigned M",
             email: "manager201@test.com",
             password: "StrongPass123",
             confirmPassword: "StrongPass123",
             hireDate: "2024-03-09",
             position: "MANAGER",
+            sex: "M"
         });
 
         const res = await request(app)

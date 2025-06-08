@@ -3,15 +3,16 @@ import styles from "./Accordion.module.css";
 
 interface AccordionProps {
     header: string;
+    className?: string;
     variant?: "primary" | "secondary" | "accent";
     children?: React.ReactNode;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ header, variant = "primary", children }) => {
+const Accordion: React.FC<AccordionProps> = ({ header, variant = "primary", children, className }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className={`${styles.accordion} ${styles[variant]}`}>
+        <div className={`${styles.accordion} ${styles[variant]} ${className}`}>
             <button className={styles.header} onClick={() => setIsOpen(prevState => !prevState)}>
                 {header}
             </button>

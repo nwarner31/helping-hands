@@ -23,16 +23,16 @@ const AddManagerListItem = ({ employee, houseId, isOdd }: Props) => {
     const position = searchParams.get("position") ?? "primary";
     const createHouseRow = (house: House, managerType: string) => {
         return (
-            <li key={house.houseId} className={styles.houseItem}>
+            <li key={house.id} className={styles.houseItem}>
                 <span className={styles.houseId}>
-                    {house.houseId} – {house.name} ({managerType} Manager)
+                    {house.id} – {house.name} ({managerType} Manager)
                 </span>
             </li>
         );
     }
 
     const addManagerHandler = async () => {
-        const response = await apiService.post<{message: string, house: House}>(`house/${houseId}/manager`, {employeeId: employee.employeeId, positionType: position});
+        const response = await apiService.post<{message: string, house: House}>(`house/${houseId}/manager`, {employeeId: employee.id, positionType: position});
         if(response.message === "manager added to house") {
             setToastInfo({showToast: true, toastType: "success", toastMessage: "Manager added to house successfully"});
             setTimeout(() => {navigate("/view-houses")}, 1500);
@@ -50,7 +50,7 @@ const AddManagerListItem = ({ employee, houseId, isOdd }: Props) => {
                     >
                         {expanded ? '▼' : '▶'}
                     </Button>
-                    <span className={styles.employeeId}>ID: {employee.employeeId}</span>
+                    <span className={styles.employeeId}>ID: {employee.id}</span>
                     <span className={styles.name}>{employee.name}</span>
 
                 <Button variant={buttonType} className={styles["add-button"]} onClick={addManagerHandler}>Add</Button>

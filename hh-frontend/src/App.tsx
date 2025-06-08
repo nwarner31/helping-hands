@@ -14,6 +14,7 @@ import AddEditClientPage from "./pages/AddEditClientPage/AddEditClientPage";
 import AddEditHousePage from "./pages/AddEditHousePage/AddEditHousePage";
 import AddHouseClientPage from "./pages/AddHouseClientPage/AddHouseClientPage";
 import AddHouseManagerPage, { loader as addHouseManagerLoader } from "./pages/AddHouseManagerPage/AddHouseManagerPage";
+import ViewClientPage from "./pages/ViewClientPage/ViewClientPage";
 
 function App() {
 
@@ -25,13 +26,14 @@ function App() {
             children: [
                 {path: '/dashboard', element: <DashboardPage />},
                 {path: '/view-clients', element: <ViewClientsListPage />, loader: viewClientsLoader},
+                {path: '/view-client/:clientId', element: <ViewClientPage />},
                 {path: "/add-client", element: <AddEditClientPage isEdit={false} />},
                 {path: "/edit-client/:clientId", element: <AddEditClientPage isEdit={true} />},
                 {path: "/view-houses", element: <ViewHousesListPage />, loader: viewHousesLoader},
                 {path: "/edit-house/:houseId", element: <AddEditHousePage isEdit={true} /> },
                 {path: "/add-house", element: <AddEditHousePage isEdit={false} />},
                 {path: "/house/:houseId/add-client", element: <AddHouseClientPage />},
-                {path: "/house/:houseId/add-manager", element: <AddHouseManagerPage />, loader: addHouseManagerLoader}
+                {path: "/house/:houseId/add-manager", element: <AddHouseManagerPage />, loader: addHouseManagerLoader},
             ]}
          ]);
   return (

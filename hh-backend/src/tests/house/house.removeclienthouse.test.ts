@@ -9,8 +9,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
     let associateToken: string;
 
     const house = {
-        id: "",
-        houseId: "H1001",
+        id: "H1001",
         name: "Harmony Home",
         street1: "1 Peaceful Way",
         city: "Calmville",
@@ -19,7 +18,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
         femaleEmployeeOnly: false,
     };
     const client = {
-        clientId: "T12345",
+        id: "T12345",
         legalName: "Test Client",
         dateOfBirth: "2000-04-12",
         sex: "M",
@@ -54,23 +53,23 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
 
     it("should remove a client from a house and return updated house", async () => {
         const res = await request(app)
-            .delete(`/api/house/${house.houseId}/clients/${client.clientId}`)
+            .delete(`/api/house/${house.id}/clients/${client.id}`)
             .set("Authorization", `Bearer ${directorToken}`);
 
         expect(res.statusCode).toBe(209);
         expect(res.body.message).toBe("client removed from house");
         expect(res.body.house.clients).not.toContainEqual(
-            expect.objectContaining({ clientId: client.clientId })
+            expect.objectContaining({ clientId: client.id })
         );
 
         // Double check DB
-        const clientCheck = await prisma.client.findFirst({ where: { clientId: client.clientId } });
+        const clientCheck = await prisma.client.findFirst({ where: { id: client.id } });
         expect(clientCheck?.houseId).toBeNull();
     });
 
     it("should return 400 if houseId is invalid", async () => {
         const res = await request(app)
-            .delete(`/api/house/invalid-house/clients/${client.clientId}`)
+            .delete(`/api/house/invalid-house/clients/${client.id}`)
             .set("Authorization", `Bearer ${directorToken}`);
 
         expect(res.statusCode).toBe(400);
@@ -79,7 +78,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
 
     it("should return 400 if clientId is invalid", async () => {
         const res = await request(app)
-            .delete(`/api/house/${house.houseId}/clients/invalid-client`)
+            .delete(`/api/house/${house.id}/clients/invalid-client`)
             .set("Authorization", `Bearer ${directorToken}`);
 
         expect(res.statusCode).toBe(400);
@@ -88,14 +87,14 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
 
     it("should return 401 if not authenticated", async () => {
         const res = await request(app)
-            .delete(`/api/house/${house.houseId}/clients/${client.clientId}`);
+            .delete(`/api/house/${house.id}/clients/${client.id}`);
 
         expect(res.statusCode).toBe(401);
     });
 
     it("should return 403 if user lacks permissions", async () => {
         const res = await request(app)
-            .delete(`/api/house/${house.houseId}/clients/${client.clientId}`)
+            .delete(`/api/house/${house.id}/clients/${client.id}`)
             .set("Authorization", `Bearer ${associateToken}`);
 
         expect(res.statusCode).toBe(403);

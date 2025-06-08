@@ -13,7 +13,7 @@ jest.mock("../../utility/ApiService", () => ({
 const mockedApi = apiService as jest.Mocked<typeof apiService>;
 
 const mockHouse: House = {
-    houseId: "house123",
+    id: "house123",
     name: "Sunrise Home",
     street1: "123 Main St",
     street2: "",
@@ -23,7 +23,7 @@ const mockHouse: House = {
     femaleEmployeeOnly: false,
     clients: [
         {
-            clientId: "c1",
+            id: "c1",
             legalName: "Alice Smith",
             dateOfBirth: "1990-01-01",
             sex: "F"
@@ -33,7 +33,7 @@ const mockHouse: House = {
 
 const mockClients: Client[] = [
     {
-        clientId: "c2",
+        id: "c2",
         legalName: "Bob Johnson",
         dateOfBirth: "1985-06-15",
         sex: "M"

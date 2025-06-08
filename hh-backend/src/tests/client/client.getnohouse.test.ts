@@ -14,14 +14,14 @@ describe("Client Routes - Get no house", () => {
 
         const client1Promise = request(app).post("/api/client")
             .set("Authorization", `Bearer ${adminToken}`)
-            .send({clientId: "C4001",
+            .send({id: "C4001",
                 legalName: "Unhoused Client",
                 dateOfBirth: new Date("1985-06-06"),
                 sex: "M"});
         const client2Promise = request(app).post("/api/house")
             .set("Authorization", `Bearer ${adminToken}`)
             .send( {
-                houseId: "H3001",
+                id: "H3001",
                 name: "Safe Haven",
                 street1: "3 Shelter St",
                 city: "Refuge",
@@ -31,7 +31,7 @@ describe("Client Routes - Get no house", () => {
             });
         const client3Promise = request(app).post("/api/client")
             .set("Authorization", `Bearer ${adminToken}`)
-            .send({clientId: "C4002",
+            .send({id: "C4002",
                 legalName: "Housed Client",
                 dateOfBirth: new Date("1991-04-10"),
                 sex: "M"});
@@ -52,7 +52,7 @@ describe("Client Routes - Get no house", () => {
         expect(res.body.message).toBe("clients found");
         expect(Array.isArray(res.body.clients)).toBe(true);
         expect(res.body.clients.length).toBe(1);
-        expect(res.body.clients[0].clientId).toBe("C4001");
+        expect(res.body.clients[0].id).toBe("C4001");
     });
     it("should return 401 if not authenticated", async () => {
         const res = await request(app).get("/api/house/no-house");

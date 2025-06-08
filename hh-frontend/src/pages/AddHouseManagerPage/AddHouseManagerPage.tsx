@@ -37,7 +37,7 @@ export const AddHouseManagerPage = () => {
                         </thead>
                         <tbody>
                         <tr>
-                            <td>{houseData.houseId}</td>
+                            <td>{houseData.id}</td>
                             <td>{houseData.name}</td>
                         </tr>
                         </tbody>
@@ -47,7 +47,7 @@ export const AddHouseManagerPage = () => {
 
                 <Button className={styles["cancel-button"]} variant="secondary" >Cancel</Button>
 
-                {managers.map((manager, index) => <AddManagerListItem key={manager.employeeId} employee={manager} houseId={houseId!} isOdd={index % 2 === 0} />)}
+                {managers.map((manager, index) => <AddManagerListItem key={manager.id} employee={manager} houseId={houseId!} isOdd={index % 2 === 0} />)}
             </Card>
         </div>
     );

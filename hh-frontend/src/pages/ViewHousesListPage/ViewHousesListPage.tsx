@@ -26,7 +26,7 @@ const ViewHousesListPage = () => {
     }
 
     const removeHandler = async () => {
-        const url = `house/${modalData.house?.houseId}/${modalData.client ? `clients/${modalData.client.clientId}` : `manager/${modalData.manager?.employeeId}`}`;
+        const url = `house/${modalData.house?.id}/${modalData.client ? `clients/${modalData.client.id}` : `manager/${modalData.manager?.id}`}`;
         const response = await apiService.delete<{message: string, house?: House}>(url);
         if(response.house) {
             const updatedHouse = response.house;
@@ -43,7 +43,7 @@ const ViewHousesListPage = () => {
             setHouseList(prevHouses =>
 
                 prevHouses.map(house =>
-                    house.houseId === updatedHouse.houseId ? { ...house, ...update } : house
+                    house.id === updatedHouse.id ? { ...house, ...update } : house
                 )
             );
             setModalData({show: false, client: undefined, house: undefined, manager: undefined});
@@ -57,16 +57,16 @@ const ViewHousesListPage = () => {
             <Card className={styles.page}>
                 <h1 className={styles.title}>Houses</h1>
                 {canEdit && <div><Link to="/add-house"><Button>Add House</Button></Link></div>}
-                {houseList.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.houseId} canEdit={canEdit} onRemoveClient={removeHandlerClient} onRemoveManager={removeHandlerManager} />)}
+                {houseList.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.id} canEdit={canEdit} onRemoveClient={removeHandlerClient} onRemoveManager={removeHandlerManager} />)}
             </Card>
             {modalData.show && (
                 <Modal onClose={closeModal}>
                     <h2 className={styles["modal-head"]} >Remove {modalData.client ? "Client" : "Manager"} from House</h2>
                     <div className={styles["modal-body"]}>
                         <p>Do you want to remove this client from this house?</p>
-                        <p>House: {modalData.house?.houseId}: {modalData.house?.name}</p>
-                        {modalData.client && <p>Client: {modalData.client.clientId}: {modalData.client.legalName}</p>}
-                        {modalData.manager && <p>Manager: {modalData.manager.employeeId}: {modalData.manager.name}</p>}
+                        <p>House: {modalData.house?.id}: {modalData.house?.name}</p>
+                        {modalData.client && <p>Client: {modalData.client.id}: {modalData.client.legalName}</p>}
+                        {modalData.manager && <p>Manager: {modalData.manager.id}: {modalData.manager.name}</p>}
                         <Button onClick={removeHandler}>Remove</Button>
                         <Button onClick={closeModal} variant="accent">Cancel</Button>
                     </div>

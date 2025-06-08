@@ -32,7 +32,7 @@ export const loginEmployee = async (data: { email: string; password: string }) =
 
 export const getEmployeeById = async (employeeId: string) => {
     try {
-        const employee = await prisma.employee.findUnique({where: {employeeId: employeeId}});
+        const employee = await prisma.employee.findUnique({where: {id: employeeId}});
         if(!employee){
             throw new Error("Employee not found");
         }

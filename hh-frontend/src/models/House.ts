@@ -3,7 +3,7 @@ import {Employee} from "./Employee";
 
 
 export interface House {
-    houseId: string;
+    id: string;
     name: string;
     street1: string;
     street2?: string;

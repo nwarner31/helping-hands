@@ -18,7 +18,7 @@ describe("HOUSE - add house", () => {
     afterAll(async () => {
         await teardownHouseTests();
     });
-    const validHouse = { houseId: "H1234", name: "Testtopia", street1: "123 Test Loop", city: "Seattle", state: "WA", maxClients: 2, femaleEmployeeOnly: false};
+    const validHouse = { id: "H1234", name: "Testtopia", street1: "123 Test Loop", city: "Seattle", state: "WA", maxClients: 2, femaleEmployeeOnly: false};
     it("should successfully add the house for a director", async () => {
         const response = await request(app).post("/api/house")
             .set("Authorization", `Bearer ${directorToken}`)
@@ -39,7 +39,7 @@ describe("HOUSE - add house", () => {
         expect(response.statusCode).toBe(403);
     });
 
-    const requiredFields = ["houseId", "name", "street1", "city", "state", "maxClients", "femaleEmployeeOnly"];
+    const requiredFields = ["id", "name", "street1", "city", "state", "maxClients", "femaleEmployeeOnly"];
 
     requiredFields.forEach((field) => {
         it(`should return 400 when '${field}' is missing`, async () => {

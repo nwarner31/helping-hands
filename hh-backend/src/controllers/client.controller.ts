@@ -3,15 +3,15 @@ import {addClient, getClients, getClientByClientId, updateClient, getHomelessCli
 import {Client} from "@prisma/client";
 
 interface ClientErrors {
-    clientId?: string;
+    id?: string;
     legalName?: string;
     dateOfBirth?: string;
 }
 const validateClientData = (client: Client) => {
     const errors: ClientErrors = {};
 
-    if(!client.clientId || !client.clientId.trim()) {
-        errors.clientId = "Client Id is required";
+    if(!client.id || !client.id.trim()) {
+        errors.id = "Client Id is required";
     }
     if(!client.legalName || !client.legalName.trim()) {
         errors.legalName = "Legal name is required";
@@ -31,7 +31,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
         if(Object.keys(errors).length > 0) {
             return next({status: 400, message: errors})
         }
-        const clientWithSameId = await getClientByClientId(req.body.clientId);
+        const clientWithSameId = await getClientByClientId(req.body.id);
         if (clientWithSameId) {
             return next({status: 400, message: "invalid data", errors: {clientId: "Client ID already exists"}});
         }
@@ -73,6 +73,7 @@ export const getClient = async (req: Request, res: Response, next: NextFunction)
     try {
         const clientId =  req.params.clientId;
         const client = await getClientByClientId(clientId);
+        if(!client) return next({status: 404, message: "client not found"});
         res.status(200).json({message: "client found", client: client});
     } catch(error) {
         return next(error);

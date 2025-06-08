@@ -120,7 +120,7 @@
     .client-data-no-edit {
         width: 30%;
     }
-    .display-row-edit .female-only {
+    .female-only {
         display: block;
     }
 }

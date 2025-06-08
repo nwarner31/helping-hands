@@ -81,13 +81,13 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
                 </thead>
                 <tbody>
                 {filteredClients.map(client => (
-                    <tr key={client.clientId}>
-                        <td>{client.clientId}</td>
+                    <tr key={client.id}>
+                        <td>{client.id}</td>
                         <td>{client.legalName}</td>
                         <td>{formatDate(client.dateOfBirth)}</td>
                         <td>{client.sex}</td>
                         <td>
-                            <Button onClick={() => addClientHandler(client.clientId)}>{isMobile ? "+" : "Add"}</Button>
+                            <Button onClick={() => addClientHandler(client.id)}>{isMobile ? "+" : "Add"}</Button>
                         </td>
                     </tr>
                 ))}
