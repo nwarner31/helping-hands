@@ -1,19 +1,20 @@
 import { Request, Response, NextFunction } from "express";
+import {HttpError} from "../utility/httperror";
 
-interface ApiError extends Error {
-    status?: number;
-    message: string;
-    errors?: {[key: string]: string | string[] };
-}
-
+const isDev = process.env.NODE_ENV?.toLowerCase() === "development";
 // Custom error-handling middleware
-const errorMiddleware = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
+const errorMiddleware = (err: HttpError, req: Request, res: Response, next: NextFunction) => {
 
     const statusCode = err.status ?? 500;
+
+    if (!err.status) {
+        console.error("Unexpected error:", err);
+    }
     res.status(statusCode).json({
         success: false,
         message: err.message || "Internal Server Error",
-        errors: err.errors || undefined
+        errors: err.errors ?? {},
+        ...(isDev ? {stack: err.stack} : {})
     });
 };
 

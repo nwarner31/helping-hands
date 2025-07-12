@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styles from "./RegisterPage.module.css";
 import Input from "../../components/Inputs/Input/Input";
 import Button from "../../components/Button/Button";
-import DateInput from "../../components/Inputs/DateInput/DateInput";
+import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLabelInput";
 import {Link} from "react-router-dom";
 import Card from "../../components/Card/Card";
 import {useNavigate} from "react-router-dom";
@@ -118,7 +118,7 @@ const RegisterPage: React.FC = () => {
                         <Input label="Employee ID" name="id" type="text" onChange={handleChange} error={errors.id} />
                         <Input label="Name" name="name" type="text" onChange={handleChange} error={errors.name} />
                         <Input label="Email" name="email" type="text" onChange={handleChange} error={errors.email} />
-                        <DateInput label="Hire Date" name="hireDate" value={formData.hireDate} onChange={handleChange} error={errors.hireDate}/>
+                        <StaticLabelInput label="Hire Date" name="hireDate" value={formData.hireDate} type="date" onChange={handleChange} error={errors.hireDate}/>
                         <PasswordInput value={formData.password} label="Password" name="password" onChange={handleChange} error={errors.password} />
                         <PasswordInput label="Confirm Password" name="confirmPassword" onChange={handleChange} value={formData.confirmPassword} error={errors.confirmPassword} />
                         <div className={styles.radio}>

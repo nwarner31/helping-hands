@@ -67,9 +67,6 @@ export const getAvailableManagers = async (houseId: string) => {
         const managers = await prisma.employee.findMany({where: {position: "MANAGER"}, include: {primaryHouses: true, secondaryHouses: true}});
 
         return managers.filter(manager => {
-            console.log(manager.id);
-            console.log(house.primaryManagerId);
-            console.log(manager.id !== house.primaryManagerId);
             return manager.id !== house.primaryManagerId && manager.id !== house.secondaryManagerId
         }
           );

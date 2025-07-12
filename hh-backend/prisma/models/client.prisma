@@ -12,5 +12,5 @@ model Client {
   requiresStaff Boolean?
   house House? @relation(fields: [houseId], references: id)
   houseId String? @db.VarChar(45)
-
+  events Event[]
 }

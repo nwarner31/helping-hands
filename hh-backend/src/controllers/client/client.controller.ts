@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {addClient, getClients, getClientByClientId, updateClient, getHomelessClients} from "../services/client.service";
+import {addClient, getClients, getClientByClientId, updateClient, getHomelessClients} from "../../services/client.service";
 import {Client} from "@prisma/client";
 
 interface ClientErrors {

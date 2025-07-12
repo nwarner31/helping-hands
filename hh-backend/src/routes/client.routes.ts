@@ -5,7 +5,8 @@ import {
     getAllUnhousedClients,
     getClient,
     putClient
-} from "../controllers/client.controller";
+} from "../controllers/client/client.controller";
+import {createEvent} from "../controllers/client/clientEvent.controller";
 import {authenticateToken, requirePositions} from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -17,4 +18,5 @@ router.get("/no-house", authenticateToken, requirePositions("ADMIN", "DIRECTOR")
 router.get("/:clientId", authenticateToken, getClient);
 router.put("/:clientId", authenticateToken, requirePositions("ADMIN"), putClient);
 
+router.post("/:clientId/event", authenticateToken, requirePositions("ADMIN", "DIRECTOR", "MANAGER"), createEvent);
 export default router;

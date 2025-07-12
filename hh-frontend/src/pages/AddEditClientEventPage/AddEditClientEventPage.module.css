@@ -1,0 +1,41 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.page {
+    max-width: 400px;
+    padding: 20px 15px;
+}
+
+.header {
+     color: var(--accent-color);
+ }
+
+.description-container, .select-container {
+    max-width: 300px;
+    width: 100%;
+}
+.description {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.form, .medical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.medical {
+     width: 100%;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+ }
+.medical.open {
+    max-height: 700px;
+}

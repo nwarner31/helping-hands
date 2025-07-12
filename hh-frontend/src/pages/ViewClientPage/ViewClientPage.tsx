@@ -1,5 +1,5 @@
 import Card from "../../components/Card/Card";
-import {useLocation, useParams} from "react-router-dom";
+import {Link, useLocation, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import apiService from "../../utility/ApiService";
 import {Client} from "../../models/Client";
@@ -7,6 +7,8 @@ import {formatDate} from "../../utility/formatting";
 import Accordion from "../../components/Accordion/Accordion";
 import {House} from "../../models/House";
 import styles from "./ViewClientPage.module.css";
+import {useAuth} from "../../context/AuthContext";
+import Button from "../../components/Button/Button";
 
 
 const emptyClient = {
@@ -20,6 +22,8 @@ const emptyClient = {
 const ViewClientPage = () => {
     const { clientId } = useParams();
     const location = useLocation();
+    const {employee} = useAuth();
+    const canEdit = ["ADMIN", "DIRECTOR", "MANAGER"].includes(employee?.position as string);
     const [clientData, setClientData] = useState<Client>(emptyClient);
 
     useEffect(() => {
@@ -83,6 +87,9 @@ const ViewClientPage = () => {
                     </div>
 
                 </Accordion>}
+                <Accordion header="Upcoming Events">
+                    {canEdit && <Link to={`/client/${clientId}/add-event`} ><Button>Add Event</Button> </Link>}
+                </Accordion>
             </Card>
         </div>
     );

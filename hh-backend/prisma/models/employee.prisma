@@ -14,4 +14,9 @@ model Employee {
   hireDate DateTime @db.Date
   primaryHouses   House[] @relation("PrimaryManager")
   secondaryHouses House[] @relation("SecondaryManager")
+
+  medicalEventsPrinted        MedicalEvent[] @relation("RecordPrintedBy")
+  medicalEventsTakenToHouse   MedicalEvent[] @relation("RecordTakenToHouseBy")
+  medicalEventsCompleted      MedicalEvent[] @relation("AppointmentCompletedBy")
+  medicalEventsFiled          MedicalEvent[] @relation("RecordFiledBy")
 }

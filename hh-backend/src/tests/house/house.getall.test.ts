@@ -44,7 +44,6 @@ describe("HOUSE - get all houses", () => {
         expect(res.status).toBe(401);
     });
 
-    // Optional: simulate a server error
     it("should handle internal server errors", async () => {
         jest.spyOn(require("../../services/house.service"), "getHouses")
             .mockRejectedValue(new Error("Database connection failed"));

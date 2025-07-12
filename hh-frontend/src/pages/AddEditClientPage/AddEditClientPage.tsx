@@ -2,7 +2,7 @@ import Card from "../../components/Card/Card";
 import {Client} from "../../models/Client";
 import React, {useEffect, useState} from "react";
 import Input from "../../components/Inputs/Input/Input";
-import DateInput from "../../components/Inputs/DateInput/DateInput";
+import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLabelInput";
 import Button from "../../components/Button/Button";
 import { useLocation, useNavigate, useParams} from "react-router-dom";
 import apiService from "../../utility/ApiService";
@@ -108,7 +108,7 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
                     <Input label="Client ID" value={clientData.id} name="id" onChange={updateClientData} error={formErrors.id} disabled={isEdit} />
                     <Input label="Legal Name" value={clientData.legalName} name="legalName" onChange={updateClientData} error={formErrors.legalName} />
                     <Input label="Preferred Name" value={clientData.name} name="name" onChange={updateClientData} />
-                    <DateInput label="Date of Birth" value={clientData.dateOfBirth} name="dateOfBirth" onChange={updateClientData} error={formErrors.dateOfBirth} />
+                    <StaticLabelInput label="Date of Birth" type="date" value={clientData.dateOfBirth} name="dateOfBirth" onChange={updateClientData} error={formErrors.dateOfBirth} />
                     <div className={styles.radio}>
                         <RadioInput label="Female" name="sex" value="F" onChange={updateClientData} isChecked={clientData.sex === "F"} className={styles["radio-input"]} />
                         <RadioInput label="Male" name="sex" value="M" onChange={updateClientData} isChecked={clientData.sex === "M"} className={styles["radio-input"]} />

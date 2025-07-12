@@ -1,0 +1,41 @@
+.textareaContainer {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 1rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.textarea {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 1rem;
+    border: 1px solid var(--text-color);
+    border-radius: 6px;
+    resize: vertical;
+    min-height: 80px;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    transition: border-color 0.2s ease;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.textareaError {
+    border-color: red;
+}
+
+.errorText {
+    margin-top: 0.25rem;
+    color: red;
+    font-size: 0.75rem;
+}

@@ -1,5 +1,5 @@
-// ✅ mock apiService first
 import {AuthProvider} from "../../context/AuthContext";
+
 
 jest.mock("../../utility/ApiService", () => ({
     __esModule: true,
@@ -17,17 +17,6 @@ import ViewClientPage from "./ViewClientPage";
 import apiService from "../../utility/ApiService";
 const mockedApi = apiService.get as jest.Mock;
 
-// jest.mock("react-router-dom", () => ({
-//     ...jest.requireActual("react-router-dom"),
-//     //useLoaderData: jest.fn(),
-//     useParams: jest.fn(),
-//     useLocation: jest.fn()
-// }));
-
-// jest.mock("../../utility/ApiService", () => ({
-//     get: jest.fn(() => Promise.resolve( { message: "Client found", client: {} })),
-// }));
-// Test data
 const mockClient = {
     id: "client123",
     legalName: "Jane Doe",
@@ -50,18 +39,21 @@ const mockHouse = {
 describe("ViewClientPage", () => {
     it("renders with client from location.state", async () => {
         render(
-            <MemoryRouter
-                initialEntries={[
-                    {
-                        pathname: "/client/client123",
-                        state: { client: { ...mockClient, house: mockHouse } },
-                    },
-                ]}
-            >
-                <Routes>
-                    <Route path="/client/:clientId" element={<ViewClientPage />} />
-                </Routes>
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter
+                    initialEntries={[
+                        {
+                            pathname: "/client/client123",
+                            state: { client: { ...mockClient, house: mockHouse } },
+                        },
+                    ]}
+                >
+                    <Routes>
+                        <Route path="/client/:clientId" element={<ViewClientPage />} />
+                    </Routes>
+                </MemoryRouter>
+            </AuthProvider>
+
         );
 
         expect(await screen.findByText("View Client")).toBeInTheDocument();
@@ -109,11 +101,14 @@ describe("ViewClientPage", () => {
 
 
         render(
-            <MemoryRouter initialEntries={["/client/client123"]}>
-                <Routes>
-                    <Route path="/client/:clientId" element={<ViewClientPage />} />
-                </Routes>
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter initialEntries={["/client/client123"]}>
+                    <Routes>
+                        <Route path="/client/:clientId" element={<ViewClientPage />} />
+                    </Routes>
+                </MemoryRouter>
+            </AuthProvider>
+
         );
 
         await waitFor(() => {
@@ -131,18 +126,21 @@ describe("ViewClientPage", () => {
         };
 
         render(
-            <MemoryRouter
-                initialEntries={[
-                    {
-                        pathname: "/client/client123",
-                        state: { client: soloClient },
-                    } as any,
-                ]}
-            >
-                <Routes>
-                    <Route path="/client/:clientId" element={<ViewClientPage />} />
-                </Routes>
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter
+                    initialEntries={[
+                        {
+                            pathname: "/client/client123",
+                            state: { client: soloClient },
+                        } as any,
+                    ]}
+                >
+                    <Routes>
+                        <Route path="/client/:clientId" element={<ViewClientPage />} />
+                    </Routes>
+                </MemoryRouter>
+            </AuthProvider>
+
         );
 
         expect(await screen.findByText("No roommates")).toBeInTheDocument();

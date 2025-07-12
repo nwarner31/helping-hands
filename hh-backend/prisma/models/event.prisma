@@ -1,52 +1,3 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Sex {
-  M
-  F
-}
-
-model Client {
-  id String @id @db.VarChar(40)
-  legalName String @db.VarChar(50)
-  name String? @db.VarChar(25)
-  sex Sex
-  dateOfBirth DateTime @db.Date
-  requiresStaff Boolean?
-  house House? @relation(fields: [houseId], references: id)
-  houseId String? @db.VarChar(45)
-  events Event[]
-}
-
-enum EmployeePosition {
-  ASSOCIATE
-  MANAGER
-  DIRECTOR
-  ADMIN
-}
-model Employee {
-  id String @id @db.VarChar(40)
-  name String @db.VarChar(50)
-  sex Sex
-  email String @unique @db.VarChar(65)
-  password String @db.VarChar(65)
-  position EmployeePosition @default(ASSOCIATE)
-  hireDate DateTime @db.Date
-  primaryHouses   House[] @relation("PrimaryManager")
-  secondaryHouses House[] @relation("SecondaryManager")
-
-  medicalEventsPrinted        MedicalEvent[] @relation("RecordPrintedBy")
-  medicalEventsTakenToHouse   MedicalEvent[] @relation("RecordTakenToHouseBy")
-  medicalEventsCompleted      MedicalEvent[] @relation("AppointmentCompletedBy")
-  medicalEventsFiled          MedicalEvent[] @relation("RecordFiledBy")
-}
-
 enum EventType {
   WORK
   MEDICAL
@@ -91,23 +42,4 @@ model MedicalEvent {
   appointmentResults             String?   @db.Text
 
   event                          Event     @relation(fields: [id], references: [id])
-}
-
-
-
-
-model House {
-  id String @id @db.VarChar(20)
-  name String @unique @db.VarChar(25)
-  street1 String @db.VarChar(50)
-  street2 String? @db.VarChar(25)
-  city String @db.VarChar(30)
-  state String @db.VarChar(25)
-  maxClients Int @db.Integer
-  femaleEmployeeOnly Boolean
-  clients Client[]
-  primaryHouseManager Employee? @relation("PrimaryManager", fields: [primaryManagerId], references: id)
-  secondaryHouseManager Employee? @relation("SecondaryManager", fields: [secondaryManagerId], references: id)
-  primaryManagerId String? @db.VarChar(40)
-  secondaryManagerId String? @db.VarChar(40)
 }
