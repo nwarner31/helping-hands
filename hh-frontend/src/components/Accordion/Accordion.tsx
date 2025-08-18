@@ -6,9 +6,10 @@ interface AccordionProps {
     className?: string;
     variant?: "primary" | "secondary" | "accent";
     children?: React.ReactNode;
+    childrenClassName?: string;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ header, variant = "primary", children, className }) => {
+const Accordion: React.FC<AccordionProps> = ({ header, variant = "primary", children, className, childrenClassName }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -20,7 +21,7 @@ const Accordion: React.FC<AccordionProps> = ({ header, variant = "primary", chil
                 className={`${styles.body} ${isOpen ? styles.bodyOpen : ''}`}
 
             >
-                <div className={styles.bodyContent}>{children}</div>
+                <div className={`${styles.bodyContent} ${childrenClassName ?? ""}`}>{children}</div>
             </div>
         </div>
     );

@@ -44,7 +44,7 @@ describe("ViewClientPage", () => {
                     initialEntries={[
                         {
                             pathname: "/client/client123",
-                            state: { client: { ...mockClient, house: mockHouse } },
+                            state: { client: { ...mockClient, house: mockHouse, events: [] } },
                         },
                     ]}
                 >
@@ -63,6 +63,7 @@ describe("ViewClientPage", () => {
     });
 
     it("fetches client from API when no state is provided", async () => {
+        mockedApi.mockClear();
         mockedApi.mockImplementation((url: string, _config?: any) => {
             if (url.includes("client")) {
                 return Promise.resolve({
@@ -114,6 +115,92 @@ describe("ViewClientPage", () => {
         await waitFor(() => {
             expect(screen.getByText("Legal Name: Jane Doe")).toBeInTheDocument();
         });
+    });
+
+    it("fetches the house if it is not included in the location state", async () => {
+        mockedApi.mockClear();
+        mockedApi.mockImplementation((url: string, _config?: any)=> {
+            if (url.includes("house")) {
+                return Promise.resolve({
+                    house: {
+                        id: "house123",
+                        name: "Sunset Villa",
+                        street1: "123 Main St",
+                        street2: "",
+                        city: "Los Angeles",
+                        state: "CA",
+                        femaleEmployeeOnly: true,
+                        maxClients: 5,
+                        clients: [],
+                        primaryHouseManager: null,
+                        secondaryHouseManager: null,
+                    },
+                }) as Promise<any>;
+            }
+        });
+
+        render(
+            <AuthProvider>
+                <MemoryRouter
+                    initialEntries={[
+                        {
+                            pathname: "/client/client123",
+                            state: { client: { ...mockClient, houseId: "H1234", events: [] } },
+                        },
+                    ]}
+                >
+                    <Routes>
+                        <Route path="/client/:clientId" element={<ViewClientPage />} />
+                    </Routes>
+                </MemoryRouter>
+            </AuthProvider>
+
+        );
+        await waitFor(() => {
+            expect(mockedApi).toHaveBeenCalledTimes(1);
+        })
+
+    });
+
+    it("fetches the upcoming events if it is not included in the location state", async () => {
+        mockedApi.mockClear();
+        mockedApi.mockImplementation((url: string, _config?: any)=> {
+            if (url.includes("event/upcoming")) {
+                return Promise.resolve({
+                    events: [{
+                        id: "E1234",
+                        beginDate: "2023-10-01T10:00:00.000Z",
+                        endDate: "2023-10-01T12:00:00.000Z",
+                        beginTime: "2023-10-01T10:00:00.000Z",
+                        endTime: "2023-10-01T12:00:00.000Z",
+                        type: "WORK",
+                        numberStaffRequired: 2,
+                    }],
+                }) as Promise<any>;
+            }
+        });
+
+        render(
+            <AuthProvider>
+                <MemoryRouter
+                    initialEntries={[
+                        {
+                            pathname: "/client/client123",
+                            state: { client: { ...mockClient, house: mockHouse } },
+                        },
+                    ]}
+                >
+                    <Routes>
+                        <Route path="/client/:clientId" element={<ViewClientPage />} />
+                    </Routes>
+                </MemoryRouter>
+            </AuthProvider>
+
+        );
+        await waitFor(() => {
+            expect(mockedApi).toHaveBeenCalledTimes(1);
+        })
+
     });
 
     it("shows fallback when there are no roommates", async () => {

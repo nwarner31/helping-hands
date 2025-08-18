@@ -2,7 +2,6 @@ import Card from "../../components/Card/Card";
 import Input from "../../components/Inputs/Input/Input";
 import PasswordInput from "../../components/Inputs/PasswordInput/PasswordInput";
 import Button from "../../components/Button/Button";
-import styles from "./LoginPage.module.css";
 import {Link} from "react-router-dom";
 import React, {useState} from "react";
 import apiService from "../../utility/ApiService";
@@ -57,14 +56,14 @@ const LoginPage = () => {
         }
     }
     return (
-        <div className={styles.container}>
-            <Card className={styles.card}>
-                <h2 className={styles.title}>Login</h2>
-                <form className={styles.form} onSubmit={loginUser}>
-                    <Input label="Email" name="email" value={loginData.email} onChange={handleUpdate} error={errors.email} />
+        <div className="flex justify-center items-center w-screen min-h-screen bg-slate-100">
+            <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center">
+                <h1 className="text-accent text-2xl font-bold font-header mb-3">Login</h1>
+                <form className="flex flex-col w-full gap-y-3" onSubmit={loginUser}>
+                    <Input label="Email" name="email" value={loginData.email} className="w-full" onChange={handleUpdate} error={errors.email} />
                     <PasswordInput label="Password" name="password" value={loginData.password} onChange={handleUpdate} error={errors.password} />
-                    <Button type="submit" variant="primary" className={styles.button}>Login</Button>
-                    <Link to='/register' style={{width: '100%'}}><Button variant="secondary" className={styles.button}>Register</Button></Link>
+                    <Button type="submit" variant="primary" >Login</Button>
+                    <Link to='/register' className="w-full"><Button variant="secondary" className="w-full">Register</Button></Link>
                 </form>
 
             </Card>

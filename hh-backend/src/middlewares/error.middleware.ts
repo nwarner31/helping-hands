@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import {HttpError} from "../utility/httperror";
 
-const isDev = process.env.NODE_ENV?.toLowerCase() === "development";
+const isDev = process.env.NODE_ENV?.toLowerCase() !== "production";
 // Custom error-handling middleware
 const errorMiddleware = (err: HttpError, req: Request, res: Response, next: NextFunction) => {
 

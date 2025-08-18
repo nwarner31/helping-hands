@@ -1,10 +1,10 @@
 
 
-const ClientLogo = () => {
+const ClientLogo = ({className}: {className?: string}) => {
     return (
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-             viewBox="0 0 1869.000000 1458.000000"
-             preserveAspectRatio="xMidYMid meet">
+             viewBox="0 0 1350.000000 1030.000000"
+             preserveAspectRatio="xMidYMid meet" className={className}>
             <metadata>
                 Created by potrace 1.10, written by Peter Selinger 2001-2011
             </metadata>

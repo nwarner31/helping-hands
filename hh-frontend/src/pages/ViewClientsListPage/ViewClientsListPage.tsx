@@ -5,35 +5,20 @@ import Button from "../../components/Button/Button";
 import apiService from "../../utility/ApiService";
 import {Client} from "../../models/Client";
 import ViewClientsItem from "./ViewClientsItem";
-import styles from './ViewClientsListPage.module.css';
+
 
 const ViewClientsListPage = () => {
     const {employee} = useAuth();
     const {clients} = useLoaderData() as {clients: Client[], message: string};
     return (
-        <div className={styles.container}>
-            <Card className={styles.page}>
-                <h1 className={styles.header}>Clients</h1>
+        <div className="flex justify-center items-center bg-slate-100 min-h-screen">
+            <Card className="w-full py-4 xs:mx-4 sm:max-w-153">
+                <h1 className="text-accent text-2xl font-header text-center font-bold mb-3">Clients</h1>
                 <div >
                     <div>
-                        {employee?.position === "ADMIN" && <Link to="/add-client"><Button>Add Client</Button></Link>}
+                        {employee?.position === "ADMIN" && <Link to="/add-client" ><Button className="w-full mb-3 font-header font-semibold xs:w-[95%] xs:mx-[2.5%]">Add Client</Button></Link>}
                     </div>
-                    <div className={styles.main}>
-                        <table className={styles.table}>
-                            <thead>
-                            <tr>
-                                <th>Client ID</th>
-                                <th>Legal Name</th>
-                                <th className={employee?.position === "ADMIN" ? styles.hideable : ""}>Name</th>
-                                <th>Date of Birth</th>
-                                {employee?.position === "ADMIN" && <th></th>}
-                            </tr>
-                            </thead>
-                            <tbody>
                             {clients.map((client, index) => (<ViewClientsItem key={client.id} client={client} isAdmin={employee?.position === "ADMIN"} isOddRow={index % 2 === 0} /> ))}
-                            </tbody>
-                            </table>
-                    </div>
                 </div>
             </Card>
         </div>

@@ -43,13 +43,6 @@ describe("View Clients List Page tests", () => {
         expect(screen.getByRole('heading', { name: /clients/i })).toBeInTheDocument();
     });
 
-    it('renders the table headers', () => {
-        setup("ADMIN");
-        expect(screen.getByText("Client ID")).toBeInTheDocument();
-        expect(screen.getByText("Legal Name")).toBeInTheDocument();
-        expect(screen.getByText("Name")).toBeInTheDocument();
-        expect(screen.getByText("Date of Birth")).toBeInTheDocument();
-    });
 
     it('renders clients in the table', () => {
         setup("ADMIN");
@@ -65,15 +58,5 @@ describe("View Clients List Page tests", () => {
     it('does not show the "Add Client" button for non-admins', () => {
         setup("EMPLOYEE");
         expect(screen.queryByRole('button', { name: /add client/i })).not.toBeInTheDocument();
-    });
-
-    it('should have the hideable class for admins', () => {
-        setup("ADMIN");
-        expect(screen.queryByText("Name")).toHaveClass("hideable");
-    });
-
-    it('should not have the hideable class for non admins', () => {
-        setup("EMPLOYEE");
-        expect(screen.queryByText("Name")).not.toHaveClass("hideable");
     });
 });

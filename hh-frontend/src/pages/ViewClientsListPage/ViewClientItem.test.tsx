@@ -12,7 +12,7 @@ describe("View Client Item tests", () => {
         sex: "M"
     } as Client;
     function renderComponent(isAdmin: boolean, isOdd: boolean) {
-        return render(<BrowserRouter><table><tbody><ViewClientsItem client={mockClient} isAdmin={isAdmin} isOddRow={isOdd} /></tbody></table></BrowserRouter>);
+        return render(<BrowserRouter><ViewClientsItem client={mockClient} isAdmin={isAdmin} isOddRow={isOdd} /></BrowserRouter>);
     }
     it("should render the client correctly", () => {
         renderComponent(false, false);
@@ -21,26 +21,17 @@ describe("View Client Item tests", () => {
         expect(screen.getByText('None')).toBeInTheDocument(); // if name is missing
         expect(screen.getByText("01/01/2000")).toBeInTheDocument();
     });
-    it("should apply the odd row if odd is true", () => {
-        const {container} = renderComponent(false, true);
-        const row = container.querySelector("tr");
-        expect(row).toHaveClass("odd-row");
+    it("should apply the bg-primary if odd is true", () => {
+        renderComponent(false, true);
+        const row = screen.getByTestId("view-clients-item");
+        expect(row).toHaveClass("bg-primary");
     });
-    it("should apply the even row if odd is false", () => {
-        const {container} = renderComponent(false, false);
-        const row = container.querySelector("tr");
-        expect(row).toHaveClass("even-row");
+    it("should not apply the bg-primary if odd is false", () => {
+        renderComponent(false, false);
+        const row = screen.getByTestId("view-clients-item");
+        expect(row).not.toHaveClass("bg-primary");
     });
-    it("should have the hideable class if an admin", () => {
-        const {container} = renderComponent(true, false);
-        const hideable = container.querySelector(".hideable");
-        expect(hideable).toBeInTheDocument();
-    });
-    it("should not have the hideable class if not an admin", () => {
-        const {container} = renderComponent(false, false);
-        const hideable = container.querySelector(".hideable");
-        expect(hideable).not.toBeInTheDocument();
-    });
+
     it('shows Edit button for admin', () => {
         renderComponent(true, false);
         expect(screen.getByRole('button', { name: "Edit" })).toBeInTheDocument();

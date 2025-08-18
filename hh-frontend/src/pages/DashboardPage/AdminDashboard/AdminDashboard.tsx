@@ -8,8 +8,9 @@ const AdminDashboard = () => {
         <main>
             <aside className={styles.sidebar}>
                 <Link to="/view-clients">
-                    <Button className={styles['sidebar-button']} variant="secondary">
-                        <ClientIcon  />Manage Clients
+                    <Button className="flex flex-col items-center text-center" variant="secondary">
+                        <ClientIcon className="m-auto fill-current w-25 p-0" />
+                        <div>Manage Clients</div>
                     </Button>
                 </Link>
 

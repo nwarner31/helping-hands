@@ -1,43 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import {FullEventSchema} from "../../validation/event.validation";
-import { addEvent } from "../../services/event.service";
+import {addEvent } from "../../services/event.service";
+import {getClientByClientId} from "../../services/client.service";
 
-interface MedicalEventErrors {
-    recordNumber?: string;
-    doctor?: string;
-    doctorType?: string;
-    appointmentForCondition?: string;
-}
 
-interface EventErrors {
-    id?: string;
-    type?: string;
-    description?: string;
-    beginDate?: string;
-    endDate?: string;
-    beginTime?: string;
-    endTime?: string;
-    numberStaffRequired?: string;
-    medical?: MedicalEventErrors;
-}
 
-// const validateEventData = (event: EventInput) => {
-//     const errors: EventErrors = {};
-//     if (event.id.trim() === "") {
-//         errors.id = "An event requires an id";
-//     }
-//     if (event.type.trim() === "") {
-//         errors.type = "An event requires a type";
-//     } else if (!["WORK", "MEDICAL", "SOCIAL", "OTHER"].includes(event.type)) {
-//         errors.type = "Invalid event type";
-//     }
-//     if (event.description.trim() === "") {
-//         errors.description = "An event requires a description";
-//     }
-//     if (event.beginDate.trim() === "") {
-//         errors.beginDate = "An event requires a begin date";
-//     }
-// }
 
 export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -64,6 +31,22 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
     } catch (error) {
         console.error("Unexpected error:", error);
         return next(error);
-        // res.status(500).json({ error: "Internal server error" });
+    }
+
+}
+
+export const getUpcomingEventsForClient = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const clientId = req.params.clientId;
+        const client = await getClientByClientId(clientId);
+        if (!client) {
+            return next({ status: 404, message: "Client not found", errors: { clientId: "Client ID not found" } });
+        }
+        // const clientId = req.params.clientId;
+        // const events = await getUpcomingEventsForClientId(clientId);
+        // console.log(events);
+        res.status(200).json({ message: "Events found", events: client.events });
+    } catch (error) {
+        return next(error);
     }
 }

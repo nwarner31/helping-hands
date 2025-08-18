@@ -59,22 +59,3 @@ const validateMedical = (data: MedicalInput): ValidationErrors => {
     if (!data.appointmentForCondition) errors.appointmentForCondition = "A condition is required";
     return errors;
 }
-
-// const beginDate = new Date(data.beginDate);
-// if(!data.beginDate) {
-//     errors.beginDate = "A begin date is required for event";
-// } else if (isNaN(beginDate.getTime())) {
-//     errors.beginDate = "Begin date must be a valid date";
-// } else if (beginDate < today) {
-//     errors.beginDate = "Begin date must be today or later";
-// }
-// const endDate = new Date(data.endDate);
-// if(!data.endDate) {
-//     errors.endDate = "An end date is required for event";
-// } else if (isNaN(endDate.getTime())) {
-//     errors.endDate = "End date must be a valid date";
-// } else if (endDate < today) {
-//     errors.endDate = "End date must be today or later";
-// } else if(endDate < beginDate) {
-//     errors.endDate = "End date cannot be before begin date";
-// }

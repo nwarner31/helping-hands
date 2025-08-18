@@ -79,7 +79,7 @@
 
 @media screen and (max-width: 560px) {
     .display-row-edit {
-        grid-template-columns: 65px repeat(3, 1fr) 110px;;
+        grid-template-columns: 65px repeat(3, 1fr) 110px;
     }
     .display-row-edit .house-clients, .display-row-edit .house-clients-head {
         display: none;
@@ -93,7 +93,7 @@
 
 @media screen and (max-width: 465px) {
     .display-row-edit {
-        grid-template-columns: 65px repeat(2, 1fr) 110px;;
+        grid-template-columns: 65px repeat(2, 1fr) 110px;
     }
     .edit-button {
         grid-area: 1 / 4 / 3 / 5;

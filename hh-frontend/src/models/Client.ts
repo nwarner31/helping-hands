@@ -1,4 +1,5 @@
 import {House} from "./House";
+import {Event} from "./Event/Event";
 
 export interface Client {
     id: string;
@@ -8,4 +9,5 @@ export interface Client {
     sex: string;
     houseId?: string;
     house?: House;
+    events?: Event[];
 }

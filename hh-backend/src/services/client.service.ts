@@ -21,7 +21,33 @@ export const getClients = async () => {
 
 export const getClientByClientId = async (clientId: string) => {
     try {
-        return await prisma.client.findUnique({where: {id: clientId}});
+        if (!clientId.trim()) {
+            throw new Error("Client ID is required");
+        }
+        if (typeof clientId !== "string") {
+            throw new Error("Client ID must be a string");
+        }
+
+        const today = new Date();
+        const fourteenDaysFromNow = new Date(today);
+        fourteenDaysFromNow.setDate(today.getDate() + 14);
+        return  await prisma.client.findUnique({
+            where: { id: clientId },
+            include: {
+                house: true,
+                events: {
+                    where: {
+                        beginDate: {
+                            gte: today,
+                            lte: fourteenDaysFromNow
+                        }
+                    }
+                }
+            }
+        });
+
+
+        //return await prisma.client.findUnique({where: {id: clientId}});
     } catch(error) {
         throw error;
     }
