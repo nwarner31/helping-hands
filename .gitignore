@@ -10,6 +10,7 @@ lerna-debug.log*
 coverage
 node_modules
 .env
+.env.test
 dist
 dist-ssr
 *.local

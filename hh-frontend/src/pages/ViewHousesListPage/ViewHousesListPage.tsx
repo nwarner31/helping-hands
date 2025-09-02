@@ -5,7 +5,6 @@ import {Link, useLoaderData} from "react-router-dom";
 import apiService from "../../utility/ApiService";
 import {House} from "../../models/House";
 import ViewHouseListItem from "./ViewHouseListItem";
-import styles from "./ViewHouseListPage.module.css";
 import Modal from "../../components/Modal/Modal";
 import {useState} from "react";
 import {Client} from "../../models/Client";
@@ -53,22 +52,27 @@ const ViewHousesListPage = () => {
         setModalData({show: false, client: undefined, house: undefined, manager: undefined});
     }
     return (
-        <div className={styles.container}>
-            <Card className={styles.page}>
-                <h1 className={styles.title}>Houses</h1>
-                {canEdit && <div><Link to="/add-house"><Button>Add House</Button></Link></div>}
+        <div className="flex justify-center items-center min-h-screen bg-slate-100">
+            <Card className="max-w-163 pt-4 px-1 pb-5">
+                <h1 className="text-center text-accent text-2xl font-header font-bold mb-6">Houses</h1>
+                {canEdit && <div><Link to="/add-house"><Button className="w-full">Add House</Button></Link></div>}
                 {houseList.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.id} canEdit={canEdit} onRemoveClient={removeHandlerClient} onRemoveManager={removeHandlerManager} />)}
             </Card>
             {modalData.show && (
                 <Modal onClose={closeModal}>
-                    <h2 className={styles["modal-head"]} >Remove {modalData.client ? "Client" : "Manager"} from House</h2>
-                    <div className={styles["modal-body"]}>
-                        <p>Do you want to remove this client from this house?</p>
-                        <p>House: {modalData.house?.id}: {modalData.house?.name}</p>
-                        {modalData.client && <p>Client: {modalData.client.id}: {modalData.client.legalName}</p>}
-                        {modalData.manager && <p>Manager: {modalData.manager.id}: {modalData.manager.name}</p>}
-                        <Button onClick={removeHandler}>Remove</Button>
-                        <Button onClick={closeModal} variant="accent">Cancel</Button>
+                    <h2 className="m-0 py-1 px-3 bg-secondary text-white rounded-t-lg font-header font-bold text-lg" >Remove {modalData.client ? "Client" : "Manager"} from House</h2>
+                    <div className="pt-1 px-3 pb-4 font-body">
+                        <p>Do you want to remove this {modalData.client ? "client" : "manager"} from this house?</p>
+                           <div className="ml-4">
+                               <p>House: {modalData.house?.id}: {modalData.house?.name}</p>
+                            {modalData.client && <p>Client: {modalData.client.id}: {modalData.client.legalName}</p>}
+                            {modalData.manager && <p>Manager: {modalData.manager.id}: {modalData.manager.name}</p>}
+                        </div>
+                                         <div className="flex flex-col gap-y-3 sm:flex-row sm:gap-x-2 mt-4">
+                            <Button className="grow" onClick={removeHandler}>Remove</Button>
+                            <Button className="grow" onClick={closeModal} variant="accent">Cancel</Button>
+                        </div>
+
                     </div>
                 </Modal>
             )}

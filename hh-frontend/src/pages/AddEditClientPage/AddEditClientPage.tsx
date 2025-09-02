@@ -6,7 +6,6 @@ import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLab
 import Button from "../../components/Button/Button";
 import { useLocation, useNavigate, useParams} from "react-router-dom";
 import apiService from "../../utility/ApiService";
-import styles from './AddEddClientPage.module.css';
 import Toast from "../../components/Toast/Toast";
 import RadioInput from "../../components/Inputs/RadioInput/RadioInput";
 
@@ -101,20 +100,20 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
     }
 
     return (
-        <div className={styles.container}>
-            <Card className={styles.page}>
-                <h1 className={styles.header}>{isEdit ? "Update Client": "Add Client" }</h1>
-                <form className={styles.form} onSubmit={handleSubmit}>
+        <div className="flex justify-center items-center w-screen min-h-screen bg-slate-100">
+            <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center">
+                <h1 className="text-accent text-2xl font-bold font-header mb-3">{isEdit ? "Update Client": "Add Client" }</h1>
+                <form className="flex flex-col w-full gap-y-4 items-center"  onSubmit={handleSubmit}>
                     <Input label="Client ID" value={clientData.id} name="id" onChange={updateClientData} error={formErrors.id} disabled={isEdit} />
                     <Input label="Legal Name" value={clientData.legalName} name="legalName" onChange={updateClientData} error={formErrors.legalName} />
                     <Input label="Preferred Name" value={clientData.name} name="name" onChange={updateClientData} />
                     <StaticLabelInput label="Date of Birth" type="date" value={clientData.dateOfBirth} name="dateOfBirth" onChange={updateClientData} error={formErrors.dateOfBirth} />
-                    <div className={styles.radio}>
-                        <RadioInput label="Female" name="sex" value="F" onChange={updateClientData} isChecked={clientData.sex === "F"} className={styles["radio-input"]} />
-                        <RadioInput label="Male" name="sex" value="M" onChange={updateClientData} isChecked={clientData.sex === "M"} className={styles["radio-input"]} />
+                    <div className="w-full">
+                        <RadioInput label="Female" name="sex" value="F" onChange={updateClientData} isChecked={clientData.sex === "F"} className="w-1/2" />
+                        <RadioInput label="Male" name="sex" value="M" onChange={updateClientData} isChecked={clientData.sex === "M"} className="w-1/2" />
                     </div>
-                    <Button>{isEdit ? "Update Client": "Add Client" }</Button>
-                    <Button variant="secondary" type="button">Cancel</Button>
+                    <Button className="w-full">{isEdit ? "Update Client": "Add Client" }</Button>
+                    <Button className="w-full" variant="secondary" type="button">Cancel</Button>
                 </form>
             </Card>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}

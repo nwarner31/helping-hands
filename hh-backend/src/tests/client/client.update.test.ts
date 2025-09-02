@@ -58,4 +58,13 @@ describe("Client Routes - Update Client", () => {
             expect(response.body.message).toHaveProperty(field);
         });
     });
+    it("should handle server errors", async () => {
+        jest.spyOn(require("../../services/client.service"), "updateClient")
+            .mockRejectedValue(new Error("Database connection failed"));
+        const updatedClient = {...client, legalName: "Updated Client"};
+        const response = await request(app).put(`/api/client/${client.id}`)
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(updatedClient);
+        expect(response.status).toBe(500);
+    });
 });

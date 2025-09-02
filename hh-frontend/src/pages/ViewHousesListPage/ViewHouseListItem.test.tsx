@@ -59,12 +59,11 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("renders correct number of Add and Remove buttons", () => {
-        const {container} = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
-        const clientTable = container.querySelector(".client-table");
-        const buttons = clientTable!.querySelectorAll('button');
-        const addButtons = Array.from(buttons).filter(btn => btn.textContent === 'Add');
-        const removeButtons = Array.from(buttons).filter(btn => btn.textContent === 'Remove');
+
+        const addButtons =  screen.getAllByTestId("client-add-button");
+        const removeButtons = screen.getAllByTestId("client-remove-button");
 
         expect(removeButtons?.length).toBe(2); // 2 clients
         expect(addButtons?.length).toBe(1);    // 1 empty slot
@@ -81,27 +80,24 @@ describe("ViewHouseListItem Component", () => {
     it("applies the 'odd-row' class when isOdd is true", () => {
         const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         const rootDiv = container.firstChild as HTMLElement;
-        expect(rootDiv.className).toMatch(/odd-row/);
+        expect(rootDiv.className).toMatch(/bg-secondary/);
     });
 
     it("applies the 'even-row' class when isOdd is false", () => {
         const { container } = render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         const rootDiv = container.firstChild as HTMLElement;
-        expect(rootDiv.className).toMatch(/even-row/);
+        expect(rootDiv).not.toHaveClass(/bg-secondary/);
     });
     it("calls onRemoveClicked when a Remove button is clicked", async () => {
-        const {container} = render(
+        render(
             <BrowserRouter>
                 <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
             </BrowserRouter>
         );
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
 
-        const clientTable = container.querySelector(".client-table");
-        const buttons = clientTable!.querySelectorAll('button');
-        const removeButtons = Array.from(buttons).filter(btn => btn.textContent === 'Remove');
+        const removeButtons = screen.getAllByTestId("client-remove-button");
 
-        //const removeButtons = screen.getAllByRole("button", { name: /Remove/i });
         await userEvent.click(removeButtons[0]);
 
         expect(mockRemoveClient).toHaveBeenCalledWith(house, house.clients![0]); // or however you pass clientId
@@ -152,7 +148,7 @@ describe("ViewHouseListItem Component", () => {
     it("navigates to add-client page when Add link is clicked", async () => {
         const user = userEvent.setup();
 
-        const {container} = render(
+        render(
             <MemoryRouter initialEntries={["/"]}>
                 <Routes>
                     <Route
@@ -178,9 +174,7 @@ describe("ViewHouseListItem Component", () => {
         // Expand the row to reveal Add links
         await user.click(screen.getByRole("button", { name: /▶/i }));
 
-        const clientTable = container.querySelector(".client-table");
-        const buttons = clientTable!.querySelectorAll('button');
-        const addButtons = Array.from(buttons).filter(btn => btn.textContent === 'Add');//const removeButtons = Array.from(buttons).filter(btn => btn.textContent === 'Remove');
+        const addButtons =  screen.getAllByTestId("client-add-button");
 
         await user.click(addButtons[0]);
 

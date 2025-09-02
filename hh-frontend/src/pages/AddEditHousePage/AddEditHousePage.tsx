@@ -5,7 +5,6 @@ import Input from "../../components/Inputs/Input/Input";
 import apiService from "../../utility/ApiService";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {House} from "../../models/House";
-import styles from "./AddEditHousePage.module.css";
 import Toast from "../../components/Toast/Toast";
 
 const emptyHouse = {
@@ -128,10 +127,10 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
     }
 
     return (
-        <div className={styles.container}>
-            <Card className={styles.page}>
-                <h1 className={styles.header}>{isEdit ? "Update House" : "Add House"}</h1>
-                <form className={styles.form} onSubmit={submitHouse}>
+        <div className="flex justify-center items-center min-h-screen bg-slate-100">
+            <Card className="max-w-100 py-5 px-4 flex flex-col items-center">
+                <h1 className="text-accent font-header font-bold text-2xl mb-5">{isEdit ? "Update House" : "Add House"}</h1>
+                <form className="flex flex-col items-center gap-5 w-full" onSubmit={submitHouse}>
                     <Input label="House ID" value={houseData.id} name="id" error={formErrors.id} onChange={updateHouseData} disabled={isEdit} />
                     <Input label="House Name" value={houseData.name} name="name" error={formErrors.name} onChange={updateHouseData} />
                     <Input label="Street 1" value={houseData.street1} name="street1" error={formErrors.street1} onChange={updateHouseData} />
@@ -141,12 +140,12 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
                     <Input label="Maximum Clients in House" value={houseData.maxClients} name="maxClients" error={formErrors.maxClients} onChange={updateHouseData} type="number" />
                     <div>
                         <label>
-                            <input type="checkbox" name="femaleEmployeeOnly" checked={houseData.femaleEmployeeOnly} onChange={updateHouseData} className={styles.checkbox} />
+                            <input type="checkbox" name="femaleEmployeeOnly" checked={houseData.femaleEmployeeOnly} onChange={updateHouseData} className="accent-accent mr-1" />
                             Female Only House
                         </label>
                         </div>
-                    <Button >{isEdit ? "Update House" : "Add House"}</Button>
-                    <Button variant="secondary" type="button">Cancel</Button>
+                    <Button className="w-full" >{isEdit ? "Update House" : "Add House"}</Button>
+                    <Button className="w-full" variant="secondary" type="button">Cancel</Button>
                 </form>
             </Card>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}

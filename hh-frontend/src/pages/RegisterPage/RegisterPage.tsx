@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styles from "./RegisterPage.module.css";
 import Input from "../../components/Inputs/Input/Input";
 import Button from "../../components/Button/Button";
 import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLabelInput";
@@ -110,24 +109,24 @@ const RegisterPage: React.FC = () => {
     };
 
     return (
-        <div className={styles.container}>
-            <Card className={styles.card}>
-                <h2 className={styles.title}>Register</h2>
-                <form onSubmit={handleSubmit} className={styles.inputs}>
-                    <div className={styles.inputs}>
+        <div className="flex justify-center items-center min-h-screen bg-slate-100">
+            <Card className="max-w-100 py-3 flex flex-col items-center font-body gap-y-2 px-7">
+                <h2 className="font-header text-2xl font-bold text-accent mb-3">Register</h2>
+                <form onSubmit={handleSubmit} className="flex flex-col w-full items-center gap-y-5">
+
                         <Input label="Employee ID" name="id" type="text" onChange={handleChange} error={errors.id} />
                         <Input label="Name" name="name" type="text" onChange={handleChange} error={errors.name} />
                         <Input label="Email" name="email" type="text" onChange={handleChange} error={errors.email} />
                         <StaticLabelInput label="Hire Date" name="hireDate" value={formData.hireDate} type="date" onChange={handleChange} error={errors.hireDate}/>
                         <PasswordInput value={formData.password} label="Password" name="password" onChange={handleChange} error={errors.password} />
                         <PasswordInput label="Confirm Password" name="confirmPassword" onChange={handleChange} value={formData.confirmPassword} error={errors.confirmPassword} />
-                        <div className={styles.radio}>
-                            <RadioInput label="Female" name="sex" value="F" onChange={handleChange} variant="accent" isChecked={formData.sex === "F"} className={styles["radio-input"]} />
-                            <RadioInput name="sex" isChecked={formData.sex === "M"} value="M" onChange={handleChange} label="Male" variant="accent" className={styles["radio-input"]} />
+                        <div className="w-full">
+                            <RadioInput label="Female" name="sex" value="F" onChange={handleChange} variant="accent" isChecked={formData.sex === "F"} className="w-1/2" />
+                            <RadioInput name="sex" isChecked={formData.sex === "M"} value="M" onChange={handleChange} label="Male" variant="accent" className="w-1/2" />
                         </div>
-                        <Button type="submit" variant="primary" className={styles.button}>Register</Button>
-                        <Link to='/login' style={{width: '100%'}}><Button variant="secondary" className={styles.button}>Login</Button></Link>
-                    </div>
+                        <Button type="submit" variant="primary" className="w-full">Register</Button>
+                        <Link to='/login' style={{width: '100%'}}><Button variant="secondary" className="w-full">Login</Button></Link>
+
                       </form>
             </Card>
         </div>

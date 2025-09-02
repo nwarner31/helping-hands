@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styles from "./ViewHouseListItem.module.css";
+import React, {Fragment, useState} from 'react';
+import clsx from "clsx";
 import Button from "../../components/Button/Button";
 import {House} from "../../models/House";
 import {Link} from "react-router-dom";
@@ -29,44 +29,46 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
     for(let index = 0; index < maxClients; index++) {
         if(index < clients.length) {
             clientList.push(
-                <tr key={clients[index].id}>
-                    <td>{clients[index].id}</td>
-                    <td>{clients[index].legalName}</td>
-                    <td className={canEdit ? styles.dob : ""}>{formatDate(clients[index].dateOfBirth)}</td>
-                    {canEdit && <td><Button className={styles["client-action-button"]} variant={buttonVariant} onClick={() => onRemoveClient(house, clients[index])}>Remove</Button></td>}
-                </tr>);
+                <Fragment key={clients[index].id}>
+                    <div>{clients[index].id}</div>
+                    <div>{clients[index].legalName}</div>
+                    <div className={clsx(canEdit && "hidden sm:block")}>{formatDate(clients[index].dateOfBirth)}</div>
+                    {canEdit && <div><Button className="w-full" variant={buttonVariant} onClick={() => onRemoveClient(house, clients[index])} data-testid="client-remove-button">Remove</Button></div>}
+                </Fragment>
+            );
         } else {
             clientList.push(
-                <tr key={index}>
-                    <td >Empty</td>
-                    <td></td>
-                    <td className={canEdit ? styles.dob : ""}></td>
-                    {canEdit && <td><Link to={`/house/${house.id}/add-client`} state={{house: house}} ><Button className={styles["client-action-button"]} variant={buttonVariant}>Add</Button></Link></td>}
-                </tr>
-            )
+                <Fragment key={index} >
+                    <div className={clsx("text-left pl-7", canEdit ? "col-span-2 sm:col-span-3" : "col-span-3")} >Empty</div>
+                    {canEdit && <div><Link to={`/house/${house.id}/add-client`} state={{house: house}} ><Button className="w-full" variant={buttonVariant} data-testid="client-add-button">Add</Button></Link></div>}
+                </Fragment>
+            );
         }
 
     }
     return (
-        <div className={`${styles.container} ${styles[isOdd ? "odd-row" : "even-row"]}`}>
+        <div className={clsx("p-1 font-body text-center", isOdd && "bg-secondary text-white")}>
 
-            <div className={styles[canEdit ? "display-row-edit" : "display-row-no-edit"]}>
-                <Button onClick={toggleExpanded} className={styles["expand-button"]} variant={buttonVariant}>
+            <div className={clsx("grid grid-rows-2 gap-x-1 gap-y-0", canEdit ? "grid-cols-[65px_1fr_1fr_110px] sm:grid-cols-[65px_1fr_1fr_1fr_110px] md-lg:grid-cols-[65px_1fr_1fr_1fr_1fr_110px]" : "grid-cols-[65px_1fr_1fr_1fr_1fr]")}>
+                <Button onClick={toggleExpanded} className="row-span-2" variant={buttonVariant}>
                     {expanded ? '▼' : '▶'}
                 </Button>
-                <div className={styles["house-id-head"]}>House Id</div>
-                <div className={styles["house-id"]}>{house.id}</div>
-                <div className={styles["house-name-head"]}>House Name</div>
-                <div className={styles["house-name"]}>{house.name}</div>
-                <div className={styles["house-clients-head"]}>Clients</div>
-                <div className={styles["house-clients"]}>{clients.length}/{house.maxClients}</div>
-                <div className={styles["house-female-head"]}>F Only</div>
-                <div className={styles["house-female"]}>
+                <div className="font-semibold">House Id</div>
+                <div className="font-semibold">House Name</div>
+                <div className="font-semibold hidden md-lg:block">Clients</div>
+                <div className="font-semibold hidden sm:block">F Only</div>
+                <div>{house.id}</div>
+
+                <div>{house.name}</div>
+
+                <div className="hidden md-lg:block">{clients.length}/{house.maxClients}</div>
+
+                <div className="hidden sm:block">
                     {house.femaleEmployeeOnly ? 'Yes' : 'No'}
                 </div>
                 {canEdit &&
-                    <div className={styles["edit-button"]}>
-                        <Link to={`/edit-house/${house.id}`} state={{house: house}}><Button variant={buttonVariant}>
+                    <div className="col-start-4 sm:col-start-5 md-lg:col-start-6 row-start-1 row-span-2">
+                        <Link to={`/edit-house/${house.id}`} state={{house: house}}><Button className="h-full" variant={buttonVariant}>
                             Edit
                         </Button></Link>
                     </div>
@@ -74,46 +76,42 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
             </div>
 
             {expanded && (
-                <div className={styles["expand-container"]}>
+
+                <div className="flex flex-col gap-y-2 bg-slate-100 my-1 mx-3 rounded-lg py-3 px-2 text-black">
                     <div>
                         <strong>Address:</strong> {address}
                     </div>
                     <div>
-                        <div className={styles["manager-line"]}>
+                        <div className="flex items-center mb-2">
                             <strong>Primary Manager:</strong> {house.primaryHouseManager ?
-                            <><div>{house.primaryHouseManager.name}</div>
-                            {canEdit && <Button onClick={() => onRemoveManager(house, house.primaryHouseManager!)} variant={buttonVariant} >Remove</Button>}</> :
-                            <><div>N/A</div>
-                            {canEdit && <Link to={`/house/${house.id}/add-manager?position=primary`}><Button variant={buttonVariant} >Add</Button></Link>}</>}
+                            <><div className="grow">{house.primaryHouseManager.name}</div>
+                            {canEdit && <Button className="w-25" onClick={() => onRemoveManager(house, house.primaryHouseManager!)} variant={buttonVariant} >Remove</Button>}</> :
+                            <><div className="grow">N/A</div>
+                            {canEdit && <Link to={`/house/${house.id}/add-manager?position=primary`}><Button className="w-25" variant={buttonVariant} >Add</Button></Link>}</>}
                         </div>
-                        <div className={styles["manager-line"]}>
+                        <div className="flex items-center mb-2">
                             <strong>Secondary Manager:</strong> {house.secondaryHouseManager ?
                             <>
-                                <div>{house.secondaryHouseManager.name}</div>
-                                {canEdit && <Button onClick={() => onRemoveManager(house, house.secondaryHouseManager!)} variant={buttonVariant} >Remove</Button>}
+                                <div className="grow">{house.secondaryHouseManager.name}</div>
+                                {canEdit && <Button className="w-25" onClick={() => onRemoveManager(house, house.secondaryHouseManager!)} variant={buttonVariant} >Remove</Button>}
                             </> :
                             <>
-                                <div>N/A</div>
-                                {canEdit && <Link to={`/house/${house.id}/add-manager?position=secondary`}><Button variant={buttonVariant}>Add</Button></Link>}
+                                <div className="grow">N/A</div>
+                                {canEdit && <Link to={`/house/${house.id}/add-manager?position=secondary`}><Button className="w-25" variant={buttonVariant}>Add</Button></Link>}
                         </>}
                         </div>
-                        <div className={styles["female-only"]}>
+                        <div className="text-left sm:hidden">
                             <strong>Female Employees Only:</strong> {house.femaleEmployeeOnly ? 'Yes' : 'No'}
                         </div>
                     </div>
 
-                    <table className={styles["client-table"]}>
-                        <thead>
-                        <tr>
-                            <th className={styles[canEdit ? "client-data-edit" : "client-data-no-edit"]}>Client ID</th>
-                            <th className={styles[canEdit ? "client-data-edit" : "client-data-no-edit"]}>Legal Name</th>
-                            <th className={styles[canEdit ? "dob" : "client-data-no-edit"]}>Date of Birth</th>
-                        </tr>
-                        </thead>
-                        <tbody key={1}>
-                        {clientList }
-                        </tbody>
-                    </table>
+                    <div className={clsx("grid items-center gap-y-1", canEdit ? "grid-cols-[1fr_1fr_110px] sm:grid-cols-[1fr_1fr_1fr_110px]" : "grid-cols-3")}>
+                        <div className="font-semibold">Client ID</div>
+                        <div className="font-semibold">Legal Name</div>
+                        <div className={clsx("font-semibold", canEdit && "hidden sm:block")}>Date of Birth</div>
+                        <div className={clsx(!canEdit && "hidden")}></div>
+                        {clientList}
+                    </div>
                 </div>
             )}
         </div>

@@ -2,7 +2,6 @@ import request from "supertest";
 import app from "../../../app";
 import prisma from "../../../utility/prisma";
 import {Event} from "@prisma/client";
-//import { seedClient, seedEvents, authHeader } from "../helpers/testUtils";
 import {clientSetupTests} from "../client.setuptest";
 
 describe("GET /:clientId/event/upcoming", () => {
@@ -25,7 +24,6 @@ describe("GET /:clientId/event/upcoming", () => {
         const tokens = await clientSetupTests();
         adminToken = tokens.adminToken;
         associateToken = tokens.associateToken;
-
         await prisma.client.create({
             data: {
                 id: clientId,
@@ -75,5 +73,14 @@ describe("GET /:clientId/event/upcoming", () => {
             .expect(404);
 
         expect(res.body.errors).toBeDefined();
+    });
+
+    it("should handle server errors", async () => {
+        jest.spyOn(require("../../../services/client.service"), "getClientByClientId")
+            .mockRejectedValue(new Error("Database connection failed"));
+        const res = await request(app)
+            .get(`/api/client/${clientId}/event/upcoming`)
+            .set("Authorization", `Bearer ${adminToken}`) // or admin/manager as needed
+            .expect(500);
     });
 });

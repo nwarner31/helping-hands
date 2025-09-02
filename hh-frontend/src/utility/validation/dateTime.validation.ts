@@ -1,3 +1,22 @@
+export const validateMonth = (monthString: string, errorName: string) => {
+    if (!monthString.trim()) {
+        return `${errorName} is required`;
+    }
+    // Check format YYYY-MM
+    const regex = /^\d{4}-(0[1-9]|1[0-2])$/;
+    if (!regex.test(monthString )) {
+        return "Month must be in YYYY-MM format";
+    }
+
+    // Ensure it's a valid month
+    const [year, month] = monthString.split("-").map(Number);
+    if (month < 1 || month > 12 || year < 1900 || year > 2100) {
+        return "Invalid month";
+    }
+
+    return undefined;
+}
+
 export const validateDate = (dateString: string, errorName: string, comparison?: "past" | "future") => {
     if(!dateString) {
         return `${errorName} is required`;
@@ -27,12 +46,6 @@ export const validateTime = (
     if (!timeString) {
         return `${errorName} is required`;
     }
-
-    // // Match 12-hour format (e.g., 01:23 PM or 1:23 am)
-    // const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
-    // if (!timeRegex.test(timeString)) {
-    //     return `${errorName} must be a valid 12-hour time (e.g., 02:30 PM)`;
-    // }
 
     // Validate 24-hour time format (HH:MM)
     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;

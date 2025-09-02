@@ -62,7 +62,7 @@ export const createHouse = async (req: Request, res: Response, next: NextFunctio
         if(Object.keys(errors).length > 0) {
             return next({status: 400, message: "invalid data", errors: errors});
         }
-        const duplicate = await checkForDuplicateHouse(req.body.houseId, req.body.name);
+        const duplicate = await checkForDuplicateHouse(req.body.id, req.body.name);
         if(Object.keys(duplicate).length > 0) {
             return next({status: 400, message: "invalid data", errors: duplicate});
         }
@@ -145,7 +145,6 @@ export const removeClientFromHouse = async (req: Request, res: Response, next: N
 export const getAvailableManagersForHouse = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const houseId = req.params.houseId;
-        console.log(req.body);
         const availableManagers = await getAvailableManagers(houseId);
         res.status(200).json({message: "available mangers found", managers: availableManagers});
     } catch (error) {

@@ -77,5 +77,13 @@ describe("Client Routes - Add Client",  () => {
         expect(badResponse.statusCode).toBe(400);
         expect(badResponse.body.message).toBe("invalid data");
         expect(badResponse.body.errors).toHaveProperty("clientId");
+    });
+    it("should handle server errors", async () => {
+        jest.spyOn(require("../../services/client.service"), "addClient")
+            .mockRejectedValue(new Error("Database connection failed"));
+        const response = await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(validClient);
+        expect(response.status).toBe(500);
     })
 });

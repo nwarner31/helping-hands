@@ -1,9 +1,9 @@
 
 
-const HouseLogo = () => {
+const HouseLogo = ({className}: {className?: string}) => {
     return (
         <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
-             viewBox="0 0 486.196 486.196" >
+             viewBox="0 0 486.196 486.196" className={className} >
 <g>
 	<path d="M481.708,220.456l-228.8-204.6c-0.4-0.4-0.8-0.7-1.3-1c-5-4.8-13-5-18.3-0.3l-228.8,204.6c-5.6,5-6,13.5-1.1,19.1
 		c2.7,3,6.4,4.5,10.1,4.5c3.2,0,6.4-1.1,9-3.4l41.2-36.9v7.2v106.8v124.6c0,18.7,15.2,34,34,34c0.3,0,0.5,0,0.8,0s0.5,0,0.8,0h70.6

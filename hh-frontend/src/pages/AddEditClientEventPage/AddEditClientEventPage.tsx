@@ -9,7 +9,7 @@ import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLab
 import Select from "../../components/Inputs/Select/Select";
 import Textarea from "../../components/Inputs/Textarea/Textarea";
 import Button from "../../components/Button/Button";
-import styles from "./AddEditClientEventPage.module.css";
+import clsx from "clsx";
 import {convertEventToInput} from "../../utility/dataTransforms/eventTransforms";
 import {ValidationErrors} from "../../utility/validation/utility.validation";
 import Toast from "../../components/Toast/Toast";
@@ -93,26 +93,26 @@ const AddEditClientEventPage = ({isEdit}: {isEdit: boolean}) => {
         }
     }
     return (
-        <div className={styles.container}>
-            <Card className={styles.page}>
-                <h1 className={styles.header}>{isEdit ? "Update Event" : "Add Event"}</h1>
-                <form onSubmit={handleSubmit} className={styles.form}>
+        <div className="flex justify-center items-center min-h-screen bg-slate-100">
+            <Card className="max-w-100 py-5 px-4 flex flex-col items-center">
+                <h1 className="text-accent text-2xl font-bold font-header mb-3">{isEdit ? "Update Event" : "Add Event"}</h1>
+                <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full font-body max-w-75">
                     <Input label="Event ID" name="id" value={eventData.id} onChange={updateEventData} error={errors.id as string} />
                     <StaticLabelInput label="Begin Date" type="date" name="beginDate" value={eventData.beginDate} onChange={updateEventData} error={errors.beginDate as string} />
                     <StaticLabelInput label="Begin Time" type="time" name="beginTime" value={eventData.beginTime} onChange={updateEventData} error={errors.beginTime as string} />
                     <StaticLabelInput label="End Date" type="date" name="endDate" value={eventData.endDate} onChange={updateEventData} error={errors.endDate as string} />
                     <StaticLabelInput label="End Time" type="time" name="endTime" value={eventData.endTime} onChange={updateEventData} error={errors.endTime as string} />
                     <StaticLabelInput label="Staff Required" type="number" name="numberStaffRequired" value={eventData.numberStaffRequired} onChange={updateEventData} error={errors.numberStaffRequired as string} />
-                    <Select name="type" label="Event Type" options={eventTypeOptions} value={eventData.type} onChange={updateEventData} containerClass={styles["select-container"]} />
-                    <Textarea label="Description" name="description" value={eventData.description} onChange={updateEventData} containerClass={styles["description-container"]} className={styles.description} error={errors.description as string as string} />
-                    <div className={`${styles.medical} ${eventData.type === "MEDICAL" ? styles.open : ""}`}>
+                    <Select name="type" label="Event Type" options={eventTypeOptions} value={eventData.type} onChange={updateEventData} containerClass="w-full" className="border-1 rounded-sm" />
+                    <Textarea label="Description" name="description" value={eventData.description} onChange={updateEventData} containerClass="w-full" className="w-full border-1 rounded-sm" error={errors.description as string as string} />
+                    <div className={clsx("flex flex-col items-center gap-4 w-full overflow-hidden transition-all duration-300", eventData.type === "MEDICAL" ? "max-h-175": "max-h-0")}>
                         <Input label="Record Number" name="recordNumber" value={eventData.medical.recordNumber} onChange={updateMedicalEventData} error={medicalErrors.recordNumber} />
                         <Input label="Doctor Name" name="doctor" value={eventData.medical.doctor} onChange={updateMedicalEventData} error={medicalErrors.doctor} />
                         <Input label="Doctor Type" name="doctorType" value={eventData.medical.doctorType} onChange={updateMedicalEventData} error={medicalErrors.doctorType} />
                         <Input label="Condition" name="appointmentForCondition" value={eventData.medical.appointmentForCondition} onChange={updateMedicalEventData} error={medicalErrors.appointmentForCondition} />
                     </div>
-                    <Button >{isEdit ? "Update Event" : "Add Event"}</Button>
-                    <Button variant="secondary" type="button">Cancel</Button>
+                    <Button className="w-full" >{isEdit ? "Update Event" : "Add Event"}</Button>
+                    <Button className="w-full" variant="secondary" type="button">Cancel</Button>
                 </form>
             </Card>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}

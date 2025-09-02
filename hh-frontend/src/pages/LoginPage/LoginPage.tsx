@@ -57,7 +57,7 @@ const LoginPage = () => {
     }
     return (
         <div className="flex justify-center items-center w-screen min-h-screen bg-slate-100">
-            <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center">
+            <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center font-body">
                 <h1 className="text-accent text-2xl font-bold font-header mb-3">Login</h1>
                 <form className="flex flex-col w-full gap-y-3" onSubmit={loginUser}>
                     <Input label="Email" name="email" value={loginData.email} className="w-full" onChange={handleUpdate} error={errors.email} />

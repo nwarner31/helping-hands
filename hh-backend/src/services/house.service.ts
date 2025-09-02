@@ -132,7 +132,6 @@ export const removeHouseManager = async (houseId: string, managerId: string) => 
 export const checkForDuplicateHouse = async (houseId: string, name: string) => {
     try {
         const errors: { [key: string]: string } = {};
-
         const existingHouseId = await prisma.house.findFirst({where: {id: houseId}});
         if(existingHouseId) {
             errors.houseId = "House ID already in use";

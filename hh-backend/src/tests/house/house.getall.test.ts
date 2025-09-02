@@ -48,7 +48,6 @@ describe("HOUSE - get all houses", () => {
         jest.spyOn(require("../../services/house.service"), "getHouses")
             .mockRejectedValue(new Error("Database connection failed"));
 
-
         const res = await request(app)
             .get(endpoint)
             .set("Authorization", `Bearer ${token}`);

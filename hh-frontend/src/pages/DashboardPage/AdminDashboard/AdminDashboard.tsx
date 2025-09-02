@@ -1,21 +1,23 @@
 import Button from "../../../components/Button/Button";
-import styles from './AdminDashboard.module.css';
 import ClientIcon from '../../../assets/ClientLogo';
 import {Link} from "react-router-dom";
+import HouseIcon from "../../../assets/HouseLogo";
 
 const AdminDashboard = () => {
     return (
-        <main>
-            <aside className={styles.sidebar}>
-                <Link to="/view-clients">
-                    <Button className="flex flex-col items-center text-center" variant="secondary">
-                        <ClientIcon className="m-auto fill-current w-25 p-0" />
-                        <div>Manage Clients</div>
-                    </Button>
-                </Link>
-
-            </aside>
-        </main>
+        <div >
+            <Link to="/view-clients">
+                <Button className="flex flex-col items-center text-center mb-4" variant="secondary">
+                    <ClientIcon className="m-auto fill-current w-25 p-0" />
+                    <div>Manage Clients</div>
+                </Button>
+            </Link>
+            <Link to="/view-houses" >
+                <Button variant="primary" className="flex flex-col items-center text-center">
+                    <HouseIcon className="fill-current w-25 m-auto"  /> Manage Houses
+                </Button>
+            </Link>
+        </div>
     );
 }
 

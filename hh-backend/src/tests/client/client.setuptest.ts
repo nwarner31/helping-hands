@@ -32,7 +32,7 @@ export const clientSetupTests = async () => {
     const [adminResponse, associateResponse] = await Promise.all([adminPromise, associatePromise]);
     return {
         adminToken: adminResponse.body.accessToken,
-        associateToken: associateResponse.body.associateToken};
+        associateToken: associateResponse.body.accessToken};
 }
 
 export const clientTeardownTests = async () => {

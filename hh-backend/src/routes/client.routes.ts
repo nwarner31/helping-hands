@@ -6,7 +6,11 @@ import {
     getClient,
     putClient
 } from "../controllers/client/client.controller";
-import {createEvent, getUpcomingEventsForClient} from "../controllers/client/clientEvent.controller";
+import {
+    createEvent,
+    getEventsForClient,
+    getUpcomingEventsForClient
+} from "../controllers/client/clientEvent.controller";
 import {authenticateToken, requirePositions} from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -19,5 +23,6 @@ router.get("/:clientId", authenticateToken, getClient);
 router.put("/:clientId", authenticateToken, requirePositions("ADMIN"), putClient);
 
 router.post("/:clientId/event", authenticateToken, requirePositions("ADMIN", "DIRECTOR", "MANAGER"), createEvent);
+router.get("/:clientId/event", authenticateToken, getEventsForClient);
 router.get("/:clientId/event/upcoming", authenticateToken, getUpcomingEventsForClient);
 export default router;

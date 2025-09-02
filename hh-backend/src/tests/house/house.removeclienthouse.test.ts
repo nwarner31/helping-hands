@@ -99,4 +99,14 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
 
         expect(res.statusCode).toBe(403);
     });
+
+    it("should handle server errors", async () => {
+        jest.spyOn(require("../../services/house.service"), "removeHouseClient")
+            .mockRejectedValue(new Error("Database connection failed"));
+        const response = await request(app)
+            .delete(`/api/house/${house.id}/clients/${client.id}`)
+            .set("Authorization", `Bearer ${directorToken}`);
+
+        expect(response.status).toBe(500);
+    })
 });

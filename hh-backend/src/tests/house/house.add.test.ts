@@ -54,6 +54,16 @@ describe("HOUSE - add house", () => {
             expect(response.body.errors).toHaveProperty(field);
         });
     });
+    it("should return 400 for max clients below 1", async () => {
+        const noClientHouse = {...validHouse, maxClients: -1};
+        const response = await request(app).post("/api/house")
+            .set("Authorization", `Bearer ${directorToken}`)
+            .send(noClientHouse);
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("message");
+        expect(response.body.message).toBe("invalid data");
+        expect(response.body.errors).toHaveProperty("maxClients");
+    })
     it("should return 400 for duplicate house id", async () => {
         const response = await request(app).post("/api/house")
             .set("Authorization", `Bearer ${directorToken}`)
@@ -78,5 +88,14 @@ describe("HOUSE - add house", () => {
         expect(badResponse.body.message).toBe("invalid data");
         expect(badResponse.body.errors).toHaveProperty("name");
     });
+
+    it("should handle server errors", async () => {
+        jest.spyOn(require("../../services/house.service"), "addHouse")
+            .mockRejectedValue(new Error("Database connection failed"));
+        const response = await request(app).post("/api/house")
+            .set("Authorization", `Bearer ${directorToken}`)
+            .send(validHouse);
+        expect(response.status).toBe(500);
+    })
 
 });

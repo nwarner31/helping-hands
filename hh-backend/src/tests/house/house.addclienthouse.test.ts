@@ -90,5 +90,17 @@ describe('HOUSE - add client to house', () => {
             .send({ clientId: client.id });
 
         expect(res.status).toBe(403);
-    })
+    });
+
+    it("should handle internal server errors", async () => {
+        jest.spyOn(require("../../services/house.service"), "addHouseClient")
+            .mockRejectedValue(new Error("Database connection failed"));
+
+        const res = await request(app)
+            .patch(`/api/house/${house.id}/clients`)
+            .set("Authorization", `Bearer ${directorToken}`)
+            .send({ clientId: client.id });
+
+        expect(res.status).toBe(500);
+    });
 });

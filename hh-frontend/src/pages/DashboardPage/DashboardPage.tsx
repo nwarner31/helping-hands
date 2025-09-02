@@ -12,10 +12,10 @@ const DashboardPage = () => {
         dashboard = <DirectorDashboard />
     }
     return (
-        <div>
-            <Card>
-                <h1>Dashboard</h1>
-                {employee?.name}
+        <div className="min-h-screen bg-slate-100 flex justify-center items-center">
+            <Card className="flex flex-col items-center py-5 w-auto">
+                <h1 className="font-header text-2xl font-bold text-accent mb-4">Dashboard</h1>
+                <span className="mb-3">{employee?.name}</span>
                 {dashboard}
             </Card>
         </div>

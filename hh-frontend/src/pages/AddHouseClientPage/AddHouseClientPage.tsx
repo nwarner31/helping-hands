@@ -4,7 +4,6 @@ import apiService from "../../utility/ApiService";
 import {useLocation, useParams} from "react-router-dom";
 import {House} from "../../models/House";
 import AddClientSearchList from "./AddClientSearchList";
-import styles from "./AddHouseClientPage.module.css";
 import {Client} from "../../models/Client";
 import {formatDate} from "../../utility/formatting";
 
@@ -46,25 +45,16 @@ const AddHouseClientPage = () => {
     const [houseData, setHouseData] = useState<House>(emptyHouse);
     const [clientsData, setClientsData] = useState<Client[]>([]);
     return (
-        <div className={styles.container}>
-            <Card className={styles.page}>
-                <h1 className={styles.title}>Add Client to House</h1>
-                <table className={styles["house-table"]}>
-                    <thead>
-                    <tr>
-                        <th>House ID</th>
-                        <th>House Name</th>
-                    </tr>
+        <div className="flex justify-center items-center min-h-screen bg-slate-100">
+            <Card className="font-body py-3 px-1 max-w-163 flex flex-col items-center gap-y-3">
+                <h1 className="text-2xl font-header font-bold text-accent">Add Client to House</h1>
+                <div className="grid grid-cols-2 gap-x-2 text-center">
+                    <div className="font-semibold">House ID</div>
+                    <div className="font-semibold">House Name</div>
+                    <div>{houseData.id}</div>
+                    <div>{houseData.name}</div>
+                </div>
 
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{houseData.id}</td>
-                            <td>{houseData.name}</td>
-                        </tr>
-                    </tbody>
-
-                </table>
                 <div>Current Clients: {houseData.clients?.length}/{houseData.maxClients}</div>
                 {houseData.clients && houseData.clients.length > 0 &&
                 <table data-testid="house-clients-table">

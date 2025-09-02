@@ -1,7 +1,6 @@
 import React, {useState, useMemo, useEffect} from "react";
 import {Client} from "../../models/Client";
 import Button from "../../components/Button/Button";
-import styles from "./AddClientSearchList.module.css";
 import {formatDate} from "../../utility/formatting";
 import apiService from "../../utility/ApiService";
 import {House} from "../../models/House";
@@ -57,6 +56,7 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
         <div style={{ padding: "3px" }}>
             <div style={{ marginBottom: "1rem", gap: "1rem", display: "flex", justifyContent: "center" }}>
                 <input
+                    className="border-b"
                     type="text"
                     placeholder="Search by name..."
                     value={search}
@@ -69,24 +69,24 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
                 </select>
             </div>
 
-            <table className={styles.table}>
+            <table className="w-full border-collapse text-center">
                 <thead>
-                <tr>
-                    <th style={{ borderBottom: "1px solid #ccc" }}>Client ID</th>
-                    <th style={{ borderBottom: "1px solid #ccc" }}>Legal Name</th>
-                    <th style={{ borderBottom: "1px solid #ccc" }}>Date of Birth</th>
-                    <th style={{ borderBottom: "1px solid #ccc" }}>Sex</th>
-                    <th style={{ borderBottom: "1px solid #ccc" }}></th>
+                <tr className="border-b border-slate-700">
+                    <th className="px-2">Client ID</th>
+                    <th className="px-2">Legal Name</th>
+                    <th className="px-2">Date of Birth</th>
+                    <th className="px-2">Sex</th>
+                    <th className="px-2"></th>
                 </tr>
                 </thead>
                 <tbody>
                 {filteredClients.map(client => (
                     <tr key={client.id}>
-                        <td>{client.id}</td>
-                        <td>{client.legalName}</td>
-                        <td>{formatDate(client.dateOfBirth)}</td>
-                        <td>{client.sex}</td>
-                        <td>
+                        <td className="px-2">{client.id}</td>
+                        <td className="px-2">{client.legalName}</td>
+                        <td className="px-2">{formatDate(client.dateOfBirth)}</td>
+                        <td className="px-2">{client.sex}</td>
+                        <td className="px-2">
                             <Button onClick={() => addClientHandler(client.id)}>{isMobile ? "+" : "Add"}</Button>
                         </td>
                     </tr>

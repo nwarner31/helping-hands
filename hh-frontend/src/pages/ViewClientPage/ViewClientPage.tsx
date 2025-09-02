@@ -99,6 +99,7 @@ const ViewClientPage = () => {
                 </Accordion>}
                 <Accordion header="Upcoming Events" className="font-header font-semibold">
                     {canEdit && <Link to={`/client/${clientId}/add-event`} ><Button className="w-full">Add Event</Button> </Link>}
+                    <Link to={`/client/${clientId}/view-events`} ><Button className="w-full">View Events</Button> </Link>
                     {clientData.events && clientData.events.length > 0 ? (
                         clientData.events.map((event, index) => <ViewClientUpcomingEvent key={event.id} event={event} isOdd={index % 2 === 0} />)
                     ) : (

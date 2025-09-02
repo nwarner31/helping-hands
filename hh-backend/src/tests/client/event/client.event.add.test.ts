@@ -2,6 +2,7 @@ import prisma from "../../../utility/prisma";
 import request from "supertest";
 import app from "../../../app";
 import { clientSetupTests, clientTeardownTests } from "../client.setuptest";
+import {addEvent} from "../../../services/event.service";
 
 describe("Client Routes - Add Event", () => {
     const clientId = "C12345";
@@ -154,5 +155,16 @@ describe("Client Routes - Add Event", () => {
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("event");
         expect(response.body.message).toBe("Event created");
+    });
+
+    it("should handle server errors", async () => {
+        jest.spyOn(require("../../../services/event.service"), "addEvent")
+            .mockRejectedValue(new Error("Database connection failed"));
+
+        const response = await request(app)
+            .post(`/api/client/${clientId}/event`)
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(validEvent);
+        expect(response.status).toBe(500);
     });
 });

@@ -3,7 +3,6 @@ import request from "supertest";
 import app from "../../app";
 import {setupHouseTest, teardownHouseTests} from "./house.setuptest";
 
-
 describe("HOUSE - update house", () => {
     const updatedHouse = {
         id: "H1234",
@@ -109,4 +108,14 @@ describe("HOUSE - update house", () => {
         expect(response.body.message).toBe("invalid data");
         expect(response.body.errors).toHaveProperty("houseId");
     });
+
+    it("should handle server errors", async () => {
+        jest.spyOn(require("../../services/house.service"), "updateHouse")
+            .mockRejectedValue(new Error("Database connection failed"));
+        const response = await request(app)
+            .put("/api/house/H1234")
+            .set("Authorization", `Bearer ${directorToken}`)
+            .send(updatedHouse);
+        expect(response.status).toBe(500);
+    })
 });
