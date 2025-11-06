@@ -5,7 +5,7 @@ import {Employee} from "../../models/Employee";
 import AddManagerListItem from "./AddManagerListItem";
 import {useEffect, useState} from "react";
 import {House} from "../../models/House";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 
 export const AddHouseManagerPage = () => {
     const {managers} = useLoaderData<{managers: Employee[]}>();

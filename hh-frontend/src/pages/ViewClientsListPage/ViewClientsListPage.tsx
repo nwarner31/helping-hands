@@ -1,7 +1,7 @@
 import Card from "../../components/Card/Card";
 import {useAuth} from "../../context/AuthContext";
 import {Link, useLoaderData} from "react-router-dom";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import apiService from "../../utility/ApiService";
 import {Client} from "../../models/Client";
 import ViewClientsItem from "./ViewClientsItem";

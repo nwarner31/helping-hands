@@ -49,8 +49,9 @@ describe("RadioInput tests", () => {
                 variant="accent"
             />
         );
-        const checkmark = screen.getByText("Option C").querySelector(".checkmark-accent");
+        const checkmark = screen.getByTestId("radio-testRadio");
         expect(checkmark).toBeInTheDocument();
+        expect(checkmark).toHaveClass("text-accent");
     });
 
 })

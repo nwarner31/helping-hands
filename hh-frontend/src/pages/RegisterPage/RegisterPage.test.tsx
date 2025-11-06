@@ -68,6 +68,14 @@ describe("Register Page tests", () => {
         expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument();
     });
 
+    it("should display error for password under 8 characters", async () => {
+        renderPage();
+        await userEvent.type(screen.getByLabelText("Password"), "pass");
+        const registerButton = await userEvent.click(screen.getByRole("button", { name: /register/i }));
+        if (registerButton !== undefined) await userEvent.click(registerButton);
+        expect(screen.getByText("Password must be at least 8 characters.")).toBeInTheDocument();
+    })
+
     it("should submit the form with valid data", async () => {
         renderPage();
 

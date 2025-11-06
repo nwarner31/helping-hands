@@ -8,8 +8,9 @@
     "start": "node dist/server.js",
     "start:prod": "node dist/server.js",
     "lint": "eslint . --ext .ts",
-
     "test": "dotenv -e .env.test -- jest --runInBand",
+    "test:coverage": "dotenv -e .env.test -- jest --runInBand --coverage",
+    "cypress": "dotenv -e .env.test -- npm run dev",
     "db:push:test": "dotenv -e .env.test -- npx prisma db push --force-reset",
     "test:watch": "jest --watch",
     "prettier": "prettier --write .",

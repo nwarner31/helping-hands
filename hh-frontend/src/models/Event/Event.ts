@@ -35,3 +35,21 @@ export interface Event {
     client: Client;
     medical?: MedicalEvent;
 }
+
+export const emptyEvent: Event = {
+    id: "",
+    type: EventType.OTHER,
+    description: "",
+    beginDate: "2023-09-01T10:00:00.000Z",
+    endDate: "2023-09-01T10:00:00.000Z",
+    beginTime: "2023-09-01T10:00:00.000Z",
+    endTime: "2023-09-01T10:00:00.000Z",
+    numberStaffRequired: 0,
+    client: {
+        id: "",
+        legalName: "",
+        name: "",
+        dateOfBirth: "",
+        sex: "F"
+    }
+}

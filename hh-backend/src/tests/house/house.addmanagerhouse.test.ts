@@ -5,13 +5,18 @@ import { HttpError } from "../../utility/httperror";
 import {setupHouseTest, teardownHouseTests} from "./house.setuptest";
 import prisma from "../../utility/prisma";
 import {Employee} from "@prisma/client";
+import {TestEmployee} from "../setuptestemployees";
+import {setupTestManagers} from "../setuptestmanagers";
 
 // Mock service
 //jest.mock("../../services/houseService");
 
 describe("POST /house/:houseId/manager", () => {
-    let directorToken: string;
-    let associateToken: string;
+    let director: TestEmployee;
+    let associate: TestEmployee;
+    let manager1: TestEmployee;
+    let manager2: TestEmployee;
+    let manager3: TestEmployee;
     const mockHouse = {
         id: "H1001",
         name: "Harmony Home",
@@ -24,30 +29,29 @@ describe("POST /house/:houseId/manager", () => {
     };
     let manager: Employee | null = null;
     beforeAll(async () => {
-        const tokens = await setupHouseTest();
-        directorToken = tokens.directorToken;
-        associateToken = tokens.associateToken;
-        const response = await request(app)
-            .post("/api/auth/register")
-            .send({
-                id: "testabc",
-                name: "John Doe",
-                email: "manager@test.com",
-                password: "StrongPass123",
-                confirmPassword: "StrongPass123",
-                hireDate: "2024-03-09",
-                position: "MANAGER",
-                sex: "M"
-            });
-        manager = response.body.employee;
+        const employees = await setupHouseTest();
+        director = employees.director;
+        associate = employees.associate;
+        const managers = await setupTestManagers();
+        ({manager1, manager2, manager3} = managers);
     })
 
 
     beforeEach(async () => {
         await prisma.house.deleteMany();
-        await request(app).post("/api/house")
-        .set("Authorization", `Bearer ${directorToken}`)
-        .send(mockHouse);
+        await prisma.house.create({
+            data: {
+                id: "H2002",
+                name: "Test House",
+                street1: "2 Example Rd",
+                city: "Testville",
+                state: "TX",
+                maxClients: 2,
+                femaleEmployeeOnly: false,
+                primaryManagerId: null,
+                secondaryManagerId: null,
+            }
+        })
         jest.clearAllMocks();
     });
     afterAll(async () => {
@@ -56,17 +60,48 @@ describe("POST /house/:houseId/manager", () => {
 
     it("should add a primary manager to a house", async () => {
         const response = await request(app)
-            .post("/api/house/H1001/manager")
-            .set("Authorization", `Bearer ${directorToken}`)
-            .send({ employeeId: "testabc", positionType: "primary" });
-        expect(response.status).toBe(209);
-        expect(response.body.house.primaryManagerId).toEqual(manager?.id);
+            .post("/api/house/H2002/manager")
+            .set("Authorization", `Bearer ${director.token}`)
+            .send({ employeeId: manager1.id, positionType: "primary" });
+        expect(response.status).toBe(200);
+        expect(response.body.house.primaryManagerId).toEqual(manager1.id);
     });
+
+    it("should add a secondary manager to a house", async () => {
+        const response = await request(app)
+            .post("/api/house/H2002/manager")
+            .set("Authorization", `Bearer ${director.token}`)
+            .send({ employeeId: manager2.id, positionType: "secondary" });
+        expect(response.status).toBe(200);
+        expect(response.body.house.secondaryManagerId).toEqual(manager2.id);
+
+    });
+
+    it("should not allow adding the same manager as primary and secondary", async () => {
+        // First, add as primary
+        let response = await request(app)
+            .post("/api/house/H2002/manager")
+            .set("Authorization", `Bearer ${director.token}`)
+            .send({ employeeId: manager3.id, positionType: "primary" });
+        expect(response.status).toBe(200);
+        expect(response.body.house.primaryManagerId).toEqual(manager3.id);
+
+        // Then, try to add the same manager as secondary
+        response = await request(app)
+            .post("/api/house/H2002/manager")
+            .set("Authorization", `Bearer ${director.token}`)
+            .send({ employeeId: manager3.id, positionType: "secondary" });
+        expect(response.status).toBe(400);
+        expect(response.body.errors).toEqual({
+            employeeId: "Employee is already a manager in the house"
+        });
+
+    })
 
     it("should reject invalid positionType", async () => {
         const response = await request(app)
             .post("/api/house/H1001/manager")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: "testabc", positionType: "invalid" });
 
         expect(response.status).toBe(400);
@@ -77,7 +112,7 @@ describe("POST /house/:houseId/manager", () => {
     it("should reject invalid house id", async () => {
         const response = await request(app)
             .post("/api/house/H2231/manager")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: "testabc", positionType: "primary" });
 
         expect(response.status).toBe(400);
@@ -87,8 +122,8 @@ describe("POST /house/:houseId/manager", () => {
     });
     it("should reject an invalid employee id", async () => {
         const response = await request(app)
-            .post("/api/house/H1001/manager")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .post("/api/house/H2002/manager")
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: "hello", positionType: "primary" });
 
         expect(response.status).toBe(400);
@@ -98,8 +133,8 @@ describe("POST /house/:houseId/manager", () => {
     });
     it("should reject a non manager employee id", async () => {
         const response = await request(app)
-            .post("/api/house/H1001/manager")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .post("/api/house/H2002/manager")
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: "test789", positionType: "primary" });
 
         expect(response.status).toBe(400);
@@ -118,7 +153,7 @@ describe("POST /house/:houseId/manager", () => {
     it("should return 403 for an associate", async () => {
         const response = await request(app)
             .post("/api/house/H1001/manager")
-            .set("Authorization", `Bearer ${associateToken}`)
+            .set("Authorization", `Bearer ${associate.token}`)
             .send({ employeeId: "testabc", positionType: "primary" });
 
         expect(response.status).toBe(403);
@@ -133,7 +168,7 @@ describe("POST /house/:houseId/manager", () => {
 
         const response = await request(app)
             .post("/api/house/H1001/manager")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: "testabc", positionType: "secondary" });
         expect(response.status).toBe(500);
     });

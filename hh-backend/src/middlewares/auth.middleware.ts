@@ -42,6 +42,7 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
         req.employee = employee;
         next();
     } catch (err) {
+        console.log(err);
         console.log(authHeader);
          res.sendStatus(403);
          return;

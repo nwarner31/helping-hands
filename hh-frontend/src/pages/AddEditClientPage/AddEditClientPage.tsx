@@ -3,11 +3,12 @@ import {Client} from "../../models/Client";
 import React, {useEffect, useState} from "react";
 import Input from "../../components/Inputs/Input/Input";
 import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLabelInput";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import { useLocation, useNavigate, useParams} from "react-router-dom";
 import apiService from "../../utility/ApiService";
 import Toast from "../../components/Toast/Toast";
 import RadioInput from "../../components/Inputs/RadioInput/RadioInput";
+import {formatInputDate} from "../../utility/formatting";
 
 const emptyClient = {
     id: "",
@@ -30,13 +31,13 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
             const {client} = await apiService.get<{client: Client, message: string}>(`client/${clientId}`);
             setClientData({...client});
         }
-        if(isEdit && location.state.client) {
+        if(isEdit && location.state && location.state.client) {
             setClientData(prevState => ({
                 ...prevState,
                 ...location.state.client,
-                dateOfBirth: location.state.client.dateOfBirth?.split("T")[0] ?? ""
+                dateOfBirth: formatInputDate(location.state.client.dateOfBirth)
             }));
-        } else if(isEdit && !location.state.client) {
+        } else if(isEdit && !location.state?.client) {
             fetchClient();
         }
     },[])
@@ -102,13 +103,13 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
     return (
         <div className="flex justify-center items-center w-screen min-h-screen bg-slate-100">
             <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center">
-                <h1 className="text-accent text-2xl font-bold font-header mb-3">{isEdit ? "Update Client": "Add Client" }</h1>
-                <form className="flex flex-col w-full gap-y-4 items-center"  onSubmit={handleSubmit}>
-                    <Input label="Client ID" value={clientData.id} name="id" onChange={updateClientData} error={formErrors.id} disabled={isEdit} />
-                    <Input label="Legal Name" value={clientData.legalName} name="legalName" onChange={updateClientData} error={formErrors.legalName} />
-                    <Input label="Preferred Name" value={clientData.name} name="name" onChange={updateClientData} />
-                    <StaticLabelInput label="Date of Birth" type="date" value={clientData.dateOfBirth} name="dateOfBirth" onChange={updateClientData} error={formErrors.dateOfBirth} />
-                    <div className="w-full">
+                <h1 className="text-accent text-2xl font-bold font-header mb-8">{isEdit ? "Update Client": "Add Client" }</h1>
+                <form className="flex flex-col w-full gap-y-6 items-center px-2"  onSubmit={handleSubmit}>
+                    <Input containerClassName="w-full" label="Client ID" value={clientData.id} name="id" onChange={updateClientData} error={formErrors.id} disabled={isEdit} />
+                    <Input containerClassName="w-full" label="Legal Name" value={clientData.legalName} name="legalName" onChange={updateClientData} error={formErrors.legalName} />
+                    <Input containerClassName="w-full" label="Preferred Name" value={clientData.name} name="name" onChange={updateClientData} />
+                    <StaticLabelInput containerClass="w-full" label="Date of Birth" type="date" value={clientData.dateOfBirth} name="dateOfBirth" onChange={updateClientData} error={formErrors.dateOfBirth} />
+                    <div className="w-full flex">
                         <RadioInput label="Female" name="sex" value="F" onChange={updateClientData} isChecked={clientData.sex === "F"} className="w-1/2" />
                         <RadioInput label="Male" name="sex" value="M" onChange={updateClientData} isChecked={clientData.sex === "M"} className="w-1/2" />
                     </div>

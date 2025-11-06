@@ -82,11 +82,13 @@ describe("ViewHousesListPage", () => {
         expect(screen.getByText(/House: H2/)).toBeInTheDocument();
         expect(screen.getByText(/Client: C1/)).toBeInTheDocument();
     });
-    it("calls the delete api when the remove modal button clicked", async () => {
+    it("calls the delete api and removes client when the remove modal button clicked", async () => {
+        (apiService.delete as jest.Mock).mockResolvedValue({message: "client removed from house", house: { ...sampleHouses[1], clients: []}});
         renderPage("DIRECTOR");
         await userEvent.click(screen.getByText("Bob Smith"));
         await userEvent.click(screen.getByText("Remove"));
         expect(apiService.delete).toHaveBeenCalled();
+        expect(screen.queryByText("Bob Smith")).not.toBeInTheDocument();
     });
 
     it("displays modal when a manager is being removed", async () => {
@@ -97,14 +99,24 @@ describe("ViewHousesListPage", () => {
         expect(screen.getByText(/Manager: E1/)).toBeInTheDocument();
     });
 
-    it("calls the delete API when remove manager modal button clicked", async () => {
-
+    it("calls the delete API and removes manager when remove manager modal button clicked", async () => {
+        (apiService.delete as jest.Mock).mockResolvedValue({message: "manager removed from house", house: { ...sampleHouses[0], primaryHouseManager: undefined }});
         renderPage("ADMIN");
 
         await userEvent.click(screen.getByText("Alice Williams"));
         await userEvent.click(screen.getByText("Remove"));
 
         expect(apiService.delete).toHaveBeenCalledWith("house/H1/manager/E1");
+        expect(screen.queryByText("Alice Williams")).not.toBeInTheDocument();
+        expect(screen.getAllByText(/N\/A/i)).toHaveLength(2);
     });
+    it("should close the modal when Cancel is clicked", async () => {
+        renderPage("DIRECTOR");
 
+        await userEvent.click(screen.getByText("Alice Williams"));
+        expect(screen.getByText("Remove Manager from House")).toBeInTheDocument();
+
+        await userEvent.click(screen.getByText("Cancel"));
+        expect(screen.queryByText("Remove Manager from House")).not.toBeInTheDocument();
+    })
 });

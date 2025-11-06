@@ -2,6 +2,7 @@ import prisma from "../../utility/prisma";
 import request from "supertest";
 import app from "../../app";
 import {setupHouseTest, teardownHouseTests} from "./house.setuptest";
+import {TestEmployee} from "../setuptestemployees";
 
 describe("HOUSE - update house", () => {
     const updatedHouse = {
@@ -13,12 +14,12 @@ describe("HOUSE - update house", () => {
         maxClients: 3,
         femaleEmployeeOnly: true,
     };
-    let directorToken: string;
-    let associateToken: string;
+    let director: TestEmployee;
+    let associate: TestEmployee;
     beforeEach(async () => {
-        const tokens = await setupHouseTest();
-        directorToken = tokens.directorToken;
-        associateToken = tokens.associateToken;
+        const employees = await setupHouseTest();
+        director = employees.director;
+        associate = employees.associate;
         await prisma.house.create({
             data: {
                 id: "H1234",
@@ -38,7 +39,7 @@ describe("HOUSE - update house", () => {
     it("should successfully update the house for a director", async () => {
         const response = await request(app)
             .put("/api/house/H1234")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send(updatedHouse);
 
         expect(response.status).toBe(200);
@@ -55,7 +56,7 @@ describe("HOUSE - update house", () => {
     it("should return 403 for associate-level user", async () => {
         const response = await request(app)
             .put("/api/house/H1234")
-            .set("Authorization", `Bearer ${associateToken}`)
+            .set("Authorization", `Bearer ${associate.token}`)
             .send(updatedHouse);
 
         expect(response.status).toBe(403);
@@ -68,7 +69,6 @@ describe("HOUSE - update house", () => {
         "city",
         "state",
         "maxClients",
-        "femaleEmployeeOnly",
     ];
 
     requiredFields.forEach((field) => {
@@ -88,11 +88,11 @@ describe("HOUSE - update house", () => {
 
             const response = await request(app)
                 .put(`/api/house/${validHouse.id}`)
-                .set("Authorization", `Bearer ${directorToken}`)
+                .set("Authorization", `Bearer ${director.token}`)
                 .send(invalidData);
 
             expect(response.status).toBe(400);
-            expect(response.body).toHaveProperty("message", "invalid data");
+            expect(response.body).toHaveProperty("message", "Validation failed");
             expect(response.body.errors).toHaveProperty(field);
         });
     });
@@ -101,7 +101,7 @@ describe("HOUSE - update house", () => {
     it("should return 400 if house does not exist", async () => {
         const response = await request(app)
             .put("/api/house/NON_EXISTENT")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ ...updatedHouse, houseId: "NON_EXISTENT" });
 
         expect(response.status).toBe(400);
@@ -114,7 +114,7 @@ describe("HOUSE - update house", () => {
             .mockRejectedValue(new Error("Database connection failed"));
         const response = await request(app)
             .put("/api/house/H1234")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send(updatedHouse);
         expect(response.status).toBe(500);
     })

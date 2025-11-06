@@ -9,7 +9,7 @@ model Client {
   name String? @db.VarChar(25)
   sex Sex
   dateOfBirth DateTime @db.Date
-  requiresStaff Boolean?
+  requiresStaff Boolean @default(false)
   house House? @relation(fields: [houseId], references: id)
   houseId String? @db.VarChar(45)
   events Event[]

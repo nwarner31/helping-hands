@@ -4,10 +4,20 @@
   "scripts": {
     "start:frontend": "cd hh-frontend && npm start",
     "start:backend": "cd hh-backend && npm run dev",
-    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+    "test:backend": "cd hh-backend && npm run cypress",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "test": "concurrently \"cd hh-backend && npm run cypress\" \"cd hh-frontend && npm start\"",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "e2e": "concurrently \"npm run start:frontend\" \"npm run test:backend\""
   },
   "devDependencies": {
+    "@testing-library/cypress": "^10.1.0",
     "@types/axios": "^0.14.4",
-    "concurrently": "^7.0.0"
+    "@types/node": "^24.5.2",
+    "concurrently": "^7.0.0",
+    "cypress": "^15.2.0",
+    "dotenv": "^17.2.2",
+    "typescript": "^5.9.2"
   }
 }

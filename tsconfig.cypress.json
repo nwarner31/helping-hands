@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["dom", "esnext"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "types": ["cypress", "@testing-library/cypress"]
+  },
+  "include": ["cypress/**/*.ts"]
+}

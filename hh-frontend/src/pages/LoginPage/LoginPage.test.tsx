@@ -4,6 +4,7 @@ import {BrowserRouter, useNavigate} from "react-router-dom";
 
 import LoginPage from "./LoginPage";
 import {AuthProvider} from "../../context/AuthContext";
+import apiService from "../../utility/ApiService";
 
 //jest.mock('../../config', () => ({API_BASE_URL: 'my-dummy-url'}));
 // Mocking the API service (ApiService)
@@ -62,4 +63,18 @@ describe("Login Page tests", () => {
             expect(mockNavigate).toHaveBeenCalledWith("/dashboard"); // or wherever you redirect
         });
     });
+    it("should display the error message for invalid credentials", async () => {
+        const mockPost = (apiService.post as jest.Mock).mockRejectedValue({message: "Invalid credentials"});
+        renderPage();
+
+        await userEvent.type(screen.getByLabelText("Email"), "johndoe@example.com");
+        await userEvent.type(screen.getByLabelText("Password"), "wrong-password");
+        const loginButton = screen.getByRole("button", {name: "Login"});
+        await userEvent.click(loginButton);
+        await waitFor(() => {
+            expect(mockPost).toHaveBeenCalled();
+            expect(screen.getByTestId("login-error")).toBeInTheDocument();
+        })
+    })
+
 });

@@ -49,10 +49,11 @@ describe("Auth Routes - Register", () => {
             email: "johndoe@example.com",
             password: "SecurePassword123",
             confirmPassword: "SecurePassword123",
-            hireDate: "2024-03-09"
+            hireDate: "2024-03-09",
+            sex: "M"
         };
 
-        const requiredFields = ["id", "name", "email", "password", "confirmPassword", "hireDate"];
+        const requiredFields = ["id", "name", "email", "password", "confirmPassword", "hireDate", "sex"];
 
         requiredFields.forEach((field) => {
             it(`should return 400 when '${field}' is missing`, async () => {
@@ -65,7 +66,7 @@ describe("Auth Routes - Register", () => {
 
                 expect(response.status).toBe(400);
                 expect(response.body).toHaveProperty("message");
-                expect(response.body.message).toHaveProperty(field);
+                expect(response.body.errors).toHaveProperty(field);
             });
         });
 
@@ -77,7 +78,7 @@ describe("Auth Routes - Register", () => {
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message");
-            expect(response.body.message).toHaveProperty("email");
+            expect(response.body.errors).toHaveProperty("email");
         });
         it('should return 400 for a password less than 8 characters', async () => {
             const invalidData = { ...validEmployee, password: "test", confirmPassword: "test"};
@@ -87,7 +88,7 @@ describe("Auth Routes - Register", () => {
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message");
-            expect(response.body.message).toHaveProperty("password");
+            expect(response.body.errors).toHaveProperty("password");
         });
         it('should return 400 for an improperly formatted date', async () => {
             const invalidData = { ...validEmployee, hireDate: "notavaliddate"};
@@ -97,7 +98,7 @@ describe("Auth Routes - Register", () => {
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message");
-            expect(response.body.message).toHaveProperty("hireDate");
+            expect(response.body.errors).toHaveProperty("hireDate");
         });
         it('should return 400 for passwords that do not match', async () => {
             const invalidData = { ...validEmployee, confirmPassword: "Iamapassword"};
@@ -107,7 +108,7 @@ describe("Auth Routes - Register", () => {
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message");
-            expect(response.body.message).toHaveProperty("confirmPassword");
+            expect(response.body.errors).toHaveProperty("confirmPassword");
         });
     });
 

@@ -43,10 +43,10 @@ describe("View Client Item tests", () => {
     });
     it("should have a button type of accent for odd rows (admin only)", () => {
         renderComponent(true, true);
-        expect(screen.queryByRole('button', { name: "Edit" })).toHaveClass("accent");
+        expect(screen.queryByRole('button', { name: "Edit" })).toHaveClass("bg-accent");
     });
     it("should have a button type of secondary for even rows (admin only)", () => {
         renderComponent(true, false);
-        expect(screen.queryByRole('button', { name: "Edit" })).toHaveClass("secondary");
+        expect(screen.queryByRole('button', { name: "Edit" })).toHaveClass("bg-secondary");
     });
 })

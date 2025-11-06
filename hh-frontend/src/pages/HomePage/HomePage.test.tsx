@@ -14,9 +14,11 @@ describe("Home Page tests", () => {
         expect(header).toHaveTextContent("Home Health Agency");
         expect(header).toHaveTextContent("Employee Portal");
     });
-    it("renders the login button", () => {
+    it("renders the login button link", () => {
         renderPage();
-        expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
+        const login = screen.getByRole("link", { name: /login/i });
+        expect(login).toBeInTheDocument();
+        expect(login).toHaveAttribute("href", "/login");
     });
 
     it("renders the register link inside a button", () => {

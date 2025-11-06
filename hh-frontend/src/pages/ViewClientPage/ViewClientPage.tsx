@@ -8,7 +8,7 @@ import {formatDate} from "../../utility/formatting";
 import Accordion from "../../components/Accordion/Accordion";
 import {House} from "../../models/House";
 import {useAuth} from "../../context/AuthContext";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import ViewClientUpcomingEvent from "./ViewClientUpcomingEvent";
 
 
@@ -67,21 +67,21 @@ const ViewClientPage = () => {
                     <div>Client Id: {clientData.id}</div>
                     <div>Legal Name: {clientData.legalName}</div>
                 </div>
-                <Accordion header="Basic Info" variant="primary" className="font-header mb-4 font-semibold">
+                <Accordion id="basic-info" header="Basic Info" variant="primary" className="font-header mb-4 font-semibold">
                     <div className="font-body font-light" >
                         <div>Date of Birth: {formatDate(clientData.dateOfBirth)}</div>
-                        <div>Name: {clientData.name}</div>
+                        <div>Name: {clientData.name ?? "None"}</div>
                         <div>Sex: {clientData.sex}</div>
                     </div>
 
                 </Accordion>
                 {clientData.house &&
-                <Accordion header="House Info" variant="secondary" className="font-header mb-4 font-semibold">
+                <Accordion id="house-info" header="House Info" variant="secondary" className="font-header mb-4 font-semibold">
                     <div className="grid grid-cols-2 font-body">
                         <div >House ID:</div><div>{clientData.house.id}</div>
                         <div >Name:  </div><div>{clientData.house.name}</div>
-                        <div >Primary Manager:</div><div>{clientData.house.primaryHouseManager ? `${clientData.house.primaryHouseManager.id} : ${clientData.house.primaryHouseManager.name}` : "N/A"}</div>
-                        <div >Secondary Manager:</div><div>{clientData.house.secondaryHouseManager ? `${clientData.house.secondaryHouseManager.id} : ${clientData.house.secondaryHouseManager.name}` : "N/A"}</div>
+                        <div >Primary Manager:</div><div>{clientData.house.primaryHouseManager ? `${clientData.house.primaryHouseManager.id}: ${clientData.house.primaryHouseManager.name}` : "N/A"}</div>
+                        <div >Secondary Manager:</div><div>{clientData.house.secondaryHouseManager ? `${clientData.house.secondaryHouseManager.id}: ${clientData.house.secondaryHouseManager.name}` : "N/A"}</div>
                         <div >Address:</div>
                         <div >
                             <div>{clientData.house.street1}</div>
@@ -89,7 +89,7 @@ const ViewClientPage = () => {
                             <div>{clientData.house.city}, {clientData.house.state}</div>
                         </div>
                         <div >Female Only:</div><div>{clientData.house.femaleEmployeeOnly ?  "Yes" : "No"}</div>
-                        <div >Clients:</div><div>{clientData.house.clients?.length ?? 0}/{clientData.house.maxClients}</div>
+                        <div >Clients:</div><div>{clientData.house.clients ? clientData.house.clients.length : 0}/{clientData.house.maxClients}</div>
                         <div >Roommates:</div>
                         <div >
                             {roommates.length > 0 ?  roommates.map(client => `${client.id}: ${client.legalName}`) : "No roommates" }
@@ -97,7 +97,7 @@ const ViewClientPage = () => {
                     </div>
 
                 </Accordion>}
-                <Accordion header="Upcoming Events" className="font-header font-semibold">
+                <Accordion id="upcoming-events" header="Upcoming Events" className="font-header font-semibold">
                     {canEdit && <Link to={`/client/${clientId}/add-event`} ><Button className="w-full">Add Event</Button> </Link>}
                     <Link to={`/client/${clientId}/view-events`} ><Button className="w-full">View Events</Button> </Link>
                     {clientData.events && clientData.events.length > 0 ? (

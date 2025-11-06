@@ -17,7 +17,9 @@ import AddHouseManagerPage, { loader as addHouseManagerLoader } from "./pages/Ad
 import ViewClientPage from "./pages/ViewClientPage/ViewClientPage";
 import ViewClientEventsListPage from "./pages/ViewClientEventsListPage/ViewClientEventsListPage";
 import AddEditClientEventPage from "./pages/AddEditClientEventPage/AddEditClientEventPage";
+import ViewEventPage from "./pages/ViewEventPage/ViewEventPage";
 
+import {ToastContainer} from "react-toastify";
 function App() {
 
     const router = createBrowserRouter([
@@ -33,6 +35,7 @@ function App() {
                 {path: "/edit-client/:clientId", element: <AddEditClientPage isEdit={true} />},
                 {path: "/client/:clientId/add-event", element: <AddEditClientEventPage isEdit={false} />},
                 {path: "/client/:clientId/view-events", element: <ViewClientEventsListPage />},
+                {path: "/event/:eventId", element: <ViewEventPage />},
                 {path: "/view-houses", element: <ViewHousesListPage />, loader: viewHousesLoader},
                 {path: "/edit-house/:houseId", element: <AddEditHousePage isEdit={true} /> },
                 {path: "/add-house", element: <AddEditHousePage isEdit={false} />},
@@ -43,6 +46,7 @@ function App() {
   return (
     <div className='body'>
         <RouterProvider router={router} />
+        <ToastContainer />
     </div>
   );
 }

@@ -1,54 +1,53 @@
 import request from "supertest";
 import app from "../../../app";
 import prisma from "../../../utility/prisma";
-import {Event} from "@prisma/client";
-import {clientSetupTests} from "../client.setuptest";
+import {Client, Event, EventType} from "@prisma/client";
+import {clientSetupTests, clientTeardownTests} from "../client.setuptest";
+import {TestEmployee} from "../../setuptestemployees";
+import {setupTestClients, teardownTestClients} from "../../setuptestclients";
 
 describe("GET /:clientId/event/upcoming", () => {
-    const clientId = "C12345";
+    let testClient: Client;
     const validEvent = {
         id: "T123456",
-        type: "WORK",
+        type: EventType.WORK,
         description: "Test Work Event",
         beginDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        beginTime: "10:00",
-        endTime: "12:00",
+        beginTime: "2025-01-01T10:00:00.000Z",
+        endTime: "2025-01-01T12:00:00.000Z",
         numberStaffRequired: 2,
     };
 
-    let adminToken: string;
-    let associateToken: string;
+    let admin: TestEmployee;
+    let associate: TestEmployee;
 
     beforeAll(async () => {
-        const tokens = await clientSetupTests();
-        adminToken = tokens.adminToken;
-        associateToken = tokens.associateToken;
-        await prisma.client.create({
-            data: {
-                id: clientId,
-                legalName: "Client for Event",
-                dateOfBirth: new Date("2000-01-01"),
-                sex: "F",
-            },
-        });
+        await prisma.event.deleteMany();
+        const employees = await clientSetupTests();
+        admin = employees.admin;
+        associate = employees.associate;
+        const clients = await setupTestClients();
+        testClient = clients.client1;
         // Create both upcoming and past events for this client
         const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
         const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
-            .send({...validEvent, beginDate: tomorrow, endDate: tomorrow});
-        await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
-            .send({...validEvent, id: "Y12345", beginDate: yesterday, endDate: yesterday});
+        await prisma.event.createMany({
+            data: [
+                {...validEvent, beginDate: tomorrow, endDate: tomorrow, clientId: testClient.id},
+                {...validEvent, id: "Y12345", beginDate: yesterday, endDate: yesterday, clientId: testClient.id}]
+        });
+    });
+    afterAll(async () => {
+        await prisma.event.deleteMany();
+        await teardownTestClients();
+        await clientTeardownTests();
     });
 
     it("returns only upcoming events for the client", async () => {
         const res = await request(app)
-            .get(`/api/client/${clientId}/event/upcoming`)
-            .set("Authorization", `Bearer ${adminToken}`) // or admin/manager as needed
+            .get(`/api/client/${testClient.id}/event/upcoming`)
+            .set("Authorization", `Bearer ${admin.token}`) // or admin/manager as needed
             .expect(200);
 
         expect(res.body.message).toBe("Events found");
@@ -61,7 +60,7 @@ describe("GET /:clientId/event/upcoming", () => {
 
     it("should return 401 if no token provided", async () => {
         const response = await request(app)
-            .get(`/api/client/${clientId}/event/upcoming`);
+            .get(`/api/client/${testClient.id}/event/upcoming`);
 
         expect(response.status).toBe(401);
     });
@@ -69,7 +68,7 @@ describe("GET /:clientId/event/upcoming", () => {
     it("returns 404 if client does not exist", async () => {
         const res = await request(app)
             .get(`/api/client/nonexistent-client-id/event/upcoming`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .expect(404);
 
         expect(res.body.errors).toBeDefined();
@@ -79,8 +78,8 @@ describe("GET /:clientId/event/upcoming", () => {
         jest.spyOn(require("../../../services/client.service"), "getClientByClientId")
             .mockRejectedValue(new Error("Database connection failed"));
         const res = await request(app)
-            .get(`/api/client/${clientId}/event/upcoming`)
-            .set("Authorization", `Bearer ${adminToken}`) // or admin/manager as needed
+            .get(`/api/client/${testClient.id}/event/upcoming`)
+            .set("Authorization", `Bearer ${admin.token}`) // or admin/manager as needed
             .expect(500);
     });
 });

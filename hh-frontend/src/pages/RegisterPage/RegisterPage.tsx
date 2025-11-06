@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Input from "../../components/Inputs/Input/Input";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLabelInput";
 import {Link} from "react-router-dom";
 import Card from "../../components/Card/Card";
@@ -100,11 +100,17 @@ const RegisterPage: React.FC = () => {
         const validationErrors = validateForm(formData);
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
-            const response: {message: string, employee?: Employee, accessToken?: string} = await apiService.post('auth/register', formData);
-            if(response.message === "Employee registered successfully" && response.employee && response.accessToken) {
-                login(response.employee, response.accessToken);
-                navigate("/dashboard");
+            try {
+                const response: {message: string, employee?: Employee, accessToken?: string} = await apiService.post('auth/register', formData);
+                if(response.message === "Employee registered successfully" && response.employee && response.accessToken) {
+                    login(response.employee, response.accessToken);
+                    navigate("/dashboard");
+                }
+            } catch (error: any) {
+                console.log(error.errors);
+                setErrors(error.errors);
             }
+
         }
     };
 
@@ -114,13 +120,13 @@ const RegisterPage: React.FC = () => {
                 <h2 className="font-header text-2xl font-bold text-accent mb-3">Register</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col w-full items-center gap-y-5">
 
-                        <Input label="Employee ID" name="id" type="text" onChange={handleChange} error={errors.id} />
-                        <Input label="Name" name="name" type="text" onChange={handleChange} error={errors.name} />
-                        <Input label="Email" name="email" type="text" onChange={handleChange} error={errors.email} />
-                        <StaticLabelInput label="Hire Date" name="hireDate" value={formData.hireDate} type="date" onChange={handleChange} error={errors.hireDate}/>
+                        <Input label="Employee ID" name="id" type="text" onChange={handleChange} error={errors.id} containerClassName="w-full" />
+                        <Input label="Name" name="name" type="text" onChange={handleChange} error={errors.name} containerClassName="w-full" />
+                        <Input label="Email" name="email" type="text" onChange={handleChange} error={errors.email} containerClassName="w-full" />
+                        <StaticLabelInput label="Hire Date" name="hireDate" value={formData.hireDate} type="date" onChange={handleChange} error={errors.hireDate} containerClass="w-full"  />
                         <PasswordInput value={formData.password} label="Password" name="password" onChange={handleChange} error={errors.password} />
                         <PasswordInput label="Confirm Password" name="confirmPassword" onChange={handleChange} value={formData.confirmPassword} error={errors.confirmPassword} />
-                        <div className="w-full">
+                        <div className="w-full flex">
                             <RadioInput label="Female" name="sex" value="F" onChange={handleChange} variant="accent" isChecked={formData.sex === "F"} className="w-1/2" />
                             <RadioInput name="sex" isChecked={formData.sex === "M"} value="M" onChange={handleChange} label="Male" variant="accent" className="w-1/2" />
                         </div>

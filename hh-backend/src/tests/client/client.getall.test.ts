@@ -2,18 +2,21 @@ import {beforeAll} from "@jest/globals";
 import request from "supertest";
 import app from "../../app";
 import {clientSetupTests, clientTeardownTests} from "./client.setuptest";
+import {TestEmployee} from "../setuptestemployees";
 
 
 describe("Client Routes - Get All Clients", () => {
-    let token: string | null = null;
+    let admin: TestEmployee;
+    let associate: TestEmployee;
     beforeAll(async () => {
-        const tokens = await clientSetupTests();
-        token = tokens.adminToken;
+        const employees = await clientSetupTests();
+        admin = employees.admin;
+        associate = employees.associate;
         const client1Promise = request(app).post("/api/client")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send({id: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "F"});
         const client2Promise = request(app).post("/api/client")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send({id: "C234567", legalName: "Second Client", dateOfBirth: "2000-04-12", sex: "M"});
         await Promise.all([client1Promise, client2Promise]);
     });
@@ -22,7 +25,7 @@ describe("Client Routes - Get All Clients", () => {
     });
     it("should return all clients with a valid token", async () => {
         const response = await request(app).get("/api/client")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${associate.token}`);
         expect(response.body.message).toBe("clients successfully retrieved");
         expect(response.body.clients).toHaveLength(2);
     });
@@ -34,7 +37,7 @@ describe("Client Routes - Get All Clients", () => {
         jest.spyOn(require("../../services/client.service"), "getClients")
             .mockRejectedValue(new Error("Database connection failed"));
         const response = await request(app).get("/api/client")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${associate.token}`);
         expect(response.status).toBe(500);
     })
 });

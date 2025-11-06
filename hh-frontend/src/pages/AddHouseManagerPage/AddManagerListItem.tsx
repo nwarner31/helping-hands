@@ -1,6 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import {Employee} from "../../models/Employee";
 import {House} from "../../models/House";
 import {useNavigate, useSearchParams} from "react-router-dom";

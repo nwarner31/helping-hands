@@ -2,12 +2,12 @@ import request from "supertest";
 import app from "../../app";
 import prisma from "../../utility/prisma";
 import {setupHouseTest, teardownHouseTests} from "./house.setuptest";
-
+import {TestEmployee} from "../setuptestemployees";
 
 describe('HOUSE - add client to house', () => {
-    let adminToken: string;
-    let directorToken: string;
-    let associateToken: string;
+    let admin: TestEmployee;
+    let director: TestEmployee;
+    let associate: TestEmployee;
     const house = {
         id: "H1001",
         name: "Harmony Home",
@@ -24,18 +24,18 @@ describe('HOUSE - add client to house', () => {
         sex: "M"
     };
     beforeAll(async () => {
-        const tokens = await setupHouseTest();
-        adminToken = tokens.adminToken;
-        directorToken = tokens.directorToken;
-        associateToken = tokens.associateToken;
+        const employees = await setupHouseTest();
+        admin = employees.admin;
+        director = employees.director;
+        associate = employees.associate;
         await request(app).post("/api/house")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send(house);
     });
 
     beforeEach(async () => {
         await request(app).post("/api/client")
-            .set("Authorization", `Bearer ${adminToken}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(client);
 
     });
@@ -49,7 +49,7 @@ describe('HOUSE - add client to house', () => {
     it("should successfully add a client to a house", async () => {
         const res = await request(app)
             .patch(`/api/house/${house.id}/clients`)
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ clientId: client.id });
 
         expect(res.status).toBe(209);
@@ -59,7 +59,7 @@ describe('HOUSE - add client to house', () => {
     it("should return 400 if house ID is invalid", async () => {
         const res = await request(app)
             .patch("/api/house/INVALID_ID/clients")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ clientId: client.id });
 
         expect(res.status).toBe(400);
@@ -69,7 +69,7 @@ describe('HOUSE - add client to house', () => {
     it("should return 400 if client ID is invalid", async () => {
         const res = await request(app)
             .patch(`/api/house/${house.id}/clients`)
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ clientId: "NON_EXISTENT_CLIENT" });
 
         expect(res.status).toBe(400);
@@ -86,7 +86,7 @@ describe('HOUSE - add client to house', () => {
     it("should return 403 for an ASSOCIATE", async () => {
         const res = await request(app)
             .patch(`/api/house/${house.id}/clients`)
-            .set("Authorization", `Bearer ${associateToken}`)
+            .set("Authorization", `Bearer ${associate.token}`)
             .send({ clientId: client.id });
 
         expect(res.status).toBe(403);
@@ -98,7 +98,7 @@ describe('HOUSE - add client to house', () => {
 
         const res = await request(app)
             .patch(`/api/house/${house.id}/clients`)
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send({ clientId: client.id });
 
         expect(res.status).toBe(500);

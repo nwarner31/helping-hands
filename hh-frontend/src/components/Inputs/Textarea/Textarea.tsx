@@ -1,22 +1,27 @@
 import React from "react";
-import styles from "./Textarea.module.css";
+import clsx from "clsx";
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     label: string;
+    name: string;
     containerClass?: string;
     error?: string;
 }
 
-const Textarea: React.FC<TextareaProps> = ({ label, containerClass, error, ...props }) => {
+const Textarea: React.FC<TextareaProps> = ({ label, name, containerClass, error, className, ...props }) => {
     return (
-        <div className={`${styles.textareaContainer} ${containerClass || ""}`}>
-            <label htmlFor={`textarea-${props.name}`} className={styles.label}>{label}</label>
+        <div className={ containerClass}>
+            <label htmlFor={`textarea-${name}`} className="text-sm">{label}</label>
             <textarea
-                id={`textarea-${props.name}`}
-                className={`${styles.textarea} ${error ? styles.textareaError : ""}`}
+                id={`textarea-${name}`}
+                aria-describedby={error ? `error-${name}` : undefined}
+                aria-invalid={!!error}
+                data-testid={`textarea-${name}`}
+                name={name}
+                className={clsx("outline-0 border-1  rounded-lg resize-y disabled:bg-gray-200 disabled:cursor-not-allowed read-only:bg-gray-100", error ? "border-red-500" : "border-gray-800 focus:border-primary", className)}
                 {...props}
             />
-            {error && <p className={styles.errorText}>{error}</p>}
+            {error && <p id={`error-${name}`} data-testid={`error-${name}`} className="text-xs text-red-500">{error}</p>}
         </div>
     );
 };

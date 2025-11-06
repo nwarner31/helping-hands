@@ -1,11 +1,11 @@
 import Card from "../../components/Card/Card";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import React, {useState, useEffect} from "react";
 import Input from "../../components/Inputs/Input/Input";
 import apiService from "../../utility/ApiService";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {House} from "../../models/House";
-import Toast from "../../components/Toast/Toast";
+import {toast} from "react-toastify";
 
 const emptyHouse = {
     id: "",
@@ -30,7 +30,6 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
 
     const {houseId} = useParams();
     const location = useLocation();
-    const [toastInfo, setToastInfo] = useState<{showToast: boolean, toastType: "info"|"success"|"error", toastMessage: string}>({showToast: false,toastType: "info", toastMessage: ""});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -113,31 +112,33 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
     const addHouse = async (data: House) => {
         const response: {message: string, house?: House} = await apiService.post("house", data);
         if(response.message === "House successfully added" && response.house) {
-            setToastInfo({showToast: true, toastType: "success", toastMessage: "House successfully added"});
-            setTimeout(() => {navigate("/view-houses")}, 1500);
+            toast.success("House successfully added", {autoClose: 1500, position: "top-right"});
+            navigate("/view-houses");
         }
     }
 
     const updateHouse = async (data: House) => {
         const response: {message: string, house?:House, errors: any} = await apiService.put(`house/${data.id}`, data);
         if(response.message === "House successfully updated" && response.house && response.house.id) {
-            setToastInfo({showToast: true, toastType: "success", toastMessage: "House successfully updated"});
-            setTimeout(() => {navigate("/view-houses")}, 1500);
+            toast.success("House successfully updated", {autoClose: 1500, position: "top-right"});
+            navigate("/view-houses");
+            //setToastInfo({showToast: true, toastType: "success", toastMessage: "House successfully updated"});
+            //setTimeout(() => {navigate("/view-houses")}, 1500);
         }
     }
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
-            <Card className="max-w-100 py-5 px-4 flex flex-col items-center">
+            <Card className="max-w-100 w-full py-5 px-4 flex flex-col items-center justify-center min-h-screen rounded-none xs:min-h-0 xs:rounded-xl">
                 <h1 className="text-accent font-header font-bold text-2xl mb-5">{isEdit ? "Update House" : "Add House"}</h1>
                 <form className="flex flex-col items-center gap-5 w-full" onSubmit={submitHouse}>
-                    <Input label="House ID" value={houseData.id} name="id" error={formErrors.id} onChange={updateHouseData} disabled={isEdit} />
-                    <Input label="House Name" value={houseData.name} name="name" error={formErrors.name} onChange={updateHouseData} />
-                    <Input label="Street 1" value={houseData.street1} name="street1" error={formErrors.street1} onChange={updateHouseData} />
-                    <Input label="Street 2" value={houseData.street2} name="street2" onChange={updateHouseData} />
-                    <Input label="City" value={houseData.city} error={formErrors.city} name="city" onChange={updateHouseData} />
-                    <Input label="State" value={houseData.state} error={formErrors.state} name="state" onChange={updateHouseData} />
-                    <Input label="Maximum Clients in House" value={houseData.maxClients} name="maxClients" error={formErrors.maxClients} onChange={updateHouseData} type="number" />
+                    <Input label="House ID" value={houseData.id} name="id" error={formErrors.id} onChange={updateHouseData} disabled={isEdit} containerClassName="w-full px-3" />
+                    <Input label="House Name" value={houseData.name} name="name" error={formErrors.name} onChange={updateHouseData} containerClassName="w-full px-3" />
+                    <Input label="Street 1" value={houseData.street1} name="street1" error={formErrors.street1} onChange={updateHouseData} containerClassName="w-full px-3" />
+                    <Input label="Street 2" value={houseData.street2} name="street2" onChange={updateHouseData} containerClassName="w-full px-3" />
+                    <Input label="City" value={houseData.city} error={formErrors.city} name="city" onChange={updateHouseData} containerClassName="w-full px-3" />
+                    <Input label="State" value={houseData.state} error={formErrors.state} name="state" onChange={updateHouseData} containerClassName="w-full px-3" />
+                    <Input label="Maximum Clients in House" value={houseData.maxClients} name="maxClients" error={formErrors.maxClients} onChange={updateHouseData} type="number" containerClassName="w-full px-3" />
                     <div>
                         <label>
                             <input type="checkbox" name="femaleEmployeeOnly" checked={houseData.femaleEmployeeOnly} onChange={updateHouseData} className="accent-accent mr-1" />
@@ -148,8 +149,6 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
                     <Button className="w-full" variant="secondary" type="button">Cancel</Button>
                 </form>
             </Card>
-            {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}
-
         </div>
     )
 }

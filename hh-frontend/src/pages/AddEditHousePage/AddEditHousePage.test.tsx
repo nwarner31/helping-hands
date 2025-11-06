@@ -1,21 +1,34 @@
-import {render, screen} from "@testing-library/react";
+import {render, screen, waitFor} from "@testing-library/react";
 import AddEditHousePage from "./AddEditHousePage";
 import {userEvent} from "@testing-library/user-event";
-import {BrowserRouter, MemoryRouter, Route, Routes} from "react-router-dom";
+import { MemoryRouter, Route, Routes} from "react-router-dom";
 import apiService from "../../utility/ApiService";
 
 jest.mock("../../utility/ApiService", () => ({
+    get: jest.fn(() => Promise.resolve()),
     post: jest.fn(() => Promise.resolve( { message: "Client added", client: { id: "123" }})),
     put: jest.fn(() => Promise.resolve({ message: "client updated successfully", client: { id: "123" }})),
 }));
 
 
 describe('AddEditHousePage', () => {
-    const renderPage = (isEdit: boolean) => render(<BrowserRouter><AddEditHousePage isEdit={isEdit} /></BrowserRouter>);
+    const renderPage = () => {
+        render(
+            <MemoryRouter initialEntries={[{ pathname: `/test` }]}>
+                <Routes>
+                    <Route path="/test" element={<AddEditHousePage isEdit={false} />} />
+                    <Route path="view-houses" element={<div>View Houses Page</div>} />
+                </Routes>
+            </MemoryRouter>
+        );
 
+
+    }
     describe("Add House", () => {
+
+
         it('should display "Add House" header and empty form when in add mode', () => {
-            renderPage(false);
+            renderPage();
 
             // Check header text
             expect(screen.getByRole("heading", {name: "Add House"})).toBeInTheDocument();
@@ -34,7 +47,7 @@ describe('AddEditHousePage', () => {
         });
 
         it('should update the house ID on input', async () => {
-           renderPage(false);
+           renderPage();
            const text = "H12345";
            const input = screen.getByLabelText("House ID");
            await userEvent.type(input, text);
@@ -42,7 +55,7 @@ describe('AddEditHousePage', () => {
         });
         // Form validation fails when required fields are empty
         it('should display error messages when form is submitted with empty required fields', async () => {
-            renderPage(false);
+            renderPage();
 
             // Clear the default value for maxClients
             const maxClientsInput = screen.getByLabelText('Maximum Clients in House');
@@ -63,10 +76,29 @@ describe('AddEditHousePage', () => {
             // Verify that the form submission didn't proceed (apiService not called)
             expect(apiService.post).not.toHaveBeenCalled();
         });
+        it("should submit the form if correct data is entered", async () => {
+            const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "House successfully added", house: {id: "H12345"}});
+            renderPage();
+
+            await userEvent.type(screen.getByLabelText("House ID"), "H12345");
+            await userEvent.type(screen.getByLabelText("House Name"), "Testable");
+            await userEvent.type(screen.getByLabelText("Street 1"), "100 Testing Rd");
+            await userEvent.type(screen.getByLabelText("City"), "Reactville");
+            await userEvent.type(screen.getByLabelText("State"), "TX");
+
+            await userEvent.click(screen.getByRole("button", {name: "Add House"}));
+
+            await waitFor(() => {
+                expect(mockPost).toHaveBeenCalled();
+                expect(screen.findByText("House successfully added"));
+                expect(screen.getByText("View Houses Page")).toBeInTheDocument();
+            })
+
+        });
     });
 
     it("should not clear input if validation fails", async () => {
-       renderPage(false);
+       renderPage();
        const text = "H12345";
        const input = screen.getByLabelText("House ID");
        await userEvent.type(input, text);
@@ -77,7 +109,7 @@ describe('AddEditHousePage', () => {
     });
 
     it("should have an error if the max clients field is less than 1", async () => {
-       renderPage(false);
+       renderPage();
 
        const maxClients = screen.getByLabelText('Maximum Clients in House');
        await userEvent.clear(maxClients);
@@ -86,18 +118,7 @@ describe('AddEditHousePage', () => {
        expect(screen.getByText("Max Clients must be 1 or greater")).toBeInTheDocument();
     });
 
-    it("should submit the form if correct data is entered", async () => {
-       renderPage(false);
 
-       await userEvent.type(screen.getByLabelText("House ID"), "H12345");
-       await userEvent.type(screen.getByLabelText("House Name"), "Testable");
-       await userEvent.type(screen.getByLabelText("Street 1"), "100 Testing Rd");
-       await userEvent.type(screen.getByLabelText("City"), "Reactville");
-       await userEvent.type(screen.getByLabelText("State"), "TX");
-
-       await userEvent.click(screen.getByRole("button", {name: "Add House"}));
-       expect(screen.findByText("House successfully added"));
-    });
     describe("Edit House", () => {
         const testHouse = {
             id: "H12345",
@@ -110,10 +131,11 @@ describe('AddEditHousePage', () => {
             femaleEmployeeOnly: true
         };
 
-        const renderEdit = () => render(
-            <MemoryRouter initialEntries={[{ pathname: '/test', state: { house: testHouse } }]}>
+        const renderEdit = (state = testHouse) => render(
+            <MemoryRouter initialEntries={[{ pathname: `/test/${testHouse.id}`, state: { house: state} }]}>
                 <Routes>
-                    <Route path="/test" element={<AddEditHousePage isEdit={true} />} />
+                    <Route path="/test/:houseId" element={<AddEditHousePage isEdit={true} />} />
+                    <Route path="view-houses" element={<div>View Houses Page</div>} />
                 </Routes>
             </MemoryRouter>
         );
@@ -137,6 +159,8 @@ describe('AddEditHousePage', () => {
         });
 
         it('should submit updated data when form is valid in edit mode', async () => {
+            const mockPost = (apiService.put as jest.Mock).mockResolvedValue({message: "House successfully updated", house: {id: "H12345"}});
+
             renderEdit();
 
             await userEvent.clear(screen.getByLabelText('House Name'));
@@ -151,12 +175,30 @@ describe('AddEditHousePage', () => {
                     name: "Updated House"
                 })
             );
+
+            await waitFor(() => {
+                expect(mockPost).toHaveBeenCalled();
+                expect(screen.findByText("House successfully updated"));
+                expect(screen.getByText("View Houses Page")).toBeInTheDocument();
+            })
         });
 
         it('should disable the House ID field in edit mode', () => {
             renderEdit();
             expect(screen.getByLabelText('House ID')).toBeDisabled();
         });
+        it("should fetch existing house data when in edit mode", async () => {
+            const mockFetch = (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", house: testHouse});
+            renderEdit(null as any);
+            await waitFor(() => {
+                //expect(mockFetch).toHaveBeenCalledWith(testHouse.id)
+                expect(mockFetch).toHaveBeenCalledWith("house/H12345");
+                expect(screen.getByLabelText('House ID')).toHaveValue(testHouse.id);
+            });
+
+        })
     });
+
+
 
 });

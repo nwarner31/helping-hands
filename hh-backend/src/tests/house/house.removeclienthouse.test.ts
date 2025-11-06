@@ -2,11 +2,12 @@ import request from "supertest";
 import app from "../../app"; // Your Express app
 import prisma from "../../utility/prisma"; // Your Prisma client
 import{ setupHouseTest, teardownHouseTests } from "./house.setuptest";
+import {TestEmployee} from "../setuptestemployees";
 
 describe("DELETE /api/house/:houseId/clients/:clientId", () => {
-    let adminToken: string;
-    let directorToken: string;
-    let associateToken: string;
+    let admin: TestEmployee;
+    let director: TestEmployee;
+    let associate: TestEmployee;
 
     const house = {
         id: "H1001",
@@ -25,20 +26,20 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
         houseId: ""
     };
     beforeAll(async () => {
-        const tokens = await setupHouseTest();
-        adminToken = tokens.adminToken;
-        directorToken = tokens.directorToken;
-        associateToken = tokens.associateToken;
+        const employees = await setupHouseTest();
+        admin = employees.admin;
+        director = employees.director;
+        associate = employees.associate;
 
         const response = await request(app).post("/api/house")
-            .set("Authorization", `Bearer ${directorToken}`)
+            .set("Authorization", `Bearer ${director.token}`)
             .send(house);
         house.id = response.body.house.id;
         client.houseId = response.body.house.id;
     });
     beforeEach(async () => {
         await request(app).post("/api/client")
-            .set("Authorization", `Bearer ${adminToken}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(client);
     });
 
@@ -54,7 +55,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
     it("should remove a client from a house and return updated house", async () => {
         const res = await request(app)
             .delete(`/api/house/${house.id}/clients/${client.id}`)
-            .set("Authorization", `Bearer ${directorToken}`);
+            .set("Authorization", `Bearer ${director.token}`);
 
         expect(res.statusCode).toBe(209);
         expect(res.body.message).toBe("client removed from house");
@@ -70,7 +71,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
     it("should return 400 if houseId is invalid", async () => {
         const res = await request(app)
             .delete(`/api/house/invalid-house/clients/${client.id}`)
-            .set("Authorization", `Bearer ${directorToken}`);
+            .set("Authorization", `Bearer ${director.token}`);
 
         expect(res.statusCode).toBe(400);
         expect(res.body.errors.houseId).toBe("House ID not found");
@@ -79,7 +80,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
     it("should return 400 if clientId is invalid", async () => {
         const res = await request(app)
             .delete(`/api/house/${house.id}/clients/invalid-client`)
-            .set("Authorization", `Bearer ${directorToken}`);
+            .set("Authorization", `Bearer ${director.token}`);
 
         expect(res.statusCode).toBe(400);
         expect(res.body.errors.clientId).toBe("Client ID not found");
@@ -95,7 +96,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
     it("should return 403 if user lacks permissions", async () => {
         const res = await request(app)
             .delete(`/api/house/${house.id}/clients/${client.id}`)
-            .set("Authorization", `Bearer ${associateToken}`);
+            .set("Authorization", `Bearer ${associate.token}`);
 
         expect(res.statusCode).toBe(403);
     });
@@ -105,7 +106,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
             .mockRejectedValue(new Error("Database connection failed"));
         const response = await request(app)
             .delete(`/api/house/${house.id}/clients/${client.id}`)
-            .set("Authorization", `Bearer ${directorToken}`);
+            .set("Authorization", `Bearer ${director.token}`);
 
         expect(response.status).toBe(500);
     })

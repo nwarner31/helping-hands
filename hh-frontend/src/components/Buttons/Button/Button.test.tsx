@@ -13,7 +13,7 @@ describe("Button tests", () => {
     it("should have css class for variant", () => {
         render(<Button variant="accent">I am a button</Button>);
         const button = screen.getByRole('button');
-        expect(button).toHaveClass('accent');
+        expect(button).toHaveClass('bg-accent');
     });
 
     it("should call function when pressed", async () => {

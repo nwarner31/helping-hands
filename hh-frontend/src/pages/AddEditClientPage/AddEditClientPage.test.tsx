@@ -1,9 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import {render, screen, waitFor} from "@testing-library/react";
 import {userEvent} from "@testing-library/user-event";
 import AddEditClientPage from "./AddEditClientPage";
 import {BrowserRouter, MemoryRouter, Route, Routes} from "react-router-dom";
+import apiService from "../../utility/ApiService";
 
 jest.mock("../../utility/ApiService", () => ({
+    get: jest.fn(() => Promise.resolve({client: {clientId: "111", legalName: "A A", dateOfBirth: "2000-01-01"}})),
     post: jest.fn(() => Promise.resolve( { message: "Client added", client: { id: "123" }})),
     put: jest.fn(() => Promise.resolve({ message: "client updated successfully", client: { id: "123" }})),
 }));
@@ -67,7 +69,7 @@ describe("Add Edit Client Page tests", () => {
     });
     it("should prefill form fields with client data on edit", () => {
         render(
-            <MemoryRouter initialEntries={[{ pathname: '/test', state: { client: {id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01", sex: "M"} } }]}>
+            <MemoryRouter initialEntries={[{ pathname: '/test', state: { client: {id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01T00:00:00.000Z", sex: "M"} } }]}>
                 <Routes>
                     <Route path="/test" element={<AddEditClientPage isEdit={true} />} />
                 </Routes>
@@ -77,6 +79,20 @@ describe("Add Edit Client Page tests", () => {
         expect(screen.getByLabelText("Legal Name")).toHaveValue("John Doe");
         expect(screen.getByLabelText("Date of Birth")).toHaveValue("2000-01-01");
     });
+    it("should fetch the client data if no client data in location state and isEdit is true", async () => {
+        // mock the get method in ApiService to return a client
+        const mockFetch = (apiService.get as jest.Mock).mockReturnValue({client: {id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01",}});
+
+        render(
+            <MemoryRouter initialEntries={[{ pathname: '/test' }]}>
+                <Routes>
+                    <Route path="/test" element={<AddEditClientPage isEdit={true} />} />
+                </Routes>
+            </MemoryRouter>
+        );
+        await waitFor(() => expect(mockFetch).toHaveBeenCalled());
+
+    })
     it("submits update form correctly", async () => {
         render(
             <MemoryRouter initialEntries={[{ pathname: '/test', state: { client: {id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01", sex: "M"} } }]}>

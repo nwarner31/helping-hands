@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 import HouseLogo from "../../../assets/HouseLogo";
-import Button from "../../../components/Button/Button";
+import Button from "../../../components/Buttons/Button/Button";
 
 const DirectorDashboard = () => {
     return (

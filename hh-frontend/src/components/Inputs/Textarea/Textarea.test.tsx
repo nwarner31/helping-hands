@@ -22,7 +22,7 @@ describe("Textarea component", () => {
         expect(handleChange).toHaveBeenCalled();
     });
 
-    it("shows error message and applies error class", () => {
+    it("shows error message", () => {
         render(
             <Textarea
                 name="notes"
@@ -32,8 +32,6 @@ describe("Textarea component", () => {
         );
 
         expect(screen.getByText("This field is required")).toBeInTheDocument();
-        const textarea = screen.getByRole("textbox");
-        expect(textarea.className).toMatch(/textareaError/);
     });
 
     it("applies custom container class", () => {

@@ -3,9 +3,12 @@ import request from "supertest";
 import app from "../../../app";
 import { clientSetupTests, clientTeardownTests } from "../client.setuptest";
 import {addEvent} from "../../../services/event.service";
+import {TestEmployee} from "../../setuptestemployees";
+import {setupTestClients, teardownTestClients } from "../../setuptestclients";
+import {Client} from "@prisma/client";
 
 describe("Client Routes - Add Event", () => {
-    const clientId = "C12345";
+    let testClient: Client;
     const validEvent = {
         id: "T123456",
         type: "WORK",
@@ -17,39 +20,35 @@ describe("Client Routes - Add Event", () => {
         numberStaffRequired: 2,
     };
 
-    let adminToken: string;
-    let associateToken: string;
+    let admin: TestEmployee;
+    let associate: TestEmployee;
 
     beforeAll(async () => {
-        const tokens = await clientSetupTests();
-        adminToken = tokens.adminToken;
-        associateToken = tokens.associateToken;
 
-        await prisma.client.create({
-            data: {
-                id: clientId,
-                legalName: "Client for Event",
-                dateOfBirth: new Date("2000-01-01"),
-                sex: "F",
-            },
-        });
+        const employees = await clientSetupTests();
+        admin = employees.admin;
+        associate = employees.associate;
+
+        const clients = await setupTestClients();
+        testClient = clients.client1;
     });
 
-    afterEach(async () => {
+    beforeEach(async () => {
         await prisma.medicalEvent.deleteMany();
         await prisma.event.deleteMany();
-
     });
 
     afterAll(async () => {
-        await prisma.client.deleteMany();
+        await prisma.medicalEvent.deleteMany();
+        await prisma.event.deleteMany();
+        await teardownTestClients();
         await clientTeardownTests();
     });
 
     it("should successfully create a work event with valid data and admin", async () => {
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(validEvent);
 
         expect(response.status).toBe(201);
@@ -59,7 +58,7 @@ describe("Client Routes - Add Event", () => {
 
     it("should return 401 if no token provided", async () => {
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
+            .post(`/api/client/${testClient.id}/event`)
             .send(validEvent);
 
         expect(response.status).toBe(401);
@@ -67,8 +66,8 @@ describe("Client Routes - Add Event", () => {
 
     it("should return 403 if user is not an admin", async () => {
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${associateToken}`)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${associate.token}`)
             .send(validEvent);
 
         expect(response.status).toBe(403);
@@ -91,8 +90,8 @@ describe("Client Routes - Add Event", () => {
             delete invalidData[field as keyof typeof validEvent];
 
             const response = await request(app)
-                .post(`/api/client/${clientId}/event`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .post(`/api/client/${testClient.id}/event`)
+                .set("Authorization", `Bearer ${admin.token}`)
                 .send(invalidData);
 
             expect(response.status).toBe(400);
@@ -105,8 +104,8 @@ describe("Client Routes - Add Event", () => {
         const invalidData = { ...validEvent, numberStaffRequired: "two" };
 
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(invalidData);
 
         expect(response.status).toBe(400);
@@ -117,8 +116,8 @@ describe("Client Routes - Add Event", () => {
         const invalidData = { ...validEvent, beginDate: "not-a-date" };
 
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(invalidData);
 
         expect(response.status).toBe(400);
@@ -129,8 +128,8 @@ describe("Client Routes - Add Event", () => {
         const invalidData = { ...validEvent, type: "MEDICAL", medical: undefined };
 
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(invalidData);
 
         expect(response.status).toBe(400);
@@ -139,8 +138,8 @@ describe("Client Routes - Add Event", () => {
 
     it("should return 201 when type is MEDICAL and medical is included", async () => {
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send({
                 ...validEvent,
                 type: "MEDICAL",
@@ -162,8 +161,8 @@ describe("Client Routes - Add Event", () => {
             .mockRejectedValue(new Error("Database connection failed"));
 
         const response = await request(app)
-            .post(`/api/client/${clientId}/event`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(validEvent);
         expect(response.status).toBe(500);
     });

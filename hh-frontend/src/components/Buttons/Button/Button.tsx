@@ -1,24 +1,20 @@
 import React from "react";
-import styles from "./Button.module.css";
+import {ButtonVariant, getButtonClasses} from "../Buttons.utility";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "accent";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
-    borderWidth?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
                                            variant = "primary",
-                                           borderWidth = "3px",
                                            children,
                                             className,
                                            ...props
                                        }) => {
     return (
         <button
-            className={`${styles.button} ${styles[variant]} ${className}`}
-            style={{ borderWidth }}
+            className={getButtonClasses(variant, className)}
             {...props}
         >
             {children}

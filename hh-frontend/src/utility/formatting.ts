@@ -7,6 +7,10 @@ export const formatShortDate = (dateTimeString: string) => {
     const [_, month, day] = dateTimeString.split("T")[0].split('-');
     return `${month}/${day}`;
 }
+export const formatInputDate = (dateTimeString: string) => {
+    const [year, month, day] = dateTimeString.split("T")[0].split('-');
+    return `${year}-${month}-${day}`;
+}
 export const formatTime = (dateTimeString: string) => {
     const [hour, minute] = dateTimeString.split("T")[1].split(":");
     return `${hour}:${minute}`;

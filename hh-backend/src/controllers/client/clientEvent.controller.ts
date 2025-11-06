@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import {FullEventSchema, eventQuerySchema, flattenErrors} from "../../validation/event.validation";
+import {FullEventSchema, eventQuerySchema } from "../../validation/event.validation";
 import {addEvent } from "../../services/event.service";
 import {getClientByClientId, getClientEventsInDateRange} from "../../services/client.service";
 import {getDateRange} from "../../tests/utlity/dataTransforms/date.transforms";
+import {flattenErrors} from "../../validation/utility.validation";
 
 
 
@@ -17,6 +18,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
         const parseResult = FullEventSchema.safeParse(rawData);
 
         if (!parseResult.success) {
+            console.log(parseResult.error.format())
             return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
         }
 
@@ -44,8 +46,8 @@ export const getEventsForClient = async (req: Request, res: Response, next: Next
         }
         const {month, fromDate, toDate} = data;
         const { from, to } = getDateRange(month, fromDate, toDate);
-        const pageNum = Number(req.query.page) || 1;
-        const pageSize = Number(req.query.pageSize) || 10;
+        const pageNum = req.query.page ? Number(req.query.page) : 1;
+        const pageSize = req.query.pageSize ? Number(req.query.pageSize) : 20;
         // Fetch events from service
         const { events, numPages, count } = await getClientEventsInDateRange(
             req.params.clientId,

@@ -1,4 +1,4 @@
-import {render, screen} from "@testing-library/react";
+import {act, render, screen} from "@testing-library/react";
 import {userEvent} from "@testing-library/user-event";
 
 import PasswordInput from "./PasswordInput";
@@ -10,23 +10,24 @@ describe("Password Input tests", () => {
         expect(label.tagName).toBe("LABEL");
     });
     it("should not have the active class with no text and no focus", () => {
-        const {container} = render(<PasswordInput label="My Password"  name="" value="" onChange={() => {}} />);
-        const input = container.querySelector(".inputWrapper");
-        expect(input).not.toHaveClass("active");
+        render(<PasswordInput label="My Password"  name="pass" value="" onChange={() => {}} />);
+        const input = screen.queryByTestId("label-pass");
+        expect(input).toHaveClass("translate-y-4");
     });
     it("should have the active class if it has focus", async () => {
-        const {container} = render(<PasswordInput label="My Password"  name="password" value="" onChange={() => {}} />);
-        const inputText = screen.getByLabelText("My Password");
-        const input = container.querySelector(".inputWrapper");
+        render(<PasswordInput label="My Password"  name="password" value="" onChange={() => {}} />);
+        const inputText = screen.getByTestId("input-password");
+        const inputLabel = screen.queryByTestId("label-password");
         await userEvent.click(inputText);
-        expect(input).toHaveClass("active");
+        expect(inputLabel).toHaveClass("-translate-y-1");
     });
     it("should have the active class if it has text", async () => {
-        const {container} = render(<PasswordInput label="My Password" name="password" value="" onChange={() => {}} />);
-        const inputText = screen.getByLabelText("My Password");
-        const input = container.querySelector(".inputWrapper");
+        render(<PasswordInput label="My Password" name="password" value="" onChange={() => {}} />);
+        const inputText = screen.getByTestId("input-password");
+        const inputLabel = screen.getByTestId("label-password");
         await userEvent.type(inputText, "hello world");
-        expect(input).toHaveClass("active");
+        act(() => inputText.blur());
+        expect(inputLabel).toHaveClass("-translate-y-1");
     });
     it("should not have an error text if one is not provided", () => {
         const {container} = render(<PasswordInput label="My Input" name="" value="" onChange={() => {}} />);
@@ -34,8 +35,8 @@ describe("Password Input tests", () => {
         expect(error).not.toBeInTheDocument();
     });
     it("should have an error text if it is provided and it contains the provided text", () => {
-        const {container} = render(<PasswordInput label="My Input" error="Test error" name="" value="" onChange={() => {}} />);
-        const error = container.querySelector(".errorText");
+        render(<PasswordInput label="My Input" error="Test error" name="password" value="" onChange={() => {}} />);
+        const error = screen.getByTestId("error-password");
         expect(error).toBeInTheDocument();
         expect(error).toHaveTextContent("Test error");
     });
@@ -44,7 +45,7 @@ describe("Password Input tests", () => {
         render(<PasswordInput label="My Password" onChange={changeFunction}  name="password" value="" />);
         const input = screen.getByLabelText("My Password")
         await userEvent.type(input, "i am the text");
-        expect(changeFunction).toBeCalledTimes(13);
+        expect(changeFunction).toHaveBeenCalledTimes(13);
     });
     it("should have a value equal to the text entered", async() => {
         let myValue = "";

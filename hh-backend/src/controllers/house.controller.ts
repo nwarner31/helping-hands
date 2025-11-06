@@ -10,6 +10,7 @@ import {
 import {House} from "@prisma/client";
 import {getClientByClientId} from "../services/client.service";
 import advanceTimersToNextTimerAsync = jest.advanceTimersToNextTimerAsync;
+import {HouseSchema} from "../validation/house.validation";
 
 interface HouseErrors {
     id?: string;
@@ -21,54 +22,18 @@ interface HouseErrors {
     femaleEmployeeOnly?: string;
 }
 
-const validateHouseData = (house: House) => {
-    const errors: HouseErrors = {};
-    if(!house.id || !house.id.trim()) {
-        errors.id = "House ID is required";
-    }
-
-    if(!house.name || !house.name.trim()) {
-        errors.name = "House Name is required";
-    }
-
-    if(!house.street1 || !house.street1.trim()) {
-        errors.street1 = "Street 1 is required";
-    }
-
-    if(!house.city || !house.city.trim()) {
-        errors.city = "A City is required";
-    }
-
-    if(!house.state || !house.state.trim()) {
-        errors.state = "A State is required";
-    }
-
-    if(!house.maxClients || !house.maxClients.toString().trim()) {
-        errors.maxClients = "Max Clients is required";
-    } else if (+house.maxClients < 1) {
-        errors.maxClients = "Max Clients must be 1 or greater";
-    }
-
-    if(typeof house.femaleEmployeeOnly !== "boolean") {
-        errors.femaleEmployeeOnly = "Female Employee is a required field and is a boolean";
-    }
-
-    return errors;
-}
 
 export const createHouse = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const errors = validateHouseData(req.body);
-        if(Object.keys(errors).length > 0) {
-            return next({status: 400, message: "invalid data", errors: errors});
+        const parseResult = HouseSchema.safeParse(req.body);
+        if(!parseResult.success) {
+            return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
         }
         const duplicate = await checkForDuplicateHouse(req.body.id, req.body.name);
         if(Object.keys(duplicate).length > 0) {
             return next({status: 400, message: "invalid data", errors: duplicate});
         }
-        const houseData = { ...req.body };
-        houseData.maxClients = +houseData.maxClients;
-        const newHouse = await addHouse(houseData);
+        const newHouse = await addHouse(parseResult.data);
         res.status(201).json({message: "House successfully added", house: newHouse});
     } catch (error) {
         return next(error);
@@ -97,15 +62,19 @@ export const getHouse = async (req: Request, res: Response, next: NextFunction) 
 
 export const putHouse = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const errors = validateHouseData(req.body);
-        if(Object.keys(errors).length > 0) {
-            return next({status: 400, message: "invalid data", errors: errors});
+        // const errors = validateHouseData(req.body);
+        // if(Object.keys(errors).length > 0) {
+        //     return next({status: 400, message: "invalid data", errors: errors});
+        // }
+        const parseResult = HouseSchema.safeParse(req.body);
+        if(!parseResult.success) {
+            return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
         }
         const houseIdCheck = await getHouseByHouseId(req.body.houseId);
         if (!houseIdCheck) return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
-        const {clients, ...houseData} = { ...req.body };
-        houseData.maxClients = +houseData.maxClients;
-        const updatedHouse = await updateHouse(houseData);
+        //const {clients, ...houseData} = { ...req.body };
+        //houseData.maxClients = +houseData.maxClients;
+        const updatedHouse = await updateHouse(parseResult.data);
         res.status(200).json({message: "House successfully updated", house: updatedHouse});
     } catch (error) {
         return next(error);
@@ -145,6 +114,9 @@ export const removeClientFromHouse = async (req: Request, res: Response, next: N
 export const getAvailableManagersForHouse = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const houseId = req.params.houseId;
+        if (!houseId.trim()) return next({status: 400, message: "invalid data", errors: {houseId: "House ID is required"}});
+        const houseIdCheck = await getHouseByHouseId(houseId);
+        if(!houseIdCheck)  return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
         const availableManagers = await getAvailableManagers(houseId);
         res.status(200).json({message: "available mangers found", managers: availableManagers});
     } catch (error) {
@@ -162,7 +134,7 @@ export const addManagerToHouse = async (req: Request, res: Response, next: NextF
         }
 
         const updatedHouse = await addHouseManager(houseId, employeeId, positionType);
-        res.status(209).json({message: "manager added to house", house: updatedHouse});
+        res.status(200).json({message: "manager added to house", house: updatedHouse});
     } catch (error) {
         return next(error);
     }

@@ -1,5 +1,5 @@
 import {Event} from "../../models/Event/Event";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import {formatShortDate, formatTime} from "../../utility/formatting";
 import clsx from "clsx";
 

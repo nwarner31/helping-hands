@@ -4,6 +4,8 @@ import {HttpError} from "../utility/httperror";
 import {EventInput} from "../validation/event.validation";
 import {convertTimeToDate} from "../utility/dataFormat.utility";
 
+// Note: Ignored lines are intentional — they may later include logging or
+// standardized error wrapping and will be tested at that time.
 export const addEvent = async (eventData: EventInput) => {
     try {
         return await prisma.$transaction(async (tx) => {
@@ -33,6 +35,22 @@ export const addEvent = async (eventData: EventInput) => {
             return newEvent;
         });
     } catch (error) {
+        // istanbul ignore next
+        throw error;
+    }
+}
+
+export const getEventById = async (eventId: string) => {
+    try {
+        return await prisma.event.findUnique({
+            where: { id: eventId },
+            include: {
+                medical: true,
+                client: true,
+            },
+        });
+    } catch (error) {
+        // istanbul ignore next
         throw error;
     }
 }

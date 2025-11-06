@@ -133,12 +133,3 @@ export const eventQuerySchema = z
         }
     });
 
-// helper to flatten errors into { field: "message" }
-export function flattenErrors(error: z.ZodError) {
-    const fieldErrors: Record<string, string | undefined> = {};
-    for (const issue of error.issues) {
-        const key = issue.path[0] as string;
-        fieldErrors[key] = issue.message;
-    }
-    return fieldErrors;
-}

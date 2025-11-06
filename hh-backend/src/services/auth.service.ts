@@ -1,6 +1,8 @@
-import { Employee } from "@prisma/client";
+import {Employee, Prisma} from "@prisma/client";
 import bcrypt from "bcryptjs";
 import prisma from "../utility/prisma";
+import {HttpError} from "../utility/httperror";
+import {capitalizeFirst} from "../utility/stringFormat.utility";
 
 
 export const registerEmployee = async (employee: Employee ) => {
@@ -13,6 +15,11 @@ export const registerEmployee = async (employee: Employee ) => {
         return newEmployee;
     }
     catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+            // Prisma gives you which fields caused the unique constraint error
+            const fields = (error.meta?.target as string[]) || [];
+            throw new HttpError(400, "duplicate", Object.fromEntries(fields.map(f => [f, `${capitalizeFirst(f)} already exists`])));
+        }
         throw error;
     }
 
@@ -38,6 +45,7 @@ export const getEmployeeById = async (employeeId: string) => {
         }
         return employee;
     } catch(error) {
+        // istanbul ignore next
         throw error;
     }
 }

@@ -2,16 +2,17 @@ import prisma from "../../utility/prisma";
 import request from "supertest";
 import app from "../../app";
 import { setupHouseTest, teardownHouseTests } from "./house.setuptest";
+import {TestEmployee} from "../setuptestemployees";
 
 describe("HOUSE - get house by ID", () => {
-    let directorToken: string;
-    let associateToken: string;
+    let director: TestEmployee;
+    let associate: TestEmployee;
     let houseId: string;
 
     beforeAll(async () => {
-        const tokens = await setupHouseTest();
-        directorToken = tokens.directorToken;
-        associateToken = tokens.associateToken;
+        const employees = await setupHouseTest();
+        director = employees.director;
+        associate = employees.associate;
     });
 
     beforeEach(async () => {
@@ -39,7 +40,7 @@ describe("HOUSE - get house by ID", () => {
     it("should return 200 and the house for a valid ID", async () => {
         const res = await request(app)
             .get(`/api/house/${houseId}`)
-            .set("Authorization", `Bearer ${directorToken}`);
+            .set("Authorization", `Bearer ${director.token}`);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("house");
@@ -50,7 +51,7 @@ describe("HOUSE - get house by ID", () => {
     it("should return 404 for a non-existent house", async () => {
         const res = await request(app)
             .get("/api/house/INVALID_ID")
-            .set("Authorization", `Bearer ${directorToken}`);
+            .set("Authorization", `Bearer ${director.token}`);
 
         expect(res.status).toBe(404);
         expect(res.body.message).toBe("House not found");
@@ -70,7 +71,7 @@ describe("HOUSE - get house by ID", () => {
 
         const res = await request(app)
             .get(`/api/house/${houseId}`)
-            .set("Authorization", `Bearer ${directorToken}`);
+            .set("Authorization", `Bearer ${director.token}`);
 
         expect(res.status).toBe(500);
     });

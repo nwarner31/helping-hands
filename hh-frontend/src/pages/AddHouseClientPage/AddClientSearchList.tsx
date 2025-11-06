@@ -1,6 +1,6 @@
-import React, {useState, useMemo, useEffect} from "react";
+import React, {useState, useMemo } from "react";
 import {Client} from "../../models/Client";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import {formatDate} from "../../utility/formatting";
 import apiService from "../../utility/ApiService";
 import {House} from "../../models/House";
@@ -25,25 +25,6 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
             return matchesSearch && matchesSex;
         });
     }, [clients, search, sexFilter]);
-    const [isMobile, setIsMobile] = useState(false);
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(max-width: 420px)');
-
-        const handleChange = (e: MediaQueryListEvent) => {
-            setIsMobile(e.matches);
-        };
-
-        // Set initial state
-        setIsMobile(mediaQuery.matches);
-
-        // Add event listener
-        mediaQuery.addEventListener('change', handleChange);
-
-        // Clean up
-        return () => {
-            mediaQuery.removeEventListener('change', handleChange);
-        };
-    }, []);
 
     const addClientHandler = async (clientId: string) => {
         const response = await apiService.patch<{message: string, house?: House}>(`house/${houseId}/clients`, {clientId: clientId});
@@ -87,7 +68,7 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
                         <td className="px-2">{formatDate(client.dateOfBirth)}</td>
                         <td className="px-2">{client.sex}</td>
                         <td className="px-2">
-                            <Button onClick={() => addClientHandler(client.id)}>{isMobile ? "+" : "Add"}</Button>
+                            <Button onClick={() => addClientHandler(client.id)}><div className="hidden sm:block">Add</div><div className="sm:hidden">+</div></Button>
                         </td>
                     </tr>
                 ))}

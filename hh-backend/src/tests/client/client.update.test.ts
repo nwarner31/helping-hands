@@ -2,18 +2,19 @@ import {beforeAll} from "@jest/globals";
 import request from "supertest";
 import app from "../../app";
 import {clientSetupTests, clientTeardownTests} from "./client.setuptest";
+import {TestEmployee} from "../setuptestemployees";
 
 
 describe("Client Routes - Update Client", () => {
-    let adminToken: string;
-    let associateToken: string
+    let admin: TestEmployee;
+    let associate: TestEmployee;
     const client = {id: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "F"};
     beforeAll(async () => {
-        const tokens = await clientSetupTests();
-       adminToken = tokens.adminToken;
-       associateToken = tokens.associateToken
+        const employees = await clientSetupTests();
+       admin = employees.admin;
+       associate = employees.associate;
        const clientResponse = await request(app).post("/api/client")
-            .set("Authorization", `Bearer ${adminToken}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(client);
     });
     afterAll(async () => {
@@ -23,7 +24,7 @@ describe("Client Routes - Update Client", () => {
         const updatedClient = {...client, legalName: "Updated Client"};
         const response = await request(app)
             .put(`/api/client/${client.id}`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(updatedClient);
         expect(response.status).toBe(200);
         expect(response.body.client.legalName).toBe("Updated Client");
@@ -39,31 +40,41 @@ describe("Client Routes - Update Client", () => {
         const updatedClient = {...client, legalName: "Updated Client"};
         const response = await request(app)
             .put(`/api/client/${client.id}`)
-            .set("Authorization", `Bearer ${associateToken}`)
+            .set("Authorization", `Bearer ${associate.token}`)
             .send(updatedClient);
         expect(response.status).toBe(403);
     });
-    const requiredFields = ["id", "legalName", "dateOfBirth"];
+    const requiredFields = ["id", "legalName", "dateOfBirth", "sex"];
 
     requiredFields.forEach((field) => {
         it(`should return 400 when '${field}' is missing`, async () => {
             const invalidData = {...client};
             delete invalidData[field as keyof typeof client];  // Remove the field
             const response = await request(app).put(`/api/client/${client.id}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Authorization", `Bearer ${admin.token}`)
                 .send(invalidData);
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("message");
-            expect(response.body.message).toHaveProperty(field);
+            expect(response.body.errors).toHaveProperty(field);
         });
     });
+    it("should return 400 for bad date of birth", async () => {
+        const invalidDateClient = {...client, dateOfBirth: "bad-dateOfBirth"};
+        const response = await request(app).put(`/api/client/${client.id}`)
+            .set("Authorization", `Bearer ${admin.token}`)
+            .send(invalidDateClient);
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("message");
+        expect(response.body.errors).toHaveProperty("dateOfBirth");
+    })
+
     it("should handle server errors", async () => {
         jest.spyOn(require("../../services/client.service"), "updateClient")
             .mockRejectedValue(new Error("Database connection failed"));
         const updatedClient = {...client, legalName: "Updated Client"};
         const response = await request(app).put(`/api/client/${client.id}`)
-            .set("Authorization", `Bearer ${adminToken}`)
+            .set("Authorization", `Bearer ${admin.token}`)
             .send(updatedClient);
         expect(response.status).toBe(500);
     });

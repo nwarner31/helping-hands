@@ -3,7 +3,7 @@ import Select from "../../components/Inputs/Select/Select";
 import React, {ChangeEvent, useEffect, useState} from "react";
 import clsx from "clsx";
 import StaticLabelInput from "../../components/Inputs/StaticLabelInput/StaticLabelInput";
-import Button from "../../components/Button/Button";
+import Button from "../../components/Buttons/Button/Button";
 import {useParams, useNavigate} from "react-router-dom";
 import apiService from "../../utility/ApiService";
 import ViewClientEventItem from "./ViewClientEventItem";
@@ -39,7 +39,7 @@ const ViewClientEventsListPage = () => {
         async function getCurrentMonth () {
             setState("loading");
             const response = await apiService.get< {success:boolean, message: string, events?: Event[], errors?: {month?: string, fromDate?: string, toDate?: string}}>(`client/${clientId}/event`);
-            if (response.success && response.events) {
+            if (response.message === "Events found" && response.events) {
                 setEvents(response.events);
                 setState("success");
             } else if(response.message === "Client not found") {
@@ -112,9 +112,9 @@ const ViewClientEventsListPage = () => {
             <Card className="font-body py-3 flex flex-col items-center gap-y-3 w-full max-w-105 min-h-screen xs:min-h-0  justify-center rounded-none xs:rounded-lg">
                 <h1 className="text-accent text-2xl font-bold font-header mb-3">View Client Events</h1>
                 <form onSubmit={handleSubmit} className="flex flex-col items-center gap-y-3 w-full">
-                        <Select className="border-1 rounded-md" name="searchBy" value={searchBy} onChange={(e) => setSearchBy(e.target.value)} label="Search by" options={[{label: "Month", value: "month"}, {label: "Dates", value: "dates"}]} />
+                        <Select containerClass="w-40" className="border-1 rounded-md" name="searchBy" value={searchBy} onChange={(e) => setSearchBy(e.target.value)} label="Search by" options={[{label: "Month", value: "month"}, {label: "Dates", value: "dates"}]} />
                     <div className={clsx(searchBy === "month" ? "block" : "hidden")}>
-                        <StaticLabelInput label="Month" type="month" onChange={(e) => setMonth(e.target.value)} error={errors.month} errorOnBaseline={false} />
+                        <StaticLabelInput name="month" label="Month" type="month" onChange={(e) => setMonth(e.target.value)} error={errors.month} errorOnBaseline={false} />
                     </div>
                     <div className={clsx("flex gap-x-3", searchBy === "dates" ? "block" : "hidden")}>
                         <StaticLabelInput label="From" name="fromDate" type="date" value={dateSearch.fromDate} onChange={updateDateSearch} error={errors.from} errorOnBaseline={false} />

@@ -2,14 +2,15 @@ import prisma from "../../utility/prisma";
 import request from "supertest";
 import app from "../../app";
 import {setupHouseTest, teardownHouseTests} from "./house.setuptest";
+import {TestEmployee} from "../setuptestemployees";
 
 
 describe("HOUSE - get all houses", () => {
     const endpoint = "/api/house";
-    let token: string;
+    let associate: TestEmployee;
     beforeAll(async () => {
-        const tokens = await setupHouseTest();
-        token = tokens.associateToken;
+        const employees = await setupHouseTest();
+        associate = employees.associate;
         // Create a house
         await prisma.house.create({
             data: {
@@ -30,7 +31,7 @@ describe("HOUSE - get all houses", () => {
     it("should return all houses for an authenticated user", async () => {
         const res = await request(app)
             .get(endpoint)
-            .set("Authorization", `Bearer ${token}`);
+            .set("Authorization", `Bearer ${associate.token}`);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("message", "houses successfully retrieved");
@@ -50,7 +51,7 @@ describe("HOUSE - get all houses", () => {
 
         const res = await request(app)
             .get(endpoint)
-            .set("Authorization", `Bearer ${token}`);
+            .set("Authorization", `Bearer ${associate.token}`);
 
         expect(res.status).toBe(500);
     });

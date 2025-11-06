@@ -20,16 +20,8 @@ jest.mock("../../utility/ApiService", () => ({
     post: jest.fn(() => Promise.resolve( { message: "Event created", event: { id: "123" }})),
     put: jest.fn(() => Promise.resolve({ message: "Event updated successfully", event: { id: "123" }})),
 }));
-// jest.mock("../../utility/ApiService", () => ({
-//     __esModule: true,
-//     default: {
-//         post: jest.fn(() => Promise.resolve({ message: "Event added", event: { id: "123" } })),
-//         put: jest.fn(() => Promise.resolve({ message: "Event updated successfully", event: { id: "123" } })),
-//     }
-// }));
 
 describe("AddEditClientEventPage", () => {
-    //const renderPage = (isEdit: boolean) => render(<BrowserRouter><AddEditClientEventPage isEdit={false} /></BrowserRouter>)
 
     const renderPage = (isEdit: boolean = false, locationState: {client: Client} | undefined = undefined) => {
         render(
@@ -44,9 +36,6 @@ describe("AddEditClientEventPage", () => {
         );
     };
 
-    // beforeEach(() => {
-    //     jest.resetAllMocks();
-    // });
     it("renders basic form fields", () => {
         renderPage(false);
         expect(screen.getByLabelText(/event id/i)).toBeInTheDocument();
@@ -169,10 +158,6 @@ describe("AddEditClientEventPage", () => {
     });
 
     it("submits form with valid medical data and navigates", async () => {
-        // const mockPost = jest.spyOn(apiService, "post").mockResolvedValue({
-        //     message: "Event created",
-        //     event: { id: "E1", type: "MEDICAL" },
-        // });
 
         renderPage(false);
 

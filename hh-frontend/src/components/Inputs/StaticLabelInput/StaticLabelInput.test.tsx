@@ -5,18 +5,18 @@ import StaticLabelInput from "./StaticLabelInput";
 
 describe("Date Input tests", () => {
     it("should have a label that contains the provided text", () => {
-        render(<StaticLabelInput label='My Date' type="date" />);
+        render(<StaticLabelInput name="date" label='My Date' type="date" />);
         const label = screen.getByText("My Date");
         expect(label).toBeInTheDocument();
     });
     it("should have a type of date", () => {
-        const {container} = render(<StaticLabelInput label="My Date" type="date" />);
-        const dateInput = container.querySelector(".input");
+        render(<StaticLabelInput name="date" label="My Date" type="date" />);
+        const dateInput = screen.getByTestId("input-date");
         expect(dateInput).toHaveAttribute("type", "date");
     });
     it("should have the container class if it is provided", () => {
-        const {container} = render(<StaticLabelInput label="My Date" containerClass="my-class" type="date" />);
-        const inputContainer = container.querySelector(".inputContainer");
+        render(<StaticLabelInput name="date" label="My Date" containerClass="my-class" type="date" />);
+        const inputContainer = screen.getByTestId("input-container-date");
         expect(inputContainer).toHaveClass("my-class");
     });
     it("should call the on change function when a value is entered", async () => {
