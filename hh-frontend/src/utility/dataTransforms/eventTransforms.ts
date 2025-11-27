@@ -1,5 +1,5 @@
 import {EventInput} from "../../models/Event/EventInput";
-import {formatDate, formatTime} from "../formatting";
+import { formatTime} from "../formatting";
 
 export function convertEventToInput(event: any): EventInput {
 
