@@ -9,7 +9,7 @@ import apiService from "../../utility/ApiService";
 //jest.mock('../../config', () => ({API_BASE_URL: 'my-dummy-url'}));
 // Mocking the API service (ApiService)
 jest.mock("../../utility/ApiService", () => ({
-    post: jest.fn(() => Promise.resolve({ message: "Login successful", employee: {}, accessToken: "hello" })),
+    post: jest.fn(() => Promise.resolve({ message: "Login successful", employee: {}, sessionToken: "hello" })),
 }));
 
 jest.mock("react-router-dom", () => {

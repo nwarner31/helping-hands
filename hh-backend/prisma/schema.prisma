@@ -45,6 +45,8 @@ model Employee {
   medicalEventsTakenToHouse   MedicalEvent[] @relation("RecordTakenToHouseBy")
   medicalEventsCompleted      MedicalEvent[] @relation("AppointmentCompletedBy")
   medicalEventsFiled          MedicalEvent[] @relation("RecordFiledBy")
+  refreshTokens RefreshToken[]
+  sessionTokens  Session[]
 }
 
 enum EventType {
@@ -110,4 +112,32 @@ model House {
   secondaryHouseManager Employee? @relation("SecondaryManager", fields: [secondaryManagerId], references: id)
   primaryManagerId String? @db.VarChar(40)
   secondaryManagerId String? @db.VarChar(40)
+}
+
+model RefreshToken {
+  id           String   @id @default(cuid())
+  token        String   @unique
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  revoked      Boolean  @default(false)
+  revokedAt    DateTime?
+  replacedById String?  @unique
+  replacedBy   RefreshToken? @relation("TokenReplacement", fields: [replacedById], references: [id])
+
+  replaces       RefreshToken?  @relation("TokenReplacement")
+
+  @@index([expiresAt])
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  token        String   @unique
+  employeeId  String @db.VarChar(40)
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  isValid     Boolean  @default(true)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

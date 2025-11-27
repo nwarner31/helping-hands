@@ -1,12 +1,14 @@
 import prisma from "../utility/prisma";
 import bcrypt from "bcryptjs";
-import {generateToken} from "../utility/token.utility";
+import {createTokens} from "../services/utility/token.service";
 
 export type TestEmployee = {
     id: string;
     token: string;
 };
 export const setupTestEmployees = async () => {
+    await prisma.session.deleteMany();
+    await prisma.refreshToken.deleteMany();
     await prisma.employee.deleteMany();
     const adminId = "test123";
     const directorId = "test456";
@@ -47,20 +49,28 @@ export const setupTestEmployees = async () => {
         skipDuplicates: true,
     });
     console.log("Test employees created");
-
+    const [adminTokens, directorTokens, associateTokens] = await Promise.all([createTokens(adminId), createTokens(directorId), createTokens(associateId)]);
     return {
         admin: {
             id: adminId,
-            token: generateToken(adminId).accessToken,},
+            token: adminTokens.sessionToken,},
         director: {
             id: directorId,
-            token: generateToken(directorId).accessToken,},
+            token: directorTokens.sessionToken,},
         associate: {
             id: associateId,
-            token: generateToken(associateId).accessToken,}
+            token: associateTokens.sessionToken,}
     };
 };
 
+export const clearTestEmployees = async () => {
+    await prisma.employee.deleteMany();
+    await prisma.refreshToken.deleteMany();
+    await prisma.employee.deleteMany();
+}
+
 export const teardownTestEmployees = async () => {
+    await prisma.session.deleteMany();
+    await prisma.refreshToken.deleteMany();
     await prisma.employee.deleteMany();
 }

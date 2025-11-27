@@ -5,6 +5,8 @@ import { setupTestEmployees, teardownTestEmployees} from "../setuptestemployees"
 export const setupHouseTest = async () => {
     await prisma.house.deleteMany();
     await prisma.client.deleteMany();
+    await prisma.refreshToken.deleteMany();
+    await prisma.session.deleteMany();
     await prisma.employee.deleteMany();
     return await setupTestEmployees();
 }

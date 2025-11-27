@@ -5,8 +5,9 @@ export function convertEventToInput(event: any): EventInput {
 
     return {
         ...event,
-        beginDate: formatDate(event.beginDate),
-        endDate: formatDate(event.endDate),
+        beginDate: event.beginDate.split("T")[0],  //formatDate(event.beginDate),
+        endDate: event.endDate.split("T")[0], //formatDate(event.endDate),
+        numberStaffRequired: event.numberStaffRequired.toString(),
         beginTime: formatTime(event.beginTime),
         endTime: formatTime(event.endTime),
         medical: event.medical ?? {

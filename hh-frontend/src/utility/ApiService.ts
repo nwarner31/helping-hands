@@ -28,7 +28,7 @@ class ApiService {
     };
 
     private handleResponse = (response: AxiosResponse) => {
-        const newAccessToken = response.headers['x-access-token'];
+        const newAccessToken = response.headers['x-session-token'];
         if (newAccessToken) {
             setNewAccessToken(newAccessToken);
         }

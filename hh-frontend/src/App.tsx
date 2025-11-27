@@ -36,6 +36,7 @@ function App() {
                 {path: "/client/:clientId/add-event", element: <AddEditClientEventPage isEdit={false} />},
                 {path: "/client/:clientId/view-events", element: <ViewClientEventsListPage />},
                 {path: "/event/:eventId", element: <ViewEventPage />},
+                {path: "/edit-event/:eventId", element: <AddEditClientEventPage isEdit={true} />},
                 {path: "/view-houses", element: <ViewHousesListPage />, loader: viewHousesLoader},
                 {path: "/edit-house/:houseId", element: <AddEditHousePage isEdit={true} /> },
                 {path: "/add-house", element: <AddEditHousePage isEdit={false} />},

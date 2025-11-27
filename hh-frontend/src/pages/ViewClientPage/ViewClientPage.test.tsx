@@ -320,7 +320,7 @@ describe("ViewClientPage", () => {
                 hireDate: ""
             },
             accessToken: null,
-            login: function (employee: Employee, accessToken: string): void {
+            login: function (_employee: Employee, _accessToken: string): void {
                 throw new Error("Function not implemented.");
             },
             logout: function (): void {

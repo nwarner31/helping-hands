@@ -19,4 +19,6 @@ model Employee {
   medicalEventsTakenToHouse   MedicalEvent[] @relation("RecordTakenToHouseBy")
   medicalEventsCompleted      MedicalEvent[] @relation("AppointmentCompletedBy")
   medicalEventsFiled          MedicalEvent[] @relation("RecordFiledBy")
+  refreshTokens RefreshToken[]
+  sessionTokens  Session[]
 }

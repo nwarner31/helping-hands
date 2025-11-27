@@ -1,0 +1,16 @@
+model RefreshToken {
+  id           String   @id @default(cuid())
+  token        String   @unique
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  revoked      Boolean  @default(false)
+  revokedAt    DateTime?
+  replacedById String?  @unique
+  replacedBy   RefreshToken? @relation("TokenReplacement", fields: [replacedById], references: [id])
+
+  replaces       RefreshToken?  @relation("TokenReplacement")
+
+  @@index([expiresAt])
+}

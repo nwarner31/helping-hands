@@ -191,7 +191,6 @@ describe('AddEditHousePage', () => {
             const mockFetch = (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", house: testHouse});
             renderEdit(null as any);
             await waitFor(() => {
-                //expect(mockFetch).toHaveBeenCalledWith(testHouse.id)
                 expect(mockFetch).toHaveBeenCalledWith("house/H12345");
                 expect(screen.getByLabelText('House ID')).toHaveValue(testHouse.id);
             });

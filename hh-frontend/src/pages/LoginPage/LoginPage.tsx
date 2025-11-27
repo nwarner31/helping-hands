@@ -56,11 +56,10 @@ const LoginPage = () => {
                 const response: {
                     message: string,
                     employee?: Employee,
-                    accessToken?: string
+                    sessionToken?: string
                 } = await apiService.post('auth/login', loginData);
-
-                if (response.message === "Login successful" && response.employee && response.accessToken) {
-                    login(response.employee, response.accessToken);
+                if (response.message === "Login successful" && response.employee && response.sessionToken) {
+                    login(response.employee, response.sessionToken);
                     navigate("/dashboard");
                 }
             }

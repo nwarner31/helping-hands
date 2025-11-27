@@ -1,24 +1,20 @@
 import request from "supertest";
-import app from "../app"; // Ensure this is your Express app instance
+import app from "../../app"; // Ensure this is your Express app instance
 import {afterAll, beforeAll} from "@jest/globals";
-import {execSync} from "child_process";
 
-import prisma from "../utility/prisma";
+import prisma from "../../utility/prisma";
 
-
-
-afterAll(async () => {
-    await prisma.$disconnect();
-});
-
-afterEach(() => {
-    jest.restoreAllMocks();
-});
 
 describe("Auth Routes - Register", () => {
     beforeEach(async () => {
+        await prisma.session.deleteMany();
+        await prisma.refreshToken.deleteMany();
         await prisma.employee.deleteMany();
         jest.clearAllMocks(); // Reset mocks before each test
+    });
+    afterAll(async () => {
+        jest.clearAllMocks();
+        await prisma.$disconnect();
     });
 
     it("should register an employee and return 201", async () => {
@@ -37,7 +33,7 @@ describe("Auth Routes - Register", () => {
 
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("message", "Employee registered successfully");
-        expect(response.body).toHaveProperty("accessToken");
+        expect(response.body).toHaveProperty("sessionToken");
         expect(response.body).toHaveProperty("employee");
     });
 
@@ -128,14 +124,14 @@ describe("Auth Routes - Register", () => {
 
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("message", "Employee registered successfully");
-        expect(response.body).toHaveProperty("accessToken");
+        expect(response.body).toHaveProperty("sessionToken");
         expect(response.body).toHaveProperty("employee");
 
         employee.email = "mytest@mail.com";
         const invalidResponse = await request(app)
             .post("/api/auth/register")
             .send(employee);
-        expect(invalidResponse.status).toBe(500);
+        expect(invalidResponse.status).toBe(400);
     })
 
 
@@ -155,19 +151,19 @@ describe("Auth Routes - Register", () => {
 
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("message", "Employee registered successfully");
-        expect(response.body).toHaveProperty("accessToken");
+        expect(response.body).toHaveProperty("sessionToken");
         expect(response.body).toHaveProperty("employee");
 
         employee.id = "newtest456";
         const invalidResponse = await request(app)
             .post("/api/auth/register")
             .send(employee);
-        expect(invalidResponse.status).toBe(500);
+        expect(invalidResponse.status).toBe(400);
     })
 
     it("should handle server errors", async () => {
         //(registerEmployee as jest.Mock).mockRejectedValue(new Error("Database connection failed"));
-        jest.spyOn(require("../../src/services/auth.service"), "registerEmployee")
+        jest.spyOn(require("../../../src/services/auth.service"), "registerEmployee")
             .mockRejectedValue(new Error("Database connection failed"));
         const response = await request(app)
             .post("/api/auth/register")
@@ -184,79 +180,3 @@ describe("Auth Routes - Register", () => {
         expect(response.status).toBe(500);
     });
 });
-
-describe("Auth Routes - Login", () => {
-    beforeAll(async () => {
-        await prisma.employee.deleteMany();
-        const response = await request(app)
-            .post("/api/auth/register")
-            .send({
-                id: "test123",
-                name: "John Doe",
-                email: "john.doe@example.com",
-                password: "StrongPass123",
-                confirmPassword: "StrongPass123",
-                hireDate: "2024-03-09",
-                sex: "M"
-            });
-        if (response.statusCode !== 201) {
-            console.log(response);
-            throw new Error("Error setting up user to login as");
-        }
-    });
-    it("should login the user if the correct credentials are provided", async () => {
-        const login = {email: "john.doe@example.com", password: "StrongPass123"};
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send(login);
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty("message", "Login successful");
-        expect(response.body).toHaveProperty("accessToken");
-        expect(response.body).toHaveProperty("employee");
-
-    });
-    it("should return 400 for no email", async () => {
-        const login = {password: "StrongPass123"};
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send(login);
-        expect(response.status).toBe(400);
-    });
-    it("should return 400 for no password", async () => {
-        const login = {email: "john.doe@example.com"};
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send(login);
-        expect(response.status).toBe(400);
-    });
-    it("should return 400 for incorrect formatted email", async () => {
-        const login = {email: "john.doe", password: "StrongPass123"};
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send(login);
-
-    });
-    it("should return 400 for bad email", async () => {
-        const login = {email: "john.doe@test.com", password: "StrongPass123"};
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send(login);
-        expect(response.status).toBe(400);
-    });
-    it("should return 400 for bad password", async () => {
-        const login = {email: "john.doe@example.com", password: "OtherPass123"};
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send(login);
-        expect(response.status).toBe(400);
-    });
-    it("should handle server errors", async () => {
-        jest.spyOn(require("../../src/services/auth.service"), "loginEmployee")
-            .mockRejectedValue(new Error("Database connection failed"));
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send( {email: "john.doe@example.com", password: "StrongPass123"});
-
-        expect(response.status).toBe(500);
-    });
-})

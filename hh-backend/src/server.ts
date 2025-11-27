@@ -1,5 +1,6 @@
 import app from "./app";
 import { PrismaClient } from "@prisma/client";
+import "./jobs/token.job";
 
 const prisma = new PrismaClient({
     log: ["query", "info", "warn", "error"],

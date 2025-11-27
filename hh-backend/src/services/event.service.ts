@@ -40,6 +40,45 @@ export const addEvent = async (eventData: EventInput) => {
     }
 }
 
+export const updateEvent = async (eventData: EventInput) => {
+    try {
+        return await prisma.$transaction(async (tx) => {
+            const { medical, clientId, ...event } = eventData;
+            const beginTime = convertTimeToDate(event.beginTime);
+            const endTime = convertTimeToDate(event.endTime);
+            const updatedEvent = await tx.event.update({
+                where: { id: event.id },
+                data: {
+                    ...event,
+                    beginTime,
+                    endTime,
+                    client: {
+                        connect: { id: clientId },
+                    },
+                },
+            });
+
+            if (medical) {
+                await tx.medicalEvent.upsert({
+                    where: { id: event.id },
+                    create: {
+                        ...medical,
+                        id: event.id,
+                    },
+                    update: {
+                        ...medical,
+                    },
+                });
+            }
+
+            return updatedEvent;
+        });
+    } catch (error) {
+        // istanbul ignore next
+        throw error;
+    }
+}
+
 export const getEventById = async (eventId: string) => {
     try {
         return await prisma.event.findUnique({

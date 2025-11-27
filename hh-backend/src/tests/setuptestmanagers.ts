@@ -49,13 +49,13 @@ export const setupTestManagers = async () => {
     return {
         manager1: {
             id: manager1Id,
-            token: generateToken(manager1Id).accessToken,},
+            token: generateToken(manager1Id).sessionToken,},
         manager2: {
             id: manager2Id,
-            token: generateToken(manager2Id).accessToken,},
+            token: generateToken(manager2Id).sessionToken,},
         manager3: {
             id: manager3Id,
-            token: generateToken(manager3Id).accessToken,}
+            token: generateToken(manager3Id).sessionToken,}
     };
 };
 

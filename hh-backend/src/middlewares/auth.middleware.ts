@@ -1,58 +1,72 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import {getEmployeeById} from "../services/auth.service";
-import {generateAccessToken} from "../utility/token.utility";
+import {
+    refreshTokens,
+    retrieveTokens,
+} from "../services/utility/token.service";
+import {RefreshToken, Session} from "@prisma/client";
 
-function verifyAccessToken(token: string) {
-    try {
-        const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string);
-        return { valid: true, expired: false, decoded: payload };
-    } catch (err: any) {
-        return {
-            valid: false,
-            expired: err.name === "TokenExpiredError",
-            decoded: null,
-        };
-    }
-}
 
 export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
-    let accessToken = authHeader?.split(" ")[1];
-
+    let sessionToken = authHeader?.split(" ")[1];
+    let refreshToken = req.cookies?.refreshToken;
     try {
-        // If no access token or it is expired
-        if (!accessToken || verifyAccessToken(accessToken).expired) {
-            const refreshToken = req.cookies?.refreshToken;
-            // If no refresh token also
-            if(!refreshToken) {
+        const tokens: {session?: Session, refresh?: RefreshToken} = await retrieveTokens({sessionToken, refreshToken});
+        let employeeId: string;
+        const now = new Date();
+
+        // This is to check for malformed session tokens
+        if (sessionToken) {
+            try {
+                jwt.verify(sessionToken, process.env.SESSION_TOKEN_SECRET as string) as jwt.JwtPayload;
+            } catch (err: any) {
+                if (err.name !== "TokenExpiredError") {
+                    res.sendStatus(403);
+                    return;
+                }
+            }
+        }
+
+        // If no session token or it is invalid/expired
+        if (!tokens.session || !tokens.session.isValid || tokens.session.expiresAt < now) {
+
+            // If no refresh token or is revoked/expired, deny access
+            if(!tokens.refresh || tokens.refresh.expiresAt < now || tokens.refresh.revoked) {
                 res.sendStatus(401);
                 return;
             }
-            // Uses the refresh token and generates a new access token and puts it on a header
-            const {employeeId} = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as jwt.JwtPayload;
-            accessToken = await generateAccessToken(refreshToken);
-            res.setHeader('x-access-token', accessToken);
+            // generate new tokens
+            ({refreshToken, sessionToken} = await refreshTokens(tokens.refresh.token));
+            // Set the new tokens in the response
+            res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: process.env.NODE_ENV === "production" });
+            res.setHeader('x-session-token', sessionToken);
+            const sessionPayload = jwt.verify(sessionToken, process.env.SESSION_TOKEN_SECRET as string) as jwt.JwtPayload;
+            ({employeeId} = sessionPayload);
+        } else {
+            // Session token is valid
+            const sessionPayload = jwt.verify(sessionToken!, process.env.SESSION_TOKEN_SECRET as string) as jwt.JwtPayload;
+            ({employeeId} = sessionPayload);
         }
-        // Uses the access token to get the employee's data and put it on the request
-        const payload = jwt.verify(accessToken!, process.env.ACCESS_TOKEN_SECRET as string);
-        const {employeeId} = payload as jwt.JwtPayload;
+        // Uses the refresh token to get the employee's data and put it on the request
         const employee = await getEmployeeById(employeeId);
         if(!employee) throw new Error("Employee not found")
         req.employee = employee;
         next();
     } catch (err) {
-        console.log(err);
-        console.log(authHeader);
-         res.sendStatus(403);
-         return;
+        console.error(err);
+        res.sendStatus(500);
+        return;
     }
 }
 
 
 export function requirePositions(...allowedPositions: string[]) {
     return (req: Request, res: Response, next: NextFunction) => {
+        // This should normally not happen if authenticateToken is used before this middleware
         if (!req.employee) {
+            // istanbul ignore next
             res.sendStatus(401);
             return;
         }

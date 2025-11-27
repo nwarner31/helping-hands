@@ -1,0 +1,10 @@
+model Session {
+  id          String   @id @default(uuid())
+  token        String   @unique
+  employeeId  String @db.VarChar(40)
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  isValid     Boolean  @default(true)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
