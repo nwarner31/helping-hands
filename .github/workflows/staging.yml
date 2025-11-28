@@ -30,7 +30,7 @@ jobs:
         working-directory: ./hh-backend
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_STAGING_DATABASE_URL }}
-        run: npx prisma migrate deploy
+        run: npx prisma migrate deploy --preview-feature --force
 
       # 5️⃣ Deploy backend to Railway
       - name: Deploy backend to Railway (staging)
