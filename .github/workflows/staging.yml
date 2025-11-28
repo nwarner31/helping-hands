@@ -35,7 +35,7 @@ jobs:
         run: |
           npm install -g @railway/cli
           export RAILWAY_TOKEN=$RAILWAY_TOKEN
-          railway up --service $RAILWAY_SERVICE_ID --non-interactive
+          railway up --service $RAILWAY_SERVICE_ID
 
       # 6️⃣ Deploy frontend to Vercel (staging)
       - name: Deploy frontend to Vercel (staging)
