@@ -25,16 +25,6 @@ jobs:
         working-directory: ./hh-backend
         run: npm install
 
-      # 4️⃣ Run Prisma migrations on Supabase staging
-      - name: Run Prisma migrate deploy (Supabase staging)
-        working-directory: ./hh-backend
-        env:
-          DATABASE_URL: ${{ secrets.SUPABASE_STAGING_DATABASE_URL }}
-        run: |
-          echo "Testing DB connection..."
-          npx prisma db pull --schema=./prisma/schema.prisma
-          echo "Deploying migrations..."
-          npx prisma migrate deploy --preview-feature --force --schema=./prisma/schema.prisma
 
       # 5️⃣ Deploy backend to Railway
       - name: Deploy backend to Railway (staging)
