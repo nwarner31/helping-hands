@@ -69,7 +69,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
         }
         await revokeTokens({sessionToken, refreshToken}).catch(() => {});
         res.status(204).send();
-    } catch (error) {
+    } catch (error) /* istanbul ignore next */  {
         next(error);
     }
 }

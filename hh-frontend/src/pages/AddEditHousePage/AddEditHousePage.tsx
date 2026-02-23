@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import Button from "../../components/Buttons/Button/Button";
 import React, {useState, useEffect} from "react";
 import Input from "../../components/Inputs/Input/Input";
@@ -6,6 +5,7 @@ import apiService from "../../utility/ApiService";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {House} from "../../models/House";
 import {toast} from "react-toastify";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const emptyHouse = {
     id: "",
@@ -127,10 +127,10 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
         }
     }
 
+    // <Card className="max-w-100 w-full py-5 px-4 flex flex-col items-center justify-center min-h-screen rounded-none xs:min-h-0 xs:rounded-xl">
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
-            <Card className="max-w-100 w-full py-5 px-4 flex flex-col items-center justify-center min-h-screen rounded-none xs:min-h-0 xs:rounded-xl">
-                <h1 className="text-accent font-header font-bold text-2xl mb-5">{isEdit ? "Update House" : "Add House"}</h1>
+            <PageCard title={isEdit ? "Update House" : "Add House"} size="xs" className="py-5 px-4" >
                 <form className="flex flex-col items-center gap-5 w-full" onSubmit={submitHouse}>
                     <Input label="House ID" value={houseData.id} name="id" error={formErrors.id} onChange={updateHouseData} disabled={isEdit} containerClassName="w-full px-3" />
                     <Input label="House Name" value={houseData.name} name="name" error={formErrors.name} onChange={updateHouseData} containerClassName="w-full px-3" />
@@ -148,7 +148,7 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
                     <Button className="w-full" >{isEdit ? "Update House" : "Add House"}</Button>
                     <Button className="w-full" variant="secondary" type="button">Cancel</Button>
                 </form>
-            </Card>
+            </PageCard>
         </div>
     )
 }

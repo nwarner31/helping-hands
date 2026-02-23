@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import {useAuth} from "../../context/AuthContext";
 import Button from "../../components/Buttons/Button/Button";
 import {Link, useLoaderData} from "react-router-dom";
@@ -9,6 +8,7 @@ import Modal from "../../components/Modal/Modal";
 import {useState} from "react";
 import {Client} from "../../models/Client";
 import {Employee} from "../../models/Employee";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 
 const ViewHousesListPage = () => {
@@ -49,13 +49,13 @@ const ViewHousesListPage = () => {
     const closeModal = () => {
         setModalData({show: false, client: undefined, house: undefined, manager: undefined});
     }
+
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
-            <Card className="max-w-163 w-full pt-4 px-2 pb-5">
-                <h1 className="text-center text-accent text-2xl font-header font-bold mb-6">Houses</h1>
+            <PageCard size="md-lg" className="py-5 px-2" title="Houses" >
                 {canEdit && <div><Link to="/add-house"><Button className="w-full">Add House</Button></Link></div>}
                 {houseList.map((house, index) => <ViewHouseListItem house={house} isOdd={index % 2 === 0} key={house.id} canEdit={canEdit} onRemoveClient={removeHandlerClient} onRemoveManager={removeHandlerManager} />)}
-            </Card>
+            </PageCard>
             {modalData.show && (
                 <Modal onClose={closeModal}>
                     <h2 className="m-0 py-1 px-3 bg-secondary text-white rounded-t-lg font-header font-bold text-lg" >Remove {modalData.client ? "Client" : "Manager"} from House</h2>

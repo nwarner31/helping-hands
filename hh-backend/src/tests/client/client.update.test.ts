@@ -70,7 +70,7 @@ describe("Client Routes - Update Client", () => {
     })
 
     it("should handle server errors", async () => {
-        jest.spyOn(require("../../services/client.service"), "updateClient")
+        jest.spyOn(require("../../services/client/client.service"), "updateClient")
             .mockRejectedValue(new Error("Database connection failed"));
         const updatedClient = {...client, legalName: "Updated Client"};
         const response = await request(app).put(`/api/client/${client.id}`)

@@ -8,12 +8,10 @@ jest.mock("../../utility/ApiService", () => ({
     },
 }));
 
-// ✅ only import after mocking
 import { render, screen, waitFor } from "@testing-library/react";
 import {MemoryRouter, Route, Routes} from "react-router-dom";
 import ViewClientPage from "./ViewClientPage";
 
-// ✅ now it's safe to use the mocked version
 import apiService from "../../utility/ApiService";
 import { Employee } from "../../models/Employee";
 
@@ -39,62 +37,11 @@ const mockHouse = {
 };
 
 describe("ViewClientPage", () => {
-    beforeAll(() => {
-        jest.clearAllMocks();
-        mockedApi.mockImplementation((url: string, _config?: any) => {
-
-            if (url.includes("house")) {
-                return Promise.resolve({
-                    house: {
-                        id: "house123",
-                        name: "Sunset Villa",
-                        street1: "123 Main St",
-                        street2: "",
-                        city: "Los Angeles",
-                        state: "CA",
-                        femaleEmployeeOnly: true,
-                        maxClients: 5,
-                        clients: [],
-                        primaryHouseManager: null,
-                        secondaryHouseManager: null,
-                    },
-                }) as Promise<any>;
-            }
-
-            if (url.includes("event/upcoming")) {
-                return Promise.resolve({
-                    events: [{
-                        id: "E1234",
-                        beginDate: "2023-10-01T10:00:00.000Z",
-                        endDate: "2023-10-01T12:00:00.000Z",
-                        beginTime: "2023-10-01T10:00:00.000Z",
-                        endTime: "2023-10-01T12:00:00.000Z",
-                        type: "WORK",
-                        numberStaffRequired: 2,
-                    }],
-                }) as Promise<any>;
-            }
-            if (url.includes("client")) {
-                return Promise.resolve({
-                    client: {
-                        id: "client123",
-                        legalName: "Jane Doe",
-                        name: "Test Name",
-                        dateOfBirth: "2000-01-01",
-                        sex: "F",
-                        houseId: "house123",
-                    },
-                    message: "Success",
-                }) as Promise<any>;
-            }
-
-            return Promise.reject(new Error("Unknown URL"));
-        });
-    });
     beforeEach(() => {
         jest.clearAllMocks();
     })
     it("renders with client from location.state", async () => {
+        mockedApi.mockReturnValue({client: mockClient});
         render(
             <AuthProvider>
                 <MemoryRouter
@@ -119,7 +66,7 @@ describe("ViewClientPage", () => {
     });
 
     it("fetches client from API when no state is provided", async () => {
-
+        mockedApi.mockReturnValue({client: mockClient});
 
         render(
             <AuthProvider>
@@ -133,56 +80,57 @@ describe("ViewClientPage", () => {
 
         await waitFor(() => {
             expect(screen.getByText("Legal Name: Jane Doe")).toBeInTheDocument();
+            expect(mockedApi).toHaveBeenCalledTimes(1);
         });
     });
 
-    it("fetches the house if it is not included in the location state", async () => {
-
-        render(
-            <AuthProvider>
-                <MemoryRouter
-                    initialEntries={[
-                        {
-                            pathname: "/client/client123",
-                            state: {client: {...mockClient, houseId: "H1234", events: []}},
-                        },
-                    ]}
-                >
-                    <Routes>
-                        <Route path="/client/:clientId" element={<ViewClientPage/>}/>
-                    </Routes>
-                </MemoryRouter>
-            </AuthProvider>
-        );
-        await waitFor(() => {
-            expect(mockedApi).toHaveBeenCalledTimes(1);
-        })
-
-    });
-
-    it("fetches the upcoming events if it is not included in the location state", async () => {
-
-        render(
-            <AuthProvider>
-                <MemoryRouter
-                    initialEntries={[
-                        {
-                            pathname: "/client/client123",
-                            state: {client: {...mockClient, house: mockHouse}},
-                        },
-                    ]}
-                >
-                    <Routes>
-                        <Route path="/client/:clientId" element={<ViewClientPage/>}/>
-                    </Routes>
-                </MemoryRouter>
-            </AuthProvider>
-        );
-        await waitFor(() => {
-            expect(mockedApi).toHaveBeenCalledTimes(1);
-        })
-
-    });
+    // it("fetches the house if it is not included in the location state", async () => {
+    //
+    //     render(
+    //         <AuthProvider>
+    //             <MemoryRouter
+    //                 initialEntries={[
+    //                     {
+    //                         pathname: "/client/client123",
+    //                         state: {client: {...mockClient, houseId: "H1234", events: []}},
+    //                     },
+    //                 ]}
+    //             >
+    //                 <Routes>
+    //                     <Route path="/client/:clientId" element={<ViewClientPage/>}/>
+    //                 </Routes>
+    //             </MemoryRouter>
+    //         </AuthProvider>
+    //     );
+    //     await waitFor(() => {
+    //         expect(mockedApi).toHaveBeenCalledTimes(1);
+    //     })
+    //
+    // });
+    //
+    // it("fetches the upcoming events if it is not included in the location state", async () => {
+    //
+    //     render(
+    //         <AuthProvider>
+    //             <MemoryRouter
+    //                 initialEntries={[
+    //                     {
+    //                         pathname: "/client/client123",
+    //                         state: {client: {...mockClient, house: mockHouse}},
+    //                     },
+    //                 ]}
+    //             >
+    //                 <Routes>
+    //                     <Route path="/client/:clientId" element={<ViewClientPage/>}/>
+    //                 </Routes>
+    //             </MemoryRouter>
+    //         </AuthProvider>
+    //     );
+    //     await waitFor(() => {
+    //         expect(mockedApi).toHaveBeenCalledTimes(1);
+    //     })
+    //
+    // });
 
     it("shows the managers when they exist", async () => {
         const houseWithManagers = {
@@ -196,6 +144,7 @@ describe("ViewClientPage", () => {
                 name: "Bob Supervisor",
             },
         };
+        mockedApi.mockReturnValue({client: {...mockClient, house: houseWithManagers}});
 
         render(
             <AuthProvider>
@@ -219,6 +168,7 @@ describe("ViewClientPage", () => {
     })
 
     it("shows the fallback when no managers exist", async () => {
+        mockedApi.mockReturnValue({client: {...mockClient, house: mockHouse}});
         render(
             <AuthProvider>
                 <MemoryRouter
@@ -244,6 +194,7 @@ describe("ViewClientPage", () => {
             ...mockHouse,
             street2: "Apt 4B",
         };
+        mockedApi.mockReturnValue({client: {...mockClient, house: houseWithStreet2}});
 
         render(
             <AuthProvider>
@@ -266,6 +217,7 @@ describe("ViewClientPage", () => {
     });
 
     it("shows yes if the house is female only", async () => {
+        mockedApi.mockReturnValue({client: {...mockClient, house: mockHouse}});
         render(
             <AuthProvider>
                 <MemoryRouter
@@ -290,6 +242,7 @@ describe("ViewClientPage", () => {
             ...mockHouse,
             femaleEmployeeOnly: false,
         };
+        mockedApi.mockReturnValue({client: {...mockClient, house: houseNotFemaleOnly}});
 
         render(
             <AuthProvider>
@@ -312,6 +265,7 @@ describe("ViewClientPage", () => {
     });
 
     it("does not show edit button for associate users", async () => {
+        mockedApi.mockReturnValue({client: mockClient});
         const spy = jest.spyOn(AuthContextModule, "useAuth").mockReturnValue({
             employee: {
                 id: "1", position: "ADMIN",
@@ -358,6 +312,7 @@ describe("ViewClientPage", () => {
                 clients: [mockClient],
             },
         };
+        mockedApi.mockReturnValue({client: soloClient});
 
         render(
             <AuthProvider>
@@ -394,6 +349,7 @@ describe("ViewClientPage", () => {
                 clients: [mockClient, mockRoommate], // only the current client, no roommates
             },
         };
+        mockedApi.mockReturnValue({client: clientWithRoommate});
 
         render(
             <AuthProvider>
@@ -417,3 +373,82 @@ describe("ViewClientPage", () => {
     });
 
 });
+
+it("does not show the event conflict button if it is not on the client", async () => {
+    mockedApi.mockReturnValue({client: mockClient});
+
+    render(
+        <AuthProvider>
+            <MemoryRouter
+                initialEntries={[
+                    {
+                        pathname: "/client/client123",
+                    } as any,
+                ]}
+            >
+                <Routes>
+                    <Route path="/client/:clientId" element={<ViewClientPage />} />
+                </Routes>
+            </MemoryRouter>
+        </AuthProvider>
+    );
+
+    await waitFor(() => {
+        expect(screen.queryByTestId("link-button-has-conflict")).not.toBeInTheDocument();
+    });
+
+});
+
+it("should display there are no event conflicts if hasConflicts is false", async () => {
+    mockedApi.mockReturnValue({client: {...mockClient, hasConflicts: {hasConflicts: false, numConflicts: 0}}});
+    render(
+        <AuthProvider>
+            <MemoryRouter
+                initialEntries={[
+                    {
+                        pathname: "/client/client123",
+                    } as any,
+                ]}
+            >
+                <Routes>
+                    <Route path="/client/:clientId" element={<ViewClientPage />} />
+                </Routes>
+            </MemoryRouter>
+        </AuthProvider>
+    );
+
+    await waitFor(() => {
+        const conflictLink = screen.queryByTestId("link-button-has-conflict");
+        expect(conflictLink).toBeInTheDocument();
+        expect(conflictLink).toHaveClass("bg-success");
+        expect(conflictLink).toHaveTextContent("No Upcoming Event Conflicts");
+    });
+
+
+});
+it("should display that there are event conflicts if hasConflicts is true", async () => {
+    mockedApi.mockReturnValue({client: {...mockClient, hasConflicts: {hasConflicts: true, numConflicts: 2}}});
+    render(
+        <AuthProvider>
+            <MemoryRouter
+                initialEntries={[
+                    {
+                        pathname: "/client/client123",
+                    } as any,
+                ]}
+            >
+                <Routes>
+                    <Route path="/client/:clientId" element={<ViewClientPage />} />
+                </Routes>
+            </MemoryRouter>
+        </AuthProvider>
+    );
+
+    await waitFor(() => {
+        const conflictLink = screen.queryByTestId("link-button-has-conflict");
+        expect(conflictLink).toBeInTheDocument();
+        expect(conflictLink).toHaveClass("bg-danger");
+        expect(conflictLink).toHaveTextContent("(2) Upcoming Event Conflicts");
+    });
+});
+

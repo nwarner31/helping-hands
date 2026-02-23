@@ -6,6 +6,7 @@ import {Link} from "react-router-dom";
 import {formatDate} from "../../utility/formatting";
 import {Client} from "../../models/Client";
 import {Employee} from "../../models/Employee";
+import LinkButton from "../../components/Buttons/LinkButton/LinkButton";
 
 
 type Props = {
@@ -68,9 +69,8 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                 </div>
                 {canEdit &&
                     <div className="col-start-4 sm:col-start-5 md-lg:col-start-6 row-start-1 row-span-2">
-                        <Link to={`/edit-house/${house.id}`} state={{house: house}}><Button className="h-full" variant={buttonVariant}>
-                            Edit
-                        </Button></Link>
+                        <LinkButton to={`/edit-house/${house.id}`} state={{house: house}} variant={buttonVariant}>Edit</LinkButton>
+
                     </div>
                    }
             </div>

@@ -1,10 +1,10 @@
 import {useAuth} from "../../context/AuthContext";
 import {useNavigate} from "react-router-dom";
-import Card from "../../components/Card/Card";
 import AdminDashboard from "./AdminDashboard/AdminDashboard";
 import DirectorDashboard from "./DirectorDashboard/DirectorDashboard";
 import Button from "../../components/Buttons/Button/Button";
 import api from "../../utility/ApiService";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const DashboardPage = () => {
     const navigate = useNavigate();
@@ -26,14 +26,14 @@ const DashboardPage = () => {
         await logout();
         navigate("/")
     }
+    // <Card className="flex flex-col items-center py-5 w-auto">
     return (
         <div className="min-h-screen bg-slate-100 flex justify-center items-center">
-            <Card className="flex flex-col items-center py-5 w-auto">
-                <h1 className="font-header text-2xl font-bold text-accent mb-4">Dashboard</h1>
-                <Button type="button" onClick={logoutHandler}>Logout</Button>
+            <PageCard size="xs" title="Dashboard" className="py-5 px-3 items-center" >
+                <Button type="button" onClick={logoutHandler} className="w-full">Logout</Button>
                 <span className="mb-3">{employee?.name}</span>
                 {dashboard}
-            </Card>
+            </PageCard>
         </div>
     );
 }

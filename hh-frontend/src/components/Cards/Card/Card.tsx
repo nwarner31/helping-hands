@@ -1,5 +1,5 @@
 import React from "react";
-import {ButtonVariant} from "../Buttons/Buttons.utility";
+import {ButtonVariant} from "../../Buttons/Buttons.utility";
 import clsx from "clsx";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement>  {
@@ -16,6 +16,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     primary: "bg-primary text-white",
     secondary: "bg-secondary text-white",
     danger: "bg-danger text-white",
+    success: "bg-success text-white",
     accent: "bg-accent text-white",
 };
 

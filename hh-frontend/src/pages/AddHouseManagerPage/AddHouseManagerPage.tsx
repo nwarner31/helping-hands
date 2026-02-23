@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import apiService from "../../utility/ApiService";
 import {LoaderFunctionArgs, useLoaderData, useLocation, useParams} from "react-router-dom";
 import {Employee} from "../../models/Employee";
@@ -6,6 +5,7 @@ import AddManagerListItem from "./AddManagerListItem";
 import {useEffect, useState} from "react";
 import {House} from "../../models/House";
 import Button from "../../components/Buttons/Button/Button";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 export const AddHouseManagerPage = () => {
     const {managers} = useLoaderData<{managers: Employee[]}>();
@@ -21,10 +21,10 @@ export const AddHouseManagerPage = () => {
             fetchHouse();
         }
     }, []);
+
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100 font-body">
-            <Card className="py-3 flex flex-col items-center gap-y-4 max-w-123">
-                <h1 className="text-2xl font-header font-bold text-accent mb-2">Add House Manager</h1>
+            <PageCard title="Add House Manager" size="sm" className="py-4" >
                 {houseData &&
                     <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-center mb-3 mx-auto w-50">
                         <div className="font-semibold">House ID</div>
@@ -38,7 +38,7 @@ export const AddHouseManagerPage = () => {
                 </div>
 
                 {managers.map((manager, index) => <AddManagerListItem key={manager.id} employee={manager} houseId={houseId!} isOdd={index % 2 === 0} />)}
-            </Card>
+            </PageCard>
         </div>
     );
 }

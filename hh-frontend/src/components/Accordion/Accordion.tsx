@@ -16,12 +16,14 @@ const variantClasses: Record<ButtonVariant, string> = {
     primary: "bg-primary text-white",
     secondary: "bg-secondary text-white",
     danger: "bg-danger text-white",
+    success: "bg-success text-white",
     accent: "bg-accent text-white",
 };
 const focusVariant: Record<ButtonVariant, string> = {
     primary: "focus:outline-cyan-200",
     secondary: "focus:outline-emerald-900",
     danger: "focus:outline-red-900",
+    success: "focus:outline-green-500",
     accent: "focus:outline-orange-800",
 };
 

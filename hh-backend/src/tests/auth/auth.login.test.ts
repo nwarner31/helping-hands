@@ -55,7 +55,7 @@ describe("Auth Routes - Login", () => {
         const response = await request(app)
             .post("/api/auth/login")
             .send(login);
-
+        expect(response.status).toBe(400);
     });
     it("should return 400 for bad email", async () => {
         const login = {email: "john.doe@test.com", password: "StrongPass123"};

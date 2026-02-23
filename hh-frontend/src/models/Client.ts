@@ -10,4 +10,8 @@ export interface Client {
     houseId?: string;
     house?: House;
     events?: Event[];
+    hasConflicts?: {
+        hasConflicts: boolean;
+        numConflicts: number;
+    }
 }

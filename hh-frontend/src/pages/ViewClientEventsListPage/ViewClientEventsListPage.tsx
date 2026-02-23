@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import Select from "../../components/Inputs/Select/Select";
 import React, {ChangeEvent, useEffect, useState} from "react";
 import clsx from "clsx";
@@ -10,6 +9,7 @@ import ViewClientEventItem from "./ViewClientEventItem";
 import {Event} from "../../models/Event/Event";
 import Toast from "../../components/Toast/Toast";
 import {validateDate, validateMonth} from "../../utility/validation/dateTime.validation";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const ViewClientEventsListPage = () => {
     const { clientId } = useParams();
@@ -107,10 +107,10 @@ const ViewClientEventsListPage = () => {
             setState("error"); // unknown fetch error
         }
     }
+
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
-            <Card className="font-body py-3 flex flex-col items-center gap-y-3 w-full max-w-105 min-h-screen xs:min-h-0  justify-center rounded-none xs:rounded-lg">
-                <h1 className="text-accent text-2xl font-bold font-header mb-3">View Client Events</h1>
+           <PageCard title="View Client Events" size="sm" className="py-4 px-1" >
                 <form onSubmit={handleSubmit} className="flex flex-col items-center gap-y-3 w-full">
                         <Select containerClass="w-40" className="border-1 rounded-md" name="searchBy" value={searchBy} onChange={(e) => setSearchBy(e.target.value)} label="Search by" options={[{label: "Month", value: "month"}, {label: "Dates", value: "dates"}]} />
                     <div className={clsx(searchBy === "month" ? "block" : "hidden")}>
@@ -134,7 +134,7 @@ const ViewClientEventsListPage = () => {
                         </div>}
                     {events.map((event: Event) => (<ViewClientEventItem event={event} key={event.id} />))}
                 </div>
-            </Card>
+            </PageCard>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}
         </div>
     );

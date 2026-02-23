@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import {FullEventSchema, eventQuerySchema } from "../../validation/event.validation";
 import {addEvent } from "../../services/event.service";
-import {getClientByClientId, getClientEventsInDateRange} from "../../services/client.service";
+import {getClientByClientId, getClientEventsInDateRange} from "../../services/client/client.service";
 import {getDateRange} from "../../tests/utlity/dataTransforms/date.transforms";
 import {flattenErrors} from "../../validation/utility.validation";
+import {checkClientEventConflicts, getClientEventConflicts} from "../../services/client/clientEvent.service";
+import {addDays} from "date-fns";
 
 
 
@@ -77,4 +79,57 @@ export const getUpcomingEventsForClient = async (req: Request, res: Response, ne
     } catch (error) {
         return next(error);
     }
+}
+
+export const checkForClientEventConflicts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Checks for client
+        const client = await getClientByClientId(req.params.clientId);
+        if (!client) {
+            next({status: 404, message: "Client error", errors: "Client not found"});
+            return;
+        }
+        const {beginDate, endDate} = req.query;
+        let begin = new Date();
+        let end: Date | undefined;
+
+        // Validate beginDate
+        if (beginDate) {
+            const parsed = new Date(beginDate as string);
+            if (isNaN(parsed.getTime())) {
+                res.status(400).json({ message: "Invalid data", errors: "Invalid beginDate" });
+                return;
+            }
+            begin = parsed;
+        }
+
+        // Validate endDate
+        if (endDate) {
+            const parsed = new Date(endDate as string);
+            if (isNaN(parsed.getTime())) {
+                res.status(400).json({ message: "Invalid data", errors: "Invalid endDate" });
+                return;
+            }
+            end = parsed;
+        } else {
+            end = addDays(begin, 14);
+        }
+
+        if(end < begin) {
+            res.status(400).json({message: "Invalid data", errors: "End date must be after begin date"});
+            return;
+        }
+        // Run the service
+        const conflicts = await checkClientEventConflicts(client.id,  begin, end );
+
+        res.status(200).json({
+            message: "Event conflict data found",
+            conflicts,
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: "Server Error", errors: "Internal server error" });
+        return;
+    }
+
 }

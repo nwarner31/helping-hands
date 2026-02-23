@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import {useEffect, useState} from "react";
 import apiService from "../../utility/ApiService";
 import {useLocation, useParams} from "react-router-dom";
@@ -6,6 +5,7 @@ import {House} from "../../models/House";
 import AddClientSearchList from "./AddClientSearchList";
 import {Client} from "../../models/Client";
 import {formatDate} from "../../utility/formatting";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const emptyHouse = {
     id: "",
@@ -44,10 +44,10 @@ const AddHouseClientPage = () => {
 
     const [houseData, setHouseData] = useState<House>(emptyHouse);
     const [clientsData, setClientsData] = useState<Client[]>([]);
+
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
-            <Card className="font-body py-3 px-1 max-w-163 flex flex-col items-center gap-y-3">
-                <h1 className="text-2xl font-header font-bold text-accent">Add Client to House</h1>
+            <PageCard title="Add Client to House" size="lg" className="py-4 px-1 flex flex-col gap-y-3" >
                 <div className="grid grid-cols-2 gap-x-2 text-center">
                     <div className="font-semibold">House ID</div>
                     <div className="font-semibold">House Name</div>
@@ -55,9 +55,9 @@ const AddHouseClientPage = () => {
                     <div>{houseData.name}</div>
                 </div>
 
-                <div>Current Clients: {houseData.clients?.length}/{houseData.maxClients}</div>
+                <div className="text-center">Current Clients: {houseData.clients?.length}/{houseData.maxClients}</div>
                 {houseData.clients && houseData.clients.length > 0 &&
-                <table data-testid="house-clients-table">
+                <table data-testid="house-clients-table" className="text-center">
                     <thead>
                         <tr>
                             <th>Client ID</th>
@@ -68,7 +68,7 @@ const AddHouseClientPage = () => {
                     </thead>
                     <tbody>
                     {houseData.clients.map((client) => (
-                        <tr key={client.id}>
+                        <tr key={client.id} >
                             <td>{client.id}</td>
                             <td>{client.legalName}</td>
                             <td>{formatDate(client.dateOfBirth)}</td>
@@ -78,7 +78,7 @@ const AddHouseClientPage = () => {
                     </tbody>
                 </table>}
                 <AddClientSearchList clients={clientsData} houseId={houseData.id} />
-            </Card>
+            </PageCard>
         </div>
     );
 }

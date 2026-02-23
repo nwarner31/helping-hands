@@ -3,10 +3,11 @@ import {userEvent} from "@testing-library/user-event";
 import  {BrowserRouter, useNavigate} from "react-router-dom";
 import RegisterPage from "./RegisterPage";
 import {AuthProvider} from "../../context/AuthContext";
+import * as authHook from "../../hooks/auth.hook";
 
 
 jest.mock("../../utility/ApiService", () => ({
-    post: jest.fn(() => Promise.resolve( { message: "Employee registered successfully", employee: {}, accessToken: "hello" })),
+    post: jest.fn(() => Promise.resolve( { message: "Employee registered successfully", employee: {}, sessionToken: "hello" })),
 }));
 
 jest.mock("react-router-dom", () => {
@@ -31,7 +32,7 @@ describe("Register Page tests", () => {
         expect(screen.getByLabelText("Password")).toBeInTheDocument();
         expect(screen.getByLabelText("Confirm Password")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: /register/i })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: /login/i })).toBeInTheDocument();
     });
     it("should display error message for required fields", async () => {
         renderPage();
@@ -40,12 +41,12 @@ describe("Register Page tests", () => {
         await userEvent.click(screen.getByRole("button", { name: /register/i }));
 
         // Check for validation error messages
-        expect(await screen.findByText("Employee ID is required.")).toBeInTheDocument();
-        expect(await screen.findByText("Name is required.")).toBeInTheDocument();
-        expect(await screen.findByText("Email is required.")).toBeInTheDocument();
-        expect(await screen.findByText("Password is required.")).toBeInTheDocument();
-        expect(await screen.findByText("Confirm Password is required.")).toBeInTheDocument();
-        expect(await screen.findByText("Hire Date is required.")).toBeInTheDocument();
+        expect(await screen.findByText("Employee ID is required")).toBeInTheDocument();
+        expect(await screen.findByText("Name is required")).toBeInTheDocument();
+        expect(await screen.findByText("Email is required")).toBeInTheDocument();
+        expect(await screen.findByText("Password is required")).toBeInTheDocument();
+        expect(await screen.findByText("Confirm Password is required")).toBeInTheDocument();
+        expect(await screen.findByText("Hire Date is required")).toBeInTheDocument();
     });
 
     it("should validate email format", async () => {
@@ -55,7 +56,7 @@ describe("Register Page tests", () => {
 
         // Check for the validation error
         await userEvent.click(screen.getByRole("button", { name: /register/i }));
-        expect(await screen.findByText("Invalid email format.")).toBeInTheDocument();
+        expect(await screen.findByText("Invalid email format")).toBeInTheDocument();
     });
 
     it("should match password and confirm password", async () => {
@@ -68,12 +69,43 @@ describe("Register Page tests", () => {
         expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument();
     });
 
-    it("should display error for password under 8 characters", async () => {
+    it("should display error for password fields under 6 characters", async () => {
         renderPage();
         await userEvent.type(screen.getByLabelText("Password"), "pass");
+        await userEvent.type(screen.getByLabelText("Confirm Password"), "pass");
         const registerButton = await userEvent.click(screen.getByRole("button", { name: /register/i }));
         if (registerButton !== undefined) await userEvent.click(registerButton);
-        expect(screen.getByText("Password must be at least 8 characters.")).toBeInTheDocument();
+        expect(screen.getByText("Password must be at least 6 characters")).toBeInTheDocument();
+        expect(screen.getByText("Confirm Password must be at least 6 characters"));
+    });
+
+    it("should display error if passwords do not match", async () => {
+        renderPage();
+        await userEvent.type(screen.getByLabelText("Password"), "password");
+        await userEvent.type(screen.getByLabelText("Confirm Password"), "other-password");
+        const registerButton = await userEvent.click(screen.getByRole("button", { name: /register/i }));
+        if (registerButton !== undefined) await userEvent.click(registerButton);
+        expect(screen.getByText("Passwords do not match"))
+    });
+
+    it("should disable the register button when the status is loading", async () => {
+        const authSpy = jest.spyOn(authHook, "useRegister");
+        authSpy.mockReturnValue({
+            status: "loading",
+            register: jest.fn(),
+            clearError: jest.fn(),
+            errors: {confirmPassword: undefined,
+                email: undefined,
+                hireDate: undefined,
+                name: undefined,
+                password: undefined,
+                id: undefined}
+        })
+        renderPage();
+
+        const registerButton = screen.getByRole("button", { name: "Registering..." });
+        expect(registerButton).toBeDisabled();
+        authSpy.mockRestore();
     })
 
     it("should submit the form with valid data", async () => {
@@ -97,7 +129,7 @@ describe("Register Page tests", () => {
 
         // Wait for the API call and check if the submit was successful
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith("/dashboard"); // or wherever you redirect
+            expect(mockNavigate).toHaveBeenCalledWith("/dashboard");
         });
     });
 })

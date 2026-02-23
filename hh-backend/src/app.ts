@@ -16,7 +16,7 @@ const app = express();
 app.use(cors({
     origin: process.env.CORS_ORIGIN || "*" ,
     credentials: true,
-    exposedHeaders: ["x-access-token"]}));
+    exposedHeaders: ["x-session-token"]}));
 app.use(morgan("dev"));
 app.use(helmet() as express.RequestHandler); // Security headers
 app.use(express.json()); // Body parsing middleware

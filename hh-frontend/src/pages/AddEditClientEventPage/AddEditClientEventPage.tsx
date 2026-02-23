@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import React, {useEffect, useState} from "react";
 import apiService from "../../utility/ApiService";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
@@ -13,6 +12,7 @@ import clsx from "clsx";
 import {convertEventToInput} from "../../utility/dataTransforms/eventTransforms";
 import {ValidationErrors} from "../../utility/validation/utility.validation";
 import Toast from "../../components/Toast/Toast";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const emptyEvent: EventInput = {
     beginDate: "",
@@ -100,10 +100,10 @@ const AddEditClientEventPage = ({isEdit}: {isEdit: boolean}) => {
 
         }
     }
+    //   <Card className="w-full rounded-none min-h-screen xs:min-h-0 xs:rounded-xl xs:max-w-100 py-5 px-2 flex flex-col items-center justify-center">
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
-            <Card className="w-full rounded-none min-h-screen xs:min-h-0 xs:rounded-xl xs:max-w-100 py-5 px-2 flex flex-col items-center justify-center">
-                <h1 className="text-accent text-2xl font-bold font-header mb-3">{isEdit ? "Update Event" : "Add Event"}</h1>
+            <PageCard title={isEdit ? "Update Event" : "Add Event"} size="xs" className="py-5 px-2" >
                 <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full font-body">
                     <Input label="Event ID" name="id" value={eventData.id} onChange={updateEventData} error={errors.id as string} containerClassName="w-full px-2" disabled={isEdit} />
                     <StaticLabelInput label="Begin Date" type="date" name="beginDate" value={eventData.beginDate} onChange={updateEventData} error={errors.beginDate as string} containerClass="w-full px-2" />
@@ -122,7 +122,7 @@ const AddEditClientEventPage = ({isEdit}: {isEdit: boolean}) => {
                     <Button className="w-full" >{isEdit ? "Update Event" : "Add Event"}</Button>
                     <Button className="w-full" variant="secondary" type="button">Cancel</Button>
                 </form>
-            </Card>
+            </PageCard>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}
 
         </div>

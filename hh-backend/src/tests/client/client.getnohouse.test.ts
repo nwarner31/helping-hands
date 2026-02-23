@@ -67,7 +67,7 @@ describe("Client Routes - Get no house", () => {
         expect(res.status).toBe(403);
     });
     it("should handle server errors", async () => {
-        jest.spyOn(require("../../services/client.service"), "getHomelessClients")
+        jest.spyOn(require("../../services/client/client.service"), "getHomelessClients")
             .mockRejectedValue(new Error("Database connection failed"));
         const response = await request(app).get("/api/client/no-house")
             .set("Authorization", `Bearer ${admin.token}`)

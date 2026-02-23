@@ -8,7 +8,7 @@ import {
     updateHouse
 } from "../services/house.service";
 import {House} from "@prisma/client";
-import {getClientByClientId} from "../services/client.service";
+import {getClientByClientId} from "../services/client/client.service";
 import advanceTimersToNextTimerAsync = jest.advanceTimersToNextTimerAsync;
 import {HouseSchema} from "../validation/house.validation";
 

@@ -1,12 +1,13 @@
 import React from "react";
-import Card from "../../components/Card/Card";
 import Accordion from "../../components/Accordion/Accordion";
 import LinkButton from "../../components/Buttons/LinkButton/LinkButton";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const HomePage: React.FC = () => {
+
     return (
         <div className="flex justify-center items-center min-h-screen">
-            <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center" breakpoint="xs" >
+            <PageCard size="xs" className="p-3 items-center">
                 <h1 className="text-2xl font-bold font-header flex flex-col mb-3">
                     <span>Welcome to the</span>
                     <span className="text-primary">Helping Hands</span>
@@ -21,7 +22,7 @@ const HomePage: React.FC = () => {
                     This site is for tracking the schedules, trainings, pay for the employees of Helping Hands.
                     It is also used to track the events, and staffing needs for the clients of Helping Hand Home Health Agency.
                 </Accordion>
-            </Card>
+            </PageCard>
         </div>
     );
 };

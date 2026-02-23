@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
+
 @theme {
   --color-primary: #0077B6;
   --color-secondary: #00A896;
   --color-accent: #F4A261;
     --color-danger: #FF746C;
+    --color-success: #A7C957;
     --color-outline-primary: #004F73;
     --color-outline-secondary: #00735F;
     --color-outline-accent: #C96E24;
@@ -16,6 +18,7 @@
   --breakpoint-sm: 30rem; /* 480px */
   --breakpoint-md: 36rem; /* 576px */
     --breakpoint-md-lg: 38rem;
+    --breakpoint-lg: 42rem;
 }
 
 :root {
@@ -51,7 +54,4 @@
   margin: 0;
 }
 
-button {
-  cursor: pointer;
-}
 

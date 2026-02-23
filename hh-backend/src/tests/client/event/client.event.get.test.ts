@@ -181,7 +181,7 @@ describe("GET /client/:clientId/event", () => {
     });
 
     it("should handle server errors", async () => {
-        jest.spyOn(require("../../../services/client.service"), "getClientEventsInDateRange")
+        jest.spyOn(require("../../../services/client/client.service"), "getClientEventsInDateRange")
             .mockRejectedValue(new Error("Database connection failed"));
         const res = await request(app)
             .get(`/api/client/${testClient.id}/event`)

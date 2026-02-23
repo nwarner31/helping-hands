@@ -30,12 +30,32 @@ describe("GET /clients/:clientId", () => {
         expect(res.body.client.id).toEqual("T12345");
     });
 
+    it("should include conflict data for an admin", async () => {
+        const res = await request(app)
+            .get(`/api/client/${client.id}`)
+            .set("Authorization", `Bearer ${admin.token}`);
+        expect(res.status).toBe(200);
+        expect(res.body.message).toEqual("Client found");
+        expect(res.body.client).toBeDefined();
+        expect(res.body.client.id).toEqual("T12345");
+        expect(res.body.client.hasConflicts).toBeDefined();
+    });
+
+    it("should not return conflict data for an associate", async () => {
+        const res = await request(app)
+            .get(`/api/client/${client.id}`)
+            .set("Authorization", `Bearer ${associate.token}`);
+        expect(res.status).toBe(200);
+        expect(res.body.client.hasConflicts).toBeUndefined();
+    })
+
     it("should return 400 for an empty client id", async () => {
         const res = await request(app)
         .get("/api/client/%20")
         .set("Authorization", `Bearer ${associate.token}`);
         expect(res.status).toBe(400);
-        expect(res.body.message).toEqual("Client Id is required");
+        expect(res.body.message).toEqual("Invalid data");
+        expect(res.body.errors).toEqual("Client Id is required");
     })
 
     it("should return 404 if client not found", async () => {
@@ -54,7 +74,7 @@ describe("GET /clients/:clientId", () => {
     });
 
     it("should return 500 if service throws an error", async () => {
-        jest.spyOn(require("../../services/client.service"), "getClientByClientId")
+        jest.spyOn(require("../../services/client/client.service"), "getClientByClientId")
             .mockRejectedValue(new Error("Database connection failed"));
         const res = await request(app)
             .get(`/api/client/${client.id}`)

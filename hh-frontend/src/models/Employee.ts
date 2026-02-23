@@ -10,3 +10,13 @@ export interface Employee {
     primaryHouses?: House[];
     secondaryHouses?: House[];
 }
+
+export interface Register {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    hireDate: string;
+    sex: string;
+}

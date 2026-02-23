@@ -82,7 +82,7 @@ describe("Client Routes - Add Client",  () => {
         expect(badResponse.body.errors).toHaveProperty("clientId");
     });
     it("should handle server errors", async () => {
-        jest.spyOn(require("../../services/client.service"), "addClient")
+        jest.spyOn(require("../../services/client/client.service"), "addClient")
             .mockRejectedValue(new Error("Database connection failed"));
         const response = await request(app).post("/api/client")
             .set("Authorization", `Bearer ${admin.token}`)

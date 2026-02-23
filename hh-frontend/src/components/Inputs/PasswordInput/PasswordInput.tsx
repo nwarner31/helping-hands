@@ -34,7 +34,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({ label, name, value, onCha
     return (
         <div className={clsx("relative", containerClassName)}>
 
-                <label data-testid={`label-${name}`} htmlFor={`input-${name}`} className={clsx("absolute transition-all duration-300 cursor-text left-0", (isFocused || hasText) ? "text-sm text-primary -translate-y-1" : "translate-y-4")}>{label}</label>
+            <label data-testid={`label-${name}`} htmlFor={`input-${name}`} className={clsx("absolute transition-all duration-300 cursor-text left-0", (isFocused || hasText) ? "text-sm text-primary -translate-y-1" : "translate-y-4")}>{label}</label>
             <div className={clsx("flex relative border-b-2", error ? "border-red-500" : "border-slate-800 focus-within:border-primary")}>
                 <input
                     id={`input-${name}`}

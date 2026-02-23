@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import {Client} from "../../models/Client";
 import React, {useEffect, useState} from "react";
 import Input from "../../components/Inputs/Input/Input";
@@ -9,6 +8,7 @@ import apiService from "../../utility/ApiService";
 import Toast from "../../components/Toast/Toast";
 import RadioInput from "../../components/Inputs/RadioInput/RadioInput";
 import {formatInputDate} from "../../utility/formatting";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const emptyClient = {
     id: "",
@@ -100,10 +100,11 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
         }
     }
 
+    //   <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center">
+    //
     return (
         <div className="flex justify-center items-center w-screen min-h-screen bg-slate-100">
-            <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center">
-                <h1 className="text-accent text-2xl font-bold font-header mb-8">{isEdit ? "Update Client": "Add Client" }</h1>
+            <PageCard title={isEdit ? "Update Client": "Add Client"} size="xs" className="py-4 px-2" >
                 <form className="flex flex-col w-full gap-y-6 items-center px-2"  onSubmit={handleSubmit}>
                     <Input containerClassName="w-full" label="Client ID" value={clientData.id} name="id" onChange={updateClientData} error={formErrors.id} disabled={isEdit} />
                     <Input containerClassName="w-full" label="Legal Name" value={clientData.legalName} name="legalName" onChange={updateClientData} error={formErrors.legalName} />
@@ -116,7 +117,7 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
                     <Button className="w-full">{isEdit ? "Update Client": "Add Client" }</Button>
                     <Button className="w-full" variant="secondary" type="button">Cancel</Button>
                 </form>
-            </Card>
+            </PageCard>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}
 
         </div>);

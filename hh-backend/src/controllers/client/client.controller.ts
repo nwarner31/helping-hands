@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import {addClient, getClients, getClientByClientId, updateClient, getHomelessClients} from "../../services/client.service";
+import {addClient, getClients, getClientByClientId, updateClient, getHomelessClients} from "../../services/client/client.service";
 import {ClientSchema} from "../../validation/client.validation";
 import {flattenErrors} from "../../validation/utility.validation";
+import {checkClientEventConflicts} from "../../services/client/clientEvent.service";
 
 export const createClient = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -46,10 +47,12 @@ export const putClient = async (req: Request, res: Response, next: NextFunction)
 }
 export const getClient = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const clientId =  req.params.clientId;
-        if (!clientId.trim()) return next({status: 400, message: "Client Id is required"});
-        const client = await getClientByClientId(clientId);
+        const clientId= req.params.clientId;
+        const employeeRole = req.employee?.position ?? "";
+        if (!clientId.trim()) return next({status: 400, message: "Invalid data", errors: "Client Id is required"});
+        let client = await getClientByClientId(clientId, employeeRole);
         if(!client) return next({status: 404, message: "client not found"});
+
         res.status(200).json({message: "Client found", client: client});
     } catch(error) {
         return next(error);

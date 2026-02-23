@@ -1,4 +1,3 @@
-import Card from "../../components/Card/Card";
 import LinkButton from "../../components/Buttons/LinkButton/LinkButton";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useAuth} from "../../context/AuthContext";
@@ -9,6 +8,7 @@ import {emptyEvent, Event} from "../../models/Event/Event";
 import {formatDate, formatTime} from "../../utility/formatting";
 import {toast} from "react-toastify";
 import Button from "../../components/Buttons/Button/Button";
+import PageCard from "../../components/Cards/PageCard/PageCard";
 
 const ViewEventPage = () => {
     const {employee} = useAuth();
@@ -71,18 +71,17 @@ const ViewEventPage = () => {
             setEvent(location.state.event);
         }
     }, [eventId]);
+
+    // <Card className="w-full py-3 sm:max-w-100 font-body px-4">
     return (
         <div className="flex justify-center items-center bg-slate-100 min-h-screen">
-            <Card className="w-full py-3 sm:max-w-100 font-body px-4">
-                <header>
-                    <h1 className="text-accent text-3xl font-header text-center font-bold mb-3">View Event</h1>
+            <PageCard size="xs" title="View Event" className="p-4">
                     <nav aria-label="Primary navigation" className="mb-4">
                         <ul className="list-none flex gap-2">
                             <li className="grow"><Button onClick={() => navigate(-1)} className="w-full">Go Back</Button></li>
                             <li className="grow"><LinkButton to="/dashboard" className="w-full h-full" variant="secondary">Dashboard</LinkButton></li>
                         </ul>
                     </nav>
-                </header>
 
                 {event.id &&
                     <main>
@@ -137,7 +136,7 @@ const ViewEventPage = () => {
                     </main>}
                 {!event.id &&
                 <div role="status" aria-live="polite" className="text-center font-semibold">Loading event...</div>}
-            </Card>
+            </PageCard>
         </div>
         );
 }

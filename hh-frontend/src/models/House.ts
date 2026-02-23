@@ -10,6 +10,7 @@ export interface House {
     city: string;
     state: string;
     maxClients: number;
+    numClients?: number;
     femaleEmployeeOnly: boolean;
     clients?: Client[];
     primaryManagerId?: string;

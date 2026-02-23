@@ -11,6 +11,7 @@ import {RefreshToken, Session} from "@prisma/client";
 export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
     let sessionToken = authHeader?.split(" ")[1];
+
     let refreshToken = req.cookies?.refreshToken;
     try {
         const tokens: {session?: Session, refresh?: RefreshToken} = await retrieveTokens({sessionToken, refreshToken});

@@ -36,8 +36,8 @@ describe("Login Page tests", () => {
 
        await userEvent.click(screen.getByRole("button", {name: "Login"}));
 
-       expect(await screen.findByText("Email is required.")).toBeInTheDocument();
-       expect(await screen.findByText("Password is required.")).toBeInTheDocument();
+       expect(await screen.findByText("Email is required")).toBeInTheDocument();
+       expect(await screen.findByText("Password is required")).toBeInTheDocument();
     });
     it("should validate email format", async () => {
        renderPage();
@@ -45,7 +45,7 @@ describe("Login Page tests", () => {
         await userEvent.type(screen.getByLabelText("Email"), "invalid-email");
 
         await userEvent.click(screen.getByRole("button", { name: "Login" }));
-        expect(await screen.findByText("Invalid email format.")).toBeInTheDocument();
+        expect(await screen.findByText("Invalid email format")).toBeInTheDocument();
     });
     it("should submit the form with valid data", async () => {
         renderPage();
@@ -60,7 +60,7 @@ describe("Login Page tests", () => {
         await userEvent.click(loginButton);
 
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith("/dashboard"); // or wherever you redirect
+            expect(mockNavigate).toHaveBeenCalledWith("/dashboard");
         });
     });
     it("should display the error message for invalid credentials", async () => {
