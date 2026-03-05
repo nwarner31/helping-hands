@@ -14,6 +14,7 @@ import ViewClientPage from "./ViewClientPage";
 
 import apiService from "../../utility/ApiService";
 import { Employee } from "../../models/Employee";
+import {EventType} from "../../models/Event/Event";
 
 const mockedApi = apiService.get as jest.Mock;
 
@@ -84,53 +85,7 @@ describe("ViewClientPage", () => {
         });
     });
 
-    // it("fetches the house if it is not included in the location state", async () => {
-    //
-    //     render(
-    //         <AuthProvider>
-    //             <MemoryRouter
-    //                 initialEntries={[
-    //                     {
-    //                         pathname: "/client/client123",
-    //                         state: {client: {...mockClient, houseId: "H1234", events: []}},
-    //                     },
-    //                 ]}
-    //             >
-    //                 <Routes>
-    //                     <Route path="/client/:clientId" element={<ViewClientPage/>}/>
-    //                 </Routes>
-    //             </MemoryRouter>
-    //         </AuthProvider>
-    //     );
-    //     await waitFor(() => {
-    //         expect(mockedApi).toHaveBeenCalledTimes(1);
-    //     })
-    //
-    // });
-    //
-    // it("fetches the upcoming events if it is not included in the location state", async () => {
-    //
-    //     render(
-    //         <AuthProvider>
-    //             <MemoryRouter
-    //                 initialEntries={[
-    //                     {
-    //                         pathname: "/client/client123",
-    //                         state: {client: {...mockClient, house: mockHouse}},
-    //                     },
-    //                 ]}
-    //             >
-    //                 <Routes>
-    //                     <Route path="/client/:clientId" element={<ViewClientPage/>}/>
-    //                 </Routes>
-    //             </MemoryRouter>
-    //         </AuthProvider>
-    //     );
-    //     await waitFor(() => {
-    //         expect(mockedApi).toHaveBeenCalledTimes(1);
-    //     })
-    //
-    // });
+
 
     it("shows the managers when they exist", async () => {
         const houseWithManagers = {
@@ -373,6 +328,43 @@ describe("ViewClientPage", () => {
     });
 
 });
+
+it("shows upcoming events section when events exist", async () => {
+    const mockEvent = {
+        id: "event1",
+        beginDate: "2025-08-20T00:00:00.000Z",
+        endDate: "2025-08-21T00:00:00.000Z",
+        beginTime: "2000-01-01T10:00",
+        endTime: "2000-01-01T11:00",
+        description: "Medical checkup",
+        type: EventType.MEDICAL,
+        numberStaffRequired: 3,
+    };
+    mockedApi.mockReturnValue({client: {...mockClient, events: [mockEvent]}});
+
+    render(
+        <AuthProvider>
+            <MemoryRouter
+                initialEntries={[
+                    {
+                        pathname: "/client/client123",
+                    } as any,
+                ]}
+            >
+                <Routes>
+                    <Route path="/client/:clientId" element={<ViewClientPage />} />
+                </Routes>
+            </MemoryRouter>
+        </AuthProvider>
+    );
+
+    await waitFor(() => {
+        expect(screen.getByText("Upcoming Events")).toBeInTheDocument();
+        expect(screen.getByText("MEDICAL")).toBeInTheDocument();
+        expect(screen.getByText("08/20")).toBeInTheDocument()
+    });
+});
+
 
 it("does not show the event conflict button if it is not on the client", async () => {
     mockedApi.mockReturnValue({client: mockClient});

@@ -86,11 +86,22 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
     }
 
     const addClient = async (data: Client) => {
-        const response: {message: string, client?: Client} = await apiService.post('client', data);
-        if(response.message === "Client added" && response.client && response.client.id) {
-            setToastInfo({showToast: true, toastType: "success", toastMessage: "Client successfully added"});
-            setTimeout(() => {navigate("/view-clients")}, 1500);
+        try {
+            const response: { message: string, client?: Client } = await apiService.post('client', data);
+            if (response.message === "Client added" && response.client && response.client.id) {
+                setToastInfo({showToast: true, toastType: "success", toastMessage: "Client successfully added"});
+                setTimeout(() => {
+                    navigate("/view-clients")
+                }, 1500);
+            }
+        } catch (error: any) {
+                if (error.errors.clientId) {
+                    setFormErrors(prevState => {
+                        return {...prevState, id: error.errors.clientId}
+                    });
+                }
         }
+
     }
     const updateClient = async (data: Client) => {
         const response: {message: string, client?: Client} = await apiService.put(`client/${clientId}`, data);
@@ -100,8 +111,6 @@ const AddEditClientPage = ({isEdit}: {isEdit: boolean}) => {
         }
     }
 
-    //   <Card className="p-4 w-full min-h-screen xs:max-w-100 xs:min-h-0 flex justify-center flex-col items-center">
-    //
     return (
         <div className="flex justify-center items-center w-screen min-h-screen bg-slate-100">
             <PageCard title={isEdit ? "Update Client": "Add Client"} size="xs" className="py-4 px-2" >

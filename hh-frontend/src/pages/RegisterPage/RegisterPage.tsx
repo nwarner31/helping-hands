@@ -12,7 +12,6 @@ import {useRegister} from "../../hooks/auth.hook";
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
-    // const {login} = useAuth();
     const [formData, setFormData] = useState<Register>({
         id: "",
         name: "",

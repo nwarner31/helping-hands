@@ -79,7 +79,7 @@ const ViewClientPage = () => {
 
                         </Accordion>}
                         <Accordion id="upcoming-events" header="Upcoming Events" className="font-header font-semibold">
-                            {clientData.hasConflicts && <LinkButton to="/" variant={clientData.hasConflicts.hasConflicts ? "danger" : "success"} id="has-conflict" >
+                            {clientData.hasConflicts && <LinkButton to={`/client/${clientId}/view-event-conflicts`} variant={clientData.hasConflicts.hasConflicts ? "danger" : "success"} id="has-conflict" >
                                 {clientData.hasConflicts.hasConflicts ? `(${clientData.hasConflicts.numConflicts}) Upcoming Event Conflicts` : "No Upcoming Event Conflicts"}
                             </LinkButton>}
 

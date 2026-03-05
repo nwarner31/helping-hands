@@ -20,15 +20,6 @@ const variantClasses: Record<ButtonVariant, string> = {
     accent: "bg-accent text-white",
 };
 
-const breakpointClasses: Record<string, string> = {
-    xs: "rounded-none shadow-none xs:rounded-xl xs:shadow-md",
-    sm: "rounded-none shadow-none sm:rounded-xl sm:shadow-md",
-    md: "rounded-none shadow-none md:rounded-xl md:shadow-md",
-    "md-lg": "rounded-none shadow-none md-lg:rounded-xl md-lg:shadow-md",
-    lg: "rounded-none shadow-none lg:rounded-xl lg:shadow-md",
-    xl: "rounded-none shadow-none xl:rounded-xl xl:shadow-md",
-};
-
 const Card: React.FC<CardProps> = ({
                                        header,
                                        headerVariant = "primary",
@@ -42,7 +33,7 @@ const Card: React.FC<CardProps> = ({
                                         ...props
                                    }) => {
     return (
-        <div className={clsx("bg-slate-100 overflow-hidden", breakpoint ? breakpointClasses[breakpoint]: "rounded-xl shadow-md", className)}
+        <div className={clsx("bg-slate-100 overflow-hidden rounded-xl shadow-md", className)}
              data-testid={id ? `card-${id}` : "card-container"} {...props}>
             {header && (
                 <div

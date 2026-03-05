@@ -81,13 +81,12 @@ export const getUpcomingEventsForClient = async (req: Request, res: Response, ne
     }
 }
 
-export const checkForClientEventConflicts = async (req: Request, res: Response, next: NextFunction) => {
+const clientEventConflictHelper = async (req: Request) => {
     try {
         // Checks for client
         const client = await getClientByClientId(req.params.clientId);
         if (!client) {
-            next({status: 404, message: "Client error", errors: "Client not found"});
-            return;
+            return {success: false, data: {status: 404, message: "Client error", errors: "Client not found"}};
         }
         const {beginDate, endDate} = req.query;
         let begin = new Date();
@@ -97,8 +96,7 @@ export const checkForClientEventConflicts = async (req: Request, res: Response, 
         if (beginDate) {
             const parsed = new Date(beginDate as string);
             if (isNaN(parsed.getTime())) {
-                res.status(400).json({ message: "Invalid data", errors: "Invalid beginDate" });
-                return;
+                return {success: false, data: {status: 400, message: "Invalid data", errors: "Invalid beginDate"}}
             }
             begin = parsed;
         }
@@ -107,20 +105,33 @@ export const checkForClientEventConflicts = async (req: Request, res: Response, 
         if (endDate) {
             const parsed = new Date(endDate as string);
             if (isNaN(parsed.getTime())) {
-                res.status(400).json({ message: "Invalid data", errors: "Invalid endDate" });
-                return;
+                return {success: false, data: {status: 400, message: "Invalid data", errors: "Invalid endDate"}}
             }
             end = parsed;
         } else {
             end = addDays(begin, 14);
         }
 
-        if(end < begin) {
-            res.status(400).json({message: "Invalid data", errors: "End date must be after begin date"});
+        if (end < begin) {
+            return {success: false, data: {status: 400, message: "Invalid data", errors: "End date must be after begin date"}};
+        }
+        return {success: true, data: {clientId: client.id, begin: begin, end: end}}
+    } catch (error) {
+        return {success: false, data: {status: 500, message: "Server Error", errors: "Internal server error"}}
+    }
+}
+
+export const checkForClientEventConflicts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const data = await clientEventConflictHelper(req);
+
+        if(!data.success) {
+            next(data.data);
             return;
         }
+        const {clientId, begin, end} = data.data;
         // Run the service
-        const conflicts = await checkClientEventConflicts(client.id,  begin, end );
+        const conflicts = await checkClientEventConflicts(clientId!,  begin, end );
 
         res.status(200).json({
             message: "Event conflict data found",
@@ -131,5 +142,22 @@ export const checkForClientEventConflicts = async (req: Request, res: Response, 
         res.status(500).json({ message: "Server Error", errors: "Internal server error" });
         return;
     }
+}
 
+export const getClientEventConflictData = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const data = await clientEventConflictHelper(req);
+
+        if(!data.success) {
+            next(data.data);
+            return;
+        }
+        const {clientId, begin, end} = data.data;
+
+        const conflicts = await getClientEventConflicts(clientId!,  begin, end );
+        res.status(200).json({message: "Event conflict data found", data: conflicts});
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", errors: "Internal server error" });
+        return;
+    }
 }

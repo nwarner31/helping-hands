@@ -5,6 +5,8 @@ import apiService from "../../utility/ApiService";
 import {Client} from "../../models/Client";
 import ViewClientsItem from "./ViewClientsItem";
 import PageCard from "../../components/Cards/PageCard/PageCard";
+import List from "../../components/List/List";
+import ListItem from "../../components/List/ListItem";
 
 
 const ViewClientsListPage = () => {
@@ -18,7 +20,14 @@ const ViewClientsListPage = () => {
                     <div>
                         {employee?.position === "ADMIN" && <Link to="/add-client" ><Button className="w-full mb-3 font-header font-semibold xs:w-[95%] xs:mx-[2.5%]">Add Client</Button></Link>}
                     </div>
-                            {clients.map((client, index) => (<ViewClientsItem key={client.id} client={client} isAdmin={employee?.position === "ADMIN"} isOddRow={index % 2 === 0} /> ))}
+                    <List inset="medium">
+                        {clients.map((client, index) => (
+                            <ListItem id={client.id} key={client.id}>
+                                <ViewClientsItem client={client} isAdmin={employee?.position === "ADMIN"} isOddRow={index % 2 === 0} />
+                            </ListItem> ))}
+
+                    </List>
+
                 </div>
             </PageCard>
         </div>

@@ -53,3 +53,8 @@ export const emptyEvent: Event = {
         sex: "F"
     }
 }
+
+export interface EventConflict {
+    event: Event;
+    conflicts: Event[];
+}

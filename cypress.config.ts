@@ -18,6 +18,7 @@ export default defineConfig({
 
               return await teardownDatabase();
           }
+
       })
         return config;
     },

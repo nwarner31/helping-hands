@@ -18,6 +18,7 @@ import ViewClientPage from "./pages/ViewClientPage/ViewClientPage";
 import ViewClientEventsListPage from "./pages/ViewClientEventsListPage/ViewClientEventsListPage";
 import AddEditClientEventPage from "./pages/AddEditClientEventPage/AddEditClientEventPage";
 import ViewEventPage from "./pages/ViewEventPage/ViewEventPage";
+import ViewClientEventConflictsPage from "./pages/ViewClientEventConflictsPage/ViewClientEventConflictsPage";
 
 import {ToastContainer} from "react-toastify";
 function App() {
@@ -35,6 +36,7 @@ function App() {
                 {path: "/edit-client/:clientId", element: <AddEditClientPage isEdit={true} />},
                 {path: "/client/:clientId/add-event", element: <AddEditClientEventPage isEdit={false} />},
                 {path: "/client/:clientId/view-events", element: <ViewClientEventsListPage />},
+                {path: "/client/:clientId/view-event-conflicts", element: <ViewClientEventConflictsPage />},
                 {path: "/event/:eventId", element: <ViewEventPage />},
                 {path: "/edit-event/:eventId", element: <AddEditClientEventPage isEdit={true} />},
                 {path: "/view-houses", element: <ViewHousesListPage />, loader: viewHousesLoader},

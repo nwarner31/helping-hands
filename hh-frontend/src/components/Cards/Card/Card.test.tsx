@@ -28,5 +28,19 @@ describe("Card tests", () => {
        const header = screen.queryByTestId("card-header");
        expect(header).toHaveClass("bg-secondary");
    });
+   it("should have a test id of card-{id} and card-header-{id} if id is provided", () => {
+         render(<Card id="testid" header="hello">Test content</Card>);
+            const card = screen.queryByTestId("card-testid");
+            const header = screen.queryByTestId("card-header-testid");
+            expect(card).toBeInTheDocument();
+                expect(header).toBeInTheDocument();
+   });
+   it("should have a test id of card-container and card-header if no id is provided", () => {
+         render(<Card header="hello">Test content</Card>);
+            const card = screen.queryByTestId("card-container");
+            const header = screen.queryByTestId("card-header");
+            expect(card).toBeInTheDocument();
+                expect(header).toBeInTheDocument();
+   })
 
 });

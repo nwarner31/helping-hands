@@ -23,6 +23,6 @@ describe("Login Page", () => {
         cy.get("input[name=email]").type("admin@test.com");
         cy.get("input[name=password]").type("WrongPassword");
         cy.get("button[type=submit]").click();
-        cy.contains("Invalid email or password.").should("exist");
+        cy.contains("Invalid Email or Password").should("exist");
     })
 })

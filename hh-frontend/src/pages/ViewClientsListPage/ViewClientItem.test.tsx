@@ -21,16 +21,6 @@ describe("View Client Item tests", () => {
         expect(screen.getByText('None')).toBeInTheDocument(); // if name is missing
         expect(screen.getByText("01/01/2000")).toBeInTheDocument();
     });
-    it("should apply the bg-primary if odd is true", () => {
-        renderComponent(false, true);
-        const row = screen.getByTestId("view-clients-item");
-        expect(row).toHaveClass("bg-primary");
-    });
-    it("should not apply the bg-primary if odd is false", () => {
-        renderComponent(false, false);
-        const row = screen.getByTestId("view-clients-item");
-        expect(row).not.toHaveClass("bg-primary");
-    });
 
     it('shows Edit button for admin', () => {
         renderComponent(true, false);

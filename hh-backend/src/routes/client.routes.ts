@@ -8,7 +8,7 @@ import {
 } from "../controllers/client/client.controller";
 import {
     checkForClientEventConflicts,
-    createEvent,
+    createEvent, getClientEventConflictData,
     getEventsForClient,
     getUpcomingEventsForClient
 } from "../controllers/client/clientEvent.controller";
@@ -27,4 +27,5 @@ router.post("/:clientId/event", authenticateToken, requirePositions("ADMIN", "DI
 router.get("/:clientId/event", authenticateToken, getEventsForClient);
 router.get("/:clientId/event/upcoming", authenticateToken, getUpcomingEventsForClient);
 router.get("/:clientId/event/has-conflicts", authenticateToken, requirePositions("ADMIN", "DIRECTOR", "MANAGER"), checkForClientEventConflicts);
+router.get("/:clientId/event/get-conflicts", authenticateToken, requirePositions("ADMIN", "DIRECTOR", "MANAGER"), getClientEventConflictData);
 export default router;

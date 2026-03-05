@@ -3,6 +3,7 @@ import Accordion from "../../components/Accordion/Accordion";
 import LinkButton from "../../components/Buttons/LinkButton/LinkButton";
 import PageCard from "../../components/Cards/PageCard/PageCard";
 
+
 const HomePage: React.FC = () => {
 
     return (

@@ -11,9 +11,7 @@ const ViewClientsItem = ({client, isAdmin, isOddRow}: {client: Client, isAdmin: 
             <div
                 className={clsx(
                     "items-center gap-2 p-2 font-body grid grid-rows-2",
-
                     isAdmin ? "grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[auto_1fr_1fr_1fr_auto] sm:grid-cols" : "grid-cols-[auto_1fr_1fr] md:grid-cols-[auto_1fr_1fr_1fr]",
-                    isOddRow && "bg-primary text-white"
                 )}
                 data-testid="view-clients-item"
             >
