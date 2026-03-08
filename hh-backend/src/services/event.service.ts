@@ -84,10 +84,47 @@ export const getEventById = async (eventId: string) => {
         return await prisma.event.findUnique({
             where: { id: eventId },
             include: {
-                medical: true,
+                medical: {
+                    include: {
+                        recordPrintedBy: {select: {id: true, name: true}},
+                        recordTakenToHouseBy: {select: {id: true, name: true}},
+                        recordFiledBy: {select: {id: true, name: true}}
+                    }
+                },
                 client: true,
             },
         });
+    } catch (error) {
+        // istanbul ignore next
+        throw error;
+    }
+}
+
+export const recordEventAction = async (eventId: string, empId: string, action: string, results?: string) => {
+    try {
+        const event = await prisma.event.findUnique({where: {id: eventId}, include: {medical: true}});
+        if (!event) {
+            throw new HttpError(404, "Event not found");
+        }
+        if (event.type !== "MEDICAL") {
+            throw new HttpError(400, "Event type is invalid");
+        }
+        const validActions = ["PRINT", "TAKE_TO_HOUSE", "FILE"];
+        if (!validActions.includes(action)) {
+            throw new HttpError(400, "Event action is invalid");
+        }
+        if (action === "FILE" && !results) {
+            throw new HttpError(400, "Results are required for FILE action");
+        }
+        let updateData = {}
+        if (action === "PRINT") { updateData = {recordPrintedEmpId: empId, recordPrintedDate: new Date()} }
+        else if (action === "TAKE_TO_HOUSE") { updateData = {recordTakenEmpId: empId, recordTakenToHouseDate: new Date()} }
+        else if (action === "FILE") { updateData = {recordFiledEmpId: empId, recordFiledDate: new Date(), appointmentResults: results} }
+        await prisma.medicalEvent.update({
+            where: { id: eventId },
+            data: updateData,
+        });
+        return await prisma.event.findUnique({where: { id: eventId }, include: {medical: true}});
     } catch (error) {
         // istanbul ignore next
         throw error;

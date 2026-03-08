@@ -97,7 +97,8 @@ describe("Modal", () => {
         const secondBtn = screen.getByTestId("second-btn");
 
         // First button should be focused automatically
-        expect(firstBtn).toHaveFocus();
+        await waitFor(() => expect(firstBtn).toHaveFocus());
+
 
         // Tab → moves to second button
         await user.tab();

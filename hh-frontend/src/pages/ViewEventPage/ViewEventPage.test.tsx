@@ -41,7 +41,7 @@ const workEvent = {
 }
 
 
-    describe("EventDetailPage integration", () => {
+    describe("View Event Page", () => {
         function setup(role: "ADMIN" | "ASSOCIATE" = "ADMIN", initialState: any = undefined) {
             (useAuth as jest.Mock).mockReturnValue({
                 employee: { position: role }
@@ -235,16 +235,79 @@ const workEvent = {
             expect(screen.getByText("Dr. Smith")).toBeInTheDocument();
             expect(screen.getByText("Primary Care")).toBeInTheDocument();
             expect(screen.getByText("General Health")).toBeInTheDocument();
-            expect(screen.getAllByText("N/A").length).toBe(3); // Two N/A for any missing optional fields
+            expect(screen.getAllByText("N/A").length).toBe(3);
         });
-        it("displays the record dates if included", async () => {
-            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care", appointmentForCondition: "General Health", recordTakenToHouseDate: "2025-09-11T11:00:00.000Z", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordFiledDate: "2025-09-12T11:00:00.000Z" }};
+        it("displays the record dates and names if included", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health", recordTakenToHouseDate: "2025-09-11T11:00:00.000Z", recordPrintedDate: "2025-09-10T11:00:00.000Z",
+                    recordFiledDate: "2025-09-12T11:00:00.000Z", recordPrintedBy: {name: "Dan Doe"}, recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledBy: {name: "Jim Director"} }};
             setup(undefined, {event:  { ...medicalEvent } });
             await waitFor(() => {
                 expect(screen.getByText("09/10/2025")).toBeInTheDocument();
+                expect(screen.getByText("Dan Doe")).toBeInTheDocument();
                 expect(screen.getByText("09/11/2025")).toBeInTheDocument();
+                expect(screen.getByText("Jane Manager")).toBeInTheDocument();
                 expect(screen.getByText("09/12/2025")).toBeInTheDocument();
+                expect(screen.getByText("Jim Director")).toBeInTheDocument();
             })
-        })
+        });
+
+        it("displays the modal when the record action button is clicked", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health",  }};
+            setup(undefined, {event:  { ...medicalEvent } });
+            const actionButton = screen.getByText("Print Record");
+            await userEvent.click(actionButton);
+            expect(await screen.findByText("Confirm Action")).toBeInTheDocument();
+        });
+
+        it("closes the modal when no is clicked", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health",  }};
+            setup(undefined, {event:  { ...medicalEvent } });
+            const actionButton = screen.getByText("Print Record");
+            await userEvent.click(actionButton);
+            expect(await screen.findByText("Confirm Action")).toBeInTheDocument();
+            const noButton = screen.getByRole("button", { name: /no/i });
+            await userEvent.click(noButton);
+            expect(screen.queryByText("Confirm Action")).not.toBeInTheDocument();
+        });
+
+        it("displays the results text area and updates the text properly when the action is file record", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: "2025-09-11T11:00:00.000Z",
+                    recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledDate: null }};
+            setup(undefined, {event:  { ...medicalEvent } });
+            const actionButton = screen.getByText("File Record");
+            await userEvent.click(actionButton);
+            const textArea = await screen.findByLabelText("Appointment Results");
+            expect(textArea).toBeInTheDocument();
+            await userEvent.type(textArea, "Patient is in good health.");
+            await waitFor(() => {
+                expect(textArea).toHaveValue("Patient is in good health.");
+            });
+        });
+
+        it("displays 'Print Record' on the button when the record has not been printed", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health", recordPrintedDate: null }};
+            setup(undefined, {event:  { ...medicalEvent } });
+            expect(screen.getByText("Print Record")).toBeInTheDocument();
+        });
+
+        it("displays 'Take Record to House' on the button when the record has been printed but not taken to the house", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: null }};
+            setup(undefined, {event:  { ...medicalEvent } });
+            expect(screen.getByText("Take Record to House")).toBeInTheDocument();
+        });
+
+        it("displays 'File Record' on the button when the record has been taken to the house but not filed", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: "2025-09-11T11:00:00.000Z",
+                    recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledDate: null }};
+            setup(undefined, {event:  { ...medicalEvent } });
+            expect(screen.getByText("File Record")).toBeInTheDocument();
+        });
 
     });

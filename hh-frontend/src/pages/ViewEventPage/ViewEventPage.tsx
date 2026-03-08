@@ -9,14 +9,19 @@ import {formatDate, formatTime} from "../../utility/formatting";
 import {toast} from "react-toastify";
 import Button from "../../components/Buttons/Button/Button";
 import PageCard from "../../components/Cards/PageCard/PageCard";
+import Modal from "../../components/Modal/Modal";
+import Textarea from "../../components/Inputs/Textarea/Textarea";
 
 const ViewEventPage = () => {
     const {employee} = useAuth();
     const canEdit = ["ADMIN", "DIRECTOR", "MANAGER"].includes(employee?.position as string);
     const navigate = useNavigate();
     const location = useLocation();
+    const [modalData, setModalData] = useState<{show: boolean, action: string}>({show: false, action: ""});
     const {eventId} = useParams();
     const [event, setEvent] = useState<Event>(emptyEvent);
+    const [results, setResults] = useState("");
+
     useEffect(() => {
 
         const handleError = (errorMessage: string, goBack = false) => {
@@ -71,8 +76,51 @@ const ViewEventPage = () => {
             setEvent(location.state.event);
         }
     }, [eventId]);
+    const getRecordStatus = () => {
+        if (!event.medical) return "none";
+        if (!event.medical.recordPrintedBy) return "Print Record";
+        if (!event.medical.recordTakenToHouseBy) return "Take Record to House";
+        if (!event.medical.recordFiledBy) return "File Record";
+        // This case should never be hit since the button to trigger this function is hidden once all actions are completed, but we return "complete" just in case
+        // istanbul ignore next
+        return "complete";
+    }
 
-    // <Card className="w-full py-3 sm:max-w-100 font-body px-4">
+    const closeModal = () => {
+        setModalData({show: false, action: ""});
+    }
+
+    const updateResults = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setResults(e.target.value);
+    }
+
+    const showModalForAction = () => {
+        const action = getRecordStatus();
+        if (action === "none" || action === "complete") {
+            toast.info("No actions are currently available for this event.", {autoClose: 1500, position: "top-right"});
+            return;
+        }
+        setModalData({show: true, action: action});
+    }
+
+    const handleRecordAction = async () => {
+        try {
+            let body: {action: string, results?: string} = {action: ""};
+            if (!event.medical?.recordPrintedBy) body = {action: "PRINT"};
+            else if (!event.medical?.recordTakenToHouseBy) body = {action: "TAKE_TO_HOUSE"};
+            else if (!event.medical?.recordFiledBy) body = {action: "FILE", results: results};
+            else {
+                toast.info("All actions have already been completed for this event.", {autoClose: 1500, position: "top-right"});
+                return;
+            }
+            const {message, event: updatedEvent} = await apiService.post<{message: string, event: Event}>(`event/${eventId}/record-action`, body);
+            toast.success(`Successfully recorded ${body.action} action.`, {autoClose: 1500, position: "top-right"});
+            //const {event: updatedEvent} = await apiService.get<{event: Event, message: string}>(`event/${eventId}`);
+            setEvent(updatedEvent);
+        } catch(error) {
+
+        }
+    }
     return (
         <div className="flex justify-center items-center bg-slate-100 min-h-screen">
             <PageCard size="xs" title="View Event" className="p-4">
@@ -118,25 +166,37 @@ const ViewEventPage = () => {
                                     <dt>Record Printed:</dt>
                                     <dd>
                                         <div>{event.medical.recordPrintedDate ? formatDate(event.medical.recordPrintedDate) : "N/A"}</div>
-                                        <div>{/* ToDo Add info for person who printed report here */}</div>
+                                        <div>{event.medical.recordPrintedBy && event.medical.recordPrintedBy.name}</div>
                                     </dd>
                                     <dt>Record To House:</dt>
                                     <dd>
                                         <div>{event.medical.recordTakenToHouseDate ? formatDate(event.medical.recordTakenToHouseDate) : "N/A"}</div>
-                                        <div>{/* ToDo Add info for person who took record to house */}</div>
+                                        <div>{event.medical.recordTakenToHouseBy && event.medical.recordTakenToHouseBy.name}</div>
                                     </dd>
                                     <dt>Record Filed:</dt>
                                     <dd>
                                         <div>{event.medical.recordFiledDate ? formatDate(event.medical.recordFiledDate) : "N/A"}</div>
-                                        <div>{/* ToDo Add info for person who filed report here */}</div>
+                                        <div>{event.medical.recordFiledBy && event.medical.recordFiledBy.name}</div>
                                     </dd>
                                 </dl>
-
+                                {canEdit && !event.medical.recordFiledDate &&
+                                    <Button onClick={showModalForAction}>{getRecordStatus()}</Button>}
                             </section>}
                     </main>}
                 {!event.id &&
                 <div role="status" aria-live="polite" className="text-center font-semibold">Loading event...</div>}
             </PageCard>
+            {modalData.show && (
+                <Modal onClose={closeModal} title="Confirm Action">
+                    <h2 className="px-4">Are you sure you want to complete the following action?</h2>
+                    <p className="font-semibold text-center">{modalData.action}</p>
+                    {modalData.action !== "File Record" && <Textarea label="Appointment Results" name="results" value={results} onChange={updateResults} containerClass="flex flex-col m-4" />}
+                    <div className="flex flex-col gap-y-3 sm:flex-row sm:gap-x-2 my-4 mx-2">
+                        <Button className="grow" onClick={handleRecordAction}>Yes</Button>
+                        <Button className="grow" onClick={closeModal} variant="accent">No</Button>
+                    </div>
+                </Modal>
+            )}
         </div>
         );
 }

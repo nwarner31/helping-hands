@@ -10,6 +10,8 @@ import {Event} from "../../models/Event/Event";
 import Toast from "../../components/Toast/Toast";
 import {validateDate, validateMonth} from "../../utility/validation/dateTime.validation";
 import PageCard from "../../components/Cards/PageCard/PageCard";
+import List from "../../components/List/List";
+import ListItem from "../../components/List/ListItem";
 
 const ViewClientEventsListPage = () => {
     const { clientId } = useParams();
@@ -111,7 +113,7 @@ const ViewClientEventsListPage = () => {
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
            <PageCard title="View Client Events" size="sm" className="py-4 px-1" >
-                <form onSubmit={handleSubmit} className="flex flex-col items-center gap-y-3 w-full">
+                <form onSubmit={handleSubmit} className="flex flex-col items-center gap-y-3 w-full mb-2">
                         <Select containerClass="w-40" className="border-1 rounded-md" name="searchBy" value={searchBy} onChange={(e) => setSearchBy(e.target.value)} label="Search by" options={[{label: "Month", value: "month"}, {label: "Dates", value: "dates"}]} />
                     <div className={clsx(searchBy === "month" ? "block" : "hidden")}>
                         <StaticLabelInput name="month" label="Month" type="month" onChange={(e) => setMonth(e.target.value)} error={errors.month} errorOnBaseline={false} />
@@ -132,7 +134,10 @@ const ViewClientEventsListPage = () => {
                             {state === "error" && "Unable to fetch events."}
                             {state === "success" && "No Events Found."}
                         </div>}
-                    {events.map((event: Event) => (<ViewClientEventItem event={event} key={event.id} />))}
+                    <List inset="small" borderVariant="secondary">
+                        {events.map((event: Event) => (<ListItem id={event.id} key={event.id} ><ViewClientEventItem event={event}  /></ListItem>))}
+                    </List>
+
                 </div>
             </PageCard>
             {toastInfo.showToast && <Toast type={toastInfo.toastType} >{toastInfo.toastMessage}</Toast>}

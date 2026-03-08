@@ -6,7 +6,7 @@ import LinkButton from "../../components/Buttons/LinkButton/LinkButton";
 const ViewClientEventItem = ({event}: {event: Event}) => {
     return (
 
-        <div className="grid grid-cols-[108px_auto_auto_auto] gap-x-1 w-full">
+        <div className="grid grid-cols-[108px_auto_auto_auto] gap-x-1 w-full my-1">
             <LinkButton to={`/event/${event.id}`} className="row-span-2" >{event.id}</LinkButton>
             <div className="font-semibold">
                 <div className="block xs:hidden">B</div>
