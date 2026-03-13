@@ -2,7 +2,6 @@ import { render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import apiService from "../../utility/ApiService";
-
 import {useAuth} from "../../context/AuthContext";
 
 //jest.mock("@/services/apiService");
@@ -11,13 +10,16 @@ jest.mock("../../context/AuthContext", () => ({
 }));
 jest.mock("../../utility/ApiService", () => ({
     get: jest.fn(() => Promise.resolve( { message: "Employee registered successfully", employee: {}, accessToken: "hello" })),
+    post: jest.fn(() => Promise.resolve({event: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}}))
 }));
 
 const mockToastError = jest.fn();
+const mockToastSuccess = jest.fn();
 jest.mock("react-toastify", () => ({
     __esModule: true,
     toast: {
         error: mockToastError,
+        success: mockToastSuccess
     },
 }));
 
@@ -49,12 +51,16 @@ const workEvent = {
 
         render(
             <MemoryRouter initialEntries={["/events", {pathname: "/events/event-123", state: initialState}]}  >
-                <Routes>
+                <>
+                    <Routes>
                     <Route path="/events/:eventId" element={<ViewEventPage />} />
                     <Route path="/events" element={<div>Events List Page</div>} />
                     <Route path="/dashboard" element={<div>Dashboard Page</div>} />
                     <Route path="/edit-event/:id" element={<div>Edit Event Page</div>} />
-                </Routes>
+                    </Routes>
+
+                </>
+
             </MemoryRouter>);
     }
         beforeEach(() => jest.resetAllMocks());
@@ -288,26 +294,60 @@ const workEvent = {
             });
         });
 
-        it("displays 'Print Record' on the button when the record has not been printed", async () => {
+        it("displays the toast with successful post", async () => {
+            const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "All good",event: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}});
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health",}};
+            setup(undefined, {event: {...medicalEvent}});
+            const actionButton = screen.getByText("Print Record");
+            await userEvent.click(actionButton);
+            const yesButton = screen.getByText("Yes");
+            await userEvent.click(yesButton);
+
+            await waitFor(() => {
+                expect(mockPost).toHaveBeenCalledTimes(1);
+                expect(mockToastSuccess).toHaveBeenCalledWith(`Successfully recorded print action.`, {autoClose: 1500, position: "top-right"});
+            })
+        });
+
+        it("displays 'Print Record' on the button when the record has not been printed and submits when yes is pressed", async () => {
+            const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "All good",event: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}});
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health", recordPrintedDate: null }};
             setup(undefined, {event:  { ...medicalEvent } });
-            expect(screen.getByText("Print Record")).toBeInTheDocument();
+            const actionButton = screen.getByText("Print Record")
+            expect(actionButton).toBeInTheDocument();
+            await userEvent.click(actionButton);
+            const yesButton = screen.getByText("Yes");
+            await userEvent.click(yesButton);
+            expect(mockPost).toHaveBeenCalledTimes(1);
         });
 
-        it("displays 'Take Record to House' on the button when the record has been printed but not taken to the house", async () => {
+        it("displays 'Take Record to House' on the button when the record has been printed but not taken to the house and submits when yes in the modal is pressed", async () => {
+            const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "All good",event: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}});
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: null }};
             setup(undefined, {event:  { ...medicalEvent } });
-            expect(screen.getByText("Take Record to House")).toBeInTheDocument();
+            const actionButton = screen.getByText("Take Record to House")
+            expect(actionButton).toBeInTheDocument();
+            await userEvent.click(actionButton);
+            const yesButton = screen.getByText("Yes");
+            await userEvent.click(yesButton);
+            expect(mockPost).toHaveBeenCalledTimes(1);
         });
 
-        it("displays 'File Record' on the button when the record has been taken to the house but not filed", async () => {
+        it("displays 'File Record' on the button when the record has been taken to the house but not filed and submits when yes in the modal is pressed", async () => {
+            const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "All good",event: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}});
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: "2025-09-11T11:00:00.000Z",
                     recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledDate: null }};
             setup(undefined, {event:  { ...medicalEvent } });
-            expect(screen.getByText("File Record")).toBeInTheDocument();
+            const actionButton = screen.getByText("File Record")
+            expect(actionButton).toBeInTheDocument();
+            await userEvent.click(actionButton)
+            const yesButton = screen.getByText("Yes");
+            await userEvent.click(yesButton);
+            expect(mockPost).toHaveBeenCalledTimes(1);
         });
 
     });

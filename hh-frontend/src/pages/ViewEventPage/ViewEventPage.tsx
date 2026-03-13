@@ -96,6 +96,8 @@ const ViewEventPage = () => {
 
     const showModalForAction = () => {
         const action = getRecordStatus();
+        // This code cannot be reached normally
+        // istanbul ignore if
         if (action === "none" || action === "complete") {
             toast.info("No actions are currently available for this event.", {autoClose: 1500, position: "top-right"});
             return;
@@ -106,16 +108,18 @@ const ViewEventPage = () => {
     const handleRecordAction = async () => {
         try {
             let body: {action: string, results?: string} = {action: ""};
+            // istanbul ignore else
             if (!event.medical?.recordPrintedBy) body = {action: "PRINT"};
             else if (!event.medical?.recordTakenToHouseBy) body = {action: "TAKE_TO_HOUSE"};
             else if (!event.medical?.recordFiledBy) body = {action: "FILE", results: results};
+            // This code should never be reached normally
             else {
                 toast.info("All actions have already been completed for this event.", {autoClose: 1500, position: "top-right"});
                 return;
             }
             const {message, event: updatedEvent} = await apiService.post<{message: string, event: Event}>(`event/${eventId}/record-action`, body);
-            toast.success(`Successfully recorded ${body.action} action.`, {autoClose: 1500, position: "top-right"});
-            //const {event: updatedEvent} = await apiService.get<{event: Event, message: string}>(`event/${eventId}`);
+            setModalData({show: false, action: ""});
+            toast.success(`Successfully recorded ${body.action.toLocaleLowerCase()} action.`, {autoClose: 1500, position: "top-right"});
             setEvent(updatedEvent);
         } catch(error) {
 
@@ -178,6 +182,12 @@ const ViewEventPage = () => {
                                         <div>{event.medical.recordFiledDate ? formatDate(event.medical.recordFiledDate) : "N/A"}</div>
                                         <div>{event.medical.recordFiledBy && event.medical.recordFiledBy.name}</div>
                                     </dd>
+                                    {event.medical.appointmentResults &&
+                                        <>
+                                            <dt>Results:</dt>
+                                            <dd>{event.medical.appointmentResults}</dd>
+                                        </>
+                                       }
                                 </dl>
                                 {canEdit && !event.medical.recordFiledDate &&
                                     <Button onClick={showModalForAction}>{getRecordStatus()}</Button>}
@@ -187,10 +197,9 @@ const ViewEventPage = () => {
                 <div role="status" aria-live="polite" className="text-center font-semibold">Loading event...</div>}
             </PageCard>
             {modalData.show && (
-                <Modal onClose={closeModal} title="Confirm Action">
-                    <h2 className="px-4">Are you sure you want to complete the following action?</h2>
+                <Modal onOpenChange={closeModal} title="Confirm Action" description="Are you sure you want to complete the following action?">
                     <p className="font-semibold text-center">{modalData.action}</p>
-                    {modalData.action !== "File Record" && <Textarea label="Appointment Results" name="results" value={results} onChange={updateResults} containerClass="flex flex-col m-4" />}
+                    {modalData.action === "File Record" && <Textarea label="Appointment Results" name="results" value={results} onChange={updateResults} containerClass="flex flex-col m-4" />}
                     <div className="flex flex-col gap-y-3 sm:flex-row sm:gap-x-2 my-4 mx-2">
                         <Button className="grow" onClick={handleRecordAction}>Yes</Button>
                         <Button className="grow" onClick={closeModal} variant="accent">No</Button>

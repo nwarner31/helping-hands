@@ -124,7 +124,7 @@ export const recordEventAction = async (eventId: string, empId: string, action: 
             where: { id: eventId },
             data: updateData,
         });
-        return await prisma.event.findUnique({where: { id: eventId }, include: {medical: true}});
+        return await getEventById(eventId);
     } catch (error) {
         // istanbul ignore next
         throw error;

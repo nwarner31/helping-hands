@@ -270,6 +270,10 @@ describe("ViewHouseListItem Component", () => {
         await userEvent.click(managerRemoveButtons[0]);
 
         expect(mockRemoveManager).toHaveBeenCalledWith(houseWithManagers, houseWithManagers.primaryHouseManager);
+
+        await userEvent.click(managerRemoveButtons[1]);
+
+        expect(mockRemoveManager).toHaveBeenCalledWith(houseWithManagers, houseWithManagers.secondaryHouseManager);
     });
 
 });

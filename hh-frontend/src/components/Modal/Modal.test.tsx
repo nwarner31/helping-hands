@@ -4,10 +4,10 @@ import Modal from "./Modal";
 import {useState} from "react";
 
 describe("Modal", () => {
-    const mockOnClose = jest.fn();
+    const mockOnOpenChange = jest.fn();
 
     beforeEach(() => {
-        mockOnClose.mockClear();
+        mockOnOpenChange.mockClear();
     });
 
     test("renders title, description, and children", () => {
@@ -16,7 +16,7 @@ describe("Modal", () => {
                 id="test"
                 title="My Modal"
                 description="This is a test description"
-                onClose={mockOnClose}
+                onOpenChange={mockOnOpenChange}
             >
                 <div data-testid="modal-content">Hello Modal</div>
             </Modal>
@@ -33,7 +33,7 @@ describe("Modal", () => {
     test("calls onClose when overlay is clicked", async () => {
         const user = userEvent.setup();
         render(
-            <Modal id="test" onClose={mockOnClose}>
+            <Modal title="Test Modal" description="This is a test modal" id="test" onOpenChange={mockOnOpenChange}>
                 <div>Modal Content</div>
             </Modal>
         );
@@ -41,13 +41,13 @@ describe("Modal", () => {
         const backdrop = screen.getByTestId("modal-test-backdrop");
         await user.click(backdrop);
 
-        expect(mockOnClose).toHaveBeenCalledTimes(1);
+        expect(mockOnOpenChange).toHaveBeenCalledTimes(1);
     });
 
     test("does not call onClose when clicking inside modal content", async () => {
         const user = userEvent.setup();
         render(
-            <Modal id="test" onClose={mockOnClose}>
+            <Modal title="Test Modal" description="This is a test modal" id="test" onOpenChange={mockOnOpenChange}>
                 <div data-testid="inside-content">Click me</div>
             </Modal>
         );
@@ -55,13 +55,13 @@ describe("Modal", () => {
         const inside = screen.getByTestId("inside-content");
         await user.click(inside);
 
-        expect(mockOnClose).not.toHaveBeenCalled();
+        expect(mockOnOpenChange).not.toHaveBeenCalled();
     });
 
     test("calls onClose when close button is clicked", async () => {
         const user = userEvent.setup();
         render(
-            <Modal id="test" onClose={mockOnClose}>
+            <Modal title="Test Modal" description="This is a test modal" id="test" onOpenChange={mockOnOpenChange}>
                 <div>Modal Content</div>
             </Modal>
         );
@@ -69,25 +69,25 @@ describe("Modal", () => {
         const closeBtn = screen.getByTestId("modal-test-close");
         await user.click(closeBtn);
 
-        expect(mockOnClose).toHaveBeenCalledTimes(1);
+        expect(mockOnOpenChange).toHaveBeenCalledTimes(1);
     });
 
     test("calls onClose when Escape key is pressed", async () => {
         const user = userEvent.setup();
         render(
-            <Modal id="test" onClose={mockOnClose}>
+            <Modal title="Test Modal" description="This is a test modal" id="test" onOpenChange={mockOnOpenChange}>
                 <div>Modal Content</div>
             </Modal>
         );
 
         await user.keyboard("{Escape}");
-        expect(mockOnClose).toHaveBeenCalledTimes(1);
+        expect(mockOnOpenChange).toHaveBeenCalledTimes(1);
     });
 
     test("focus is trapped inside modal", async () => {
         const user = userEvent.setup();
         render(
-            <Modal id="test" onClose={mockOnClose} showCloseButton={false}>
+            <Modal title="Test Modal" description="This is a test modal" id="test" onOpenChange={mockOnOpenChange} showCloseButton={false}>
                 <button data-testid="first-btn">First</button>
                 <button data-testid="second-btn">Second</button>
             </Modal>
@@ -131,7 +131,7 @@ describe("Modal", () => {
     });
     it("should focus on the modal when no focusable elements inside", async () => {
         render(
-            <Modal id="test" onClose={mockOnClose} showCloseButton={false}>
+            <Modal id="test" title="Test Modal" description="This is a test modal" onOpenChange={mockOnOpenChange} showCloseButton={false}>
                 <div>Modal Content</div>
             </Modal>
         );
@@ -148,7 +148,7 @@ function ModalHarness() {
     return (
         <>
             <button data-testid="open-btn" onClick={() => setOpen(true)}>Open modal</button>
-            {open && <Modal id="test" onClose={() => setOpen(false)}>
+            {open && <Modal title="Test Modal" description="This is a test modal" id="test" onOpenChange={() => setOpen(false)}>
                 <button>Inside modal</button>
             </Modal>}
         </>

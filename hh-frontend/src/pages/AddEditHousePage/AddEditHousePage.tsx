@@ -110,11 +110,17 @@ const AddEditHousePage = ({isEdit}: {isEdit: boolean}) => {
     }
 
     const addHouse = async (data: House) => {
-        const response: {message: string, house?: House} = await apiService.post("house", data);
-        if(response.message === "House successfully added" && response.house) {
-            toast.success("House successfully added", {autoClose: 1500, position: "top-right"});
-            navigate("/view-houses");
+        try {
+            const response: {message: string, house?: House} = await apiService.post("house", data);
+            if(response.message === "House successfully added" && response.house) {
+                toast.success("House successfully added", {autoClose: 1500, position: "top-right"});
+                navigate("/view-houses");
+            }
+        } catch (error: any) {
+            if(error.errors.houseId) error.errors.id = error.errors.houseId;
+            setFormErrors(error.errors);
         }
+
     }
 
     const updateHouse = async (data: House) => {

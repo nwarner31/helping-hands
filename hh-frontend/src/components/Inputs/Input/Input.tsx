@@ -46,7 +46,7 @@ const Input: React.FC<InputProps> = ({ label, error, name, containerClassName, .
                 aria-describedby={error ? `error-${name}` : undefined}
                 name={name}
             />
-            {error && <p id={`error-${name}`} data-testid={`error-${name}`} role="alert" className="text-red-500 text-sm absolute right-0 top-0.5">{error}</p>}
+            {error && <p id={`error-${name}`} data-testid={`error-${name}`} role="alert" className="text-red-500 text-sm absolute right-3 top-0.5">{error}</p>}
         </div>
     );
 };

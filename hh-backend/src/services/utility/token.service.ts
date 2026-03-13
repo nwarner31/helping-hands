@@ -79,8 +79,6 @@ export async function createTokens(employeeId: string) {
             };
         });
     } catch (error) {
-        // istanbul ignore next
-        console.error("Error generating tokens:", error);
         throw new HttpError(500, "Failed to generate tokens");
     }
 }

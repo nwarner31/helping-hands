@@ -24,5 +24,5 @@ describe('CreateClient', () => {
         cy.get("button:contains('Add Client')").click();
         cy.contains("Client ID already exists").should("exist");
         cy.url().should("include", "/add-client");
-    })
+    });
 });
