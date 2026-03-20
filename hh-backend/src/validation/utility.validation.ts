@@ -15,7 +15,7 @@ export const isValidDate = (value: string) => {
 }
 
 export const optionalNullableString = (max: number) =>
-    z.string().max(max).optional().transform((v) => v ?? null);
+    z.string().max(max).nullish().transform((v) => v ?? null);
 
 // helper to flatten errors into { field: "message" }
 export function flattenErrors(error: z.ZodError) {

@@ -71,10 +71,9 @@ describe("HOUSE - get available managers for a house", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.message).toBe("available mangers found");
-        console.log(res.body);
-        expect(res.body.managers.length).toEqual(2);
-        expect(res.body.managers[0].id).toEqual(managerIds[0]);
-        expect(res.body.managers[1].id).toEqual(managerIds[1]);
+        expect(res.body.data.length).toEqual(2);
+        expect(res.body.data[0].id).toEqual(managerIds[0]);
+        expect(res.body.data[1].id).toEqual(managerIds[1]);
     });
 
     it("should return 401 if no token provided", async () => {

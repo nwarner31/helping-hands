@@ -65,8 +65,8 @@ describe("GET /client/:clientId/event", () => {
             .set("Authorization", `Bearer ${associate.token}`);
 
         expect(res.status).toBe(200);
-        expect(res.body.events.length).toBeGreaterThan(0);
-        expect(res.body.numPages).toBeDefined();
+        expect(res.body.data.events.length).toBeGreaterThan(0);
+        expect(res.body.data.numPages).toBeDefined();
     });
 
     it("returns events for a given month", async () => {
@@ -78,11 +78,9 @@ describe("GET /client/:clientId/event", () => {
             .set("Authorization", `Bearer ${associate.token}`);
 
         expect(res.status).toBe(200);
-        console.log(res.body.events);
-        expect(res.body.events.length).toBe(1);
-        console.log(res.body.events);
-        expect(res.body.events[0].id).toBe("T02");
-        expect(res.body.events.every((e: any) => e.beginDate.startsWith(`${year}-${monthString}`))).toBe(true);
+        expect(res.body.data.events.length).toBe(1);
+        expect(res.body.data.events[0].id).toBe("T02");
+        expect(res.body.data.events.every((e: any) => e.beginDate.startsWith(`${year}-${monthString}`))).toBe(true);
     });
 
     it("returns events for a from/to range", async () => {
@@ -100,8 +98,8 @@ describe("GET /client/:clientId/event", () => {
             .get(`/api/client/${testClient.id}/event?from=${beginYear}-${beginMonthString}-${beginDayString}&to=${endYear}-${endMonthString}-${endDayString}`)
             .set("Authorization", `Bearer ${associate.token}`);
         expect(res.status).toBe(200);
-        expect(res.body.events.length).toBe(1);
-        expect(res.body.events[0].id).toBe("T01");
+        expect(res.body.data.events.length).toBe(1);
+        expect(res.body.data.events[0].id).toBe("T01");
     });
 
     it("should return 400 if has a from and no to" , async () => {
@@ -168,16 +166,16 @@ describe("GET /client/:clientId/event", () => {
             .get(`/api/client/${testClient.id}/event?from=${beginYear}-${beginMonthString}-${beginDayString}&to=${endYear}-${endMonthString}-${endDayString}&page=1&pageSize=1`)
             .set("Authorization", `Bearer ${associate.token}`);
         expect(resPage1.status).toBe(200);
-        expect(resPage1.body.events.length).toBe(1);
-        expect(resPage1.body.events[0].id).toBe("T01");
-        expect(resPage1.body.numPages).toBe(2);
+        expect(resPage1.body.data.events.length).toBe(1);
+        expect(resPage1.body.data.events[0].id).toBe("T01");
+        expect(resPage1.body.data.numPages).toBe(2);
         const resPage2 = await request(app)
             .get(`/api/client/${testClient.id}/event?from=${beginYear}-${beginMonthString}-${beginDayString}&to=${endYear}-${endMonthString}-${endDayString}&page=2&pageSize=1`)
             .set("Authorization", `Bearer ${associate.token}`);
         expect(resPage2.status).toBe(200);
-        expect(resPage2.body.events.length).toBe(1);
-        expect(resPage2.body.events[0].id).toBe("T02");
-        expect(resPage2.body.numPages).toBe(2);
+        expect(resPage2.body.data.events.length).toBe(1);
+        expect(resPage2.body.data.events[0].id).toBe("T02");
+        expect(resPage2.body.data.numPages).toBe(2);
     });
 
     it("should handle server errors", async () => {

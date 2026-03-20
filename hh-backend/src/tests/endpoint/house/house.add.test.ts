@@ -75,7 +75,7 @@ describe("HOUSE - add house", () => {
             .send(secondHouse);
         expect(badResponse.statusCode).toBe(400);
         expect(badResponse.body.message).toBe("invalid data");
-        expect(badResponse.body.errors).toHaveProperty("houseId");
+        expect(badResponse.body.errors).toHaveProperty("id");
     });
     it("should return 400 for duplicate house name", async () => {
         const response = await request(app).post("/api/house")

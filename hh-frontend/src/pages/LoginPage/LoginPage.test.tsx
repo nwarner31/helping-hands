@@ -29,7 +29,7 @@ describe("Login Page tests", () => {
         expect(screen.getByLabelText("Email")).toBeInTheDocument();
         expect(screen.getByLabelText("Password")).toBeInTheDocument();
         expect(screen.getByRole("button", {name: "Login"})).toBeInTheDocument();
-        expect(screen.getByRole("button", {name: "Register"})).toBeInTheDocument();
+        expect(screen.getByRole("link", {name: "Register"})).toBeInTheDocument();
     });
     it("should display error messages for required fields", async () => {
        renderPage();

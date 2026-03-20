@@ -59,7 +59,7 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
 
         expect(res.statusCode).toBe(209);
         expect(res.body.message).toBe("client removed from house");
-        expect(res.body.house.clients).not.toContainEqual(
+        expect(res.body.data.clients).not.toContainEqual(
             expect.objectContaining({ clientId: client.id })
         );
 

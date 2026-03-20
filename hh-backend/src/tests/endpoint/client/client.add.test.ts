@@ -79,7 +79,7 @@ describe("Client Routes - Add Client",  () => {
             .send(validClient);
         expect(badResponse.statusCode).toBe(400);
         expect(badResponse.body.message).toBe("invalid data");
-        expect(badResponse.body.errors).toHaveProperty("clientId");
+        expect(badResponse.body.errors).toHaveProperty("id");
     });
     it("should handle server errors", async () => {
         jest.spyOn(require("../../../services/client/client.service"), "addClient")

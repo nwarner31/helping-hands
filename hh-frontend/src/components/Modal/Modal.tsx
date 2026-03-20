@@ -44,7 +44,7 @@ return (
            <Dialog.Content asChild>
                 <Card data-testid={modalId} className="z-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <Dialog.Title className={clsx(headerVariants[headerVariant], "text-2xl font-header px-2 py-1")} data-testid={titleId}>{title}</Dialog.Title>
-                    <Dialog.Description data-testid={descriptionId}>{description}</Dialog.Description>
+                    <Dialog.Description data-testid={descriptionId} className="mx-2">{description}</Dialog.Description>
                 {showCloseButton &&
                     <Dialog.Close asChild>
                          <button className="text-gray-500 hover:text-gray-800 text-xl absolute right-2 top-1 bg-white/50 rounded-full px-1" aria-label="Close" data-testid={`${modalId}-close`}>

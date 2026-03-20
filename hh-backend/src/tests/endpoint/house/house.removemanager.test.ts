@@ -36,23 +36,6 @@ describe("DELETE /house/:houseId/manager/:managerId", () => {
                 secondaryManagerId: manager2.id,
             }
         })
-        // await request(app).post("/api/house")
-        //     .set("Authorization", `Bearer ${director.token}`)
-        //     .send({
-        //         id: "H2002",
-        //         name: "Test House",
-        //         street1: "2 Example Rd",
-        //         city: "Testville",
-        //         state: "TX",
-        //         maxClients: 2,
-        //         femaleEmployeeOnly: false,
-        //     });
-        //
-        // // Assign as primary manager
-        // await request(app)
-        //     .post("/api/house/H2002/manager")
-        //     .set("Authorization", `Bearer ${director.token}`)
-        //     .send({ employeeId: "mgr200", positionType: "primary" });
     });
 
     afterAll(async () => {
@@ -66,7 +49,7 @@ describe("DELETE /house/:houseId/manager/:managerId", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.message).toBe("manager removed from house");
-        expect(res.body.house.primaryHouseManager).toBeNull();
+        expect(res.body.data.primaryHouseManager).toBeNull();
     });
 
     it("should remove the secondary manager from the house", async () => {
@@ -76,7 +59,7 @@ describe("DELETE /house/:houseId/manager/:managerId", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.message).toBe("manager removed from house");
-        expect(res.body.house.secondaryHouseManager).toBeNull();
+        expect(res.body.data.secondaryHouseManager).toBeNull();
     })
 
     it("should return 400 for a non-existent house", async () => {

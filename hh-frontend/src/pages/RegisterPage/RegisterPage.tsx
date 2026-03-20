@@ -8,7 +8,7 @@ import { Register} from "../../models/Employee";
 import RadioInput from "../../components/Inputs/RadioInput/RadioInput";
 import PageCard from "../../components/Cards/PageCard/PageCard";
 import LinkButton from "../../components/Buttons/LinkButton/LinkButton";
-import {useRegister} from "../../hooks/auth.hook";
+import {useRegister} from "../../hooks/authHook/auth.hook";
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();

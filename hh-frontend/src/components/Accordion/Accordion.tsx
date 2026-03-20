@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import clsx from "clsx";
 import {ButtonVariant} from "../Buttons/Buttons.utility";
 import {useAccordionGroup} from "./AccordionGroup";
+import Card from "../Cards/Card/Card";
 
 interface AccordionProps {
     id: string;
@@ -104,7 +105,7 @@ const Accordion: React.FC<AccordionProps> = ({ id, header, variant = "primary", 
                 {header}
             </button>
 
-                <div
+                <Card
                     id={panelId}
                     role="region"
                     aria-hidden={!isOpen}
@@ -114,7 +115,7 @@ const Accordion: React.FC<AccordionProps> = ({ id, header, variant = "primary", 
                         isOpen ? "max-h-200 mb-3 mt-1 py-3": "max-h-0 mb-0",
                         childrenClassName)}>
                     {children}
-                </div>
+                </Card>
         </div>
     );
 };

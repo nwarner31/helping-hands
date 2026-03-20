@@ -51,9 +51,9 @@ describe("Client Routes - Get no house", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.message).toBe("clients found");
-        expect(Array.isArray(res.body.clients)).toBe(true);
-        expect(res.body.clients.length).toBe(1);
-        expect(res.body.clients[0].id).toBe("C4001");
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data.length).toBe(1);
+        expect(res.body.data[0].id).toBe("C4001");
     });
     it("should return 401 if not authenticated", async () => {
         const res = await request(app).get("/api/house/no-house");

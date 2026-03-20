@@ -60,7 +60,7 @@ describe("GET /event/:eventId", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.message).toBe("Event found");
-        expect(res.body.event).toEqual(expect.objectContaining({
+        expect(res.body.data).toEqual(expect.objectContaining({
             id: eventId,
             type: "SOCIAL",
         }));

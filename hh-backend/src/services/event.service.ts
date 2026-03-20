@@ -23,7 +23,7 @@ export const addEvent = async (eventData: EventInput) => {
                 },
             });
 
-            if (medical) {
+            if (eventData.type === "MEDICAL" && medical) {
                 await tx.medicalEvent.create({
                     data: {
                         ...medical,

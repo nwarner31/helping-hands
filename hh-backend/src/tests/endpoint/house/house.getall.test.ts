@@ -35,9 +35,9 @@ describe("HOUSE - get all houses", () => {
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("message", "houses successfully retrieved");
-        expect(Array.isArray(res.body.houses)).toBe(true);
-        expect(res.body.houses.length).toBeGreaterThan(0);
-        expect(res.body.houses[0]).toHaveProperty("id", "H1234");
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data.length).toBeGreaterThan(0);
+        expect(res.body.data[0]).toHaveProperty("id", "H1234");
     });
 
     it("should return 401 if no token is provided", async () => {

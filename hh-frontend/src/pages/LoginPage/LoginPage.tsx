@@ -1,12 +1,12 @@
 import Input from "../../components/Inputs/Input/Input";
 import PasswordInput from "../../components/Inputs/PasswordInput/PasswordInput";
 import Button from "../../components/Buttons/Button/Button";
-import {Link} from "react-router-dom";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import PageCard from "../../components/Cards/PageCard/PageCard";
-import {useLogin} from "../../hooks/auth.hook";
+import {useLogin} from "../../hooks/authHook/auth.hook";
 import ErrorText from "../../components/TextAreas/ErrorText/ErrorText";
+import LinkButton from "../../components/Buttons/LinkButton/LinkButton";
 
 interface Login {
     email: string;
@@ -39,7 +39,7 @@ const LoginPage = () => {
                     <Input label="Email" name="email" value={loginData.email} className="w-full" onChange={handleUpdate} error={errors.email} onFocus={() => clearError("email")} />
                     <PasswordInput label="Password" name="password" value={loginData.password} onChange={handleUpdate} error={errors.password} onFocus={() => clearError("password")} />
                     <Button type="submit" variant="primary" >Login</Button>
-                    <Link to='/register' className="w-full"><Button variant="secondary" className="w-full">Register</Button></Link>
+                    <LinkButton to='/register' className="w-full" variant="secondary" >Register</LinkButton>
                 </form>
         </PageCard>
 

@@ -26,8 +26,8 @@ describe("GET /clients/:clientId", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.message).toEqual("Client found");
-        expect(res.body.client).toBeDefined();
-        expect(res.body.client.id).toEqual("T12345");
+        expect(res.body.data).toBeDefined();
+        expect(res.body.data.id).toEqual("T12345");
     });
 
     it("should include conflict data for an admin", async () => {
@@ -36,9 +36,9 @@ describe("GET /clients/:clientId", () => {
             .set("Authorization", `Bearer ${admin.token}`);
         expect(res.status).toBe(200);
         expect(res.body.message).toEqual("Client found");
-        expect(res.body.client).toBeDefined();
-        expect(res.body.client.id).toEqual("T12345");
-        expect(res.body.client.hasConflicts).toBeDefined();
+        expect(res.body.data).toBeDefined();
+        expect(res.body.data.id).toEqual("T12345");
+        expect(res.body.data.hasConflicts).toBeDefined();
     });
 
     it("should not return conflict data for an associate", async () => {
@@ -46,7 +46,7 @@ describe("GET /clients/:clientId", () => {
             .get(`/api/client/${client.id}`)
             .set("Authorization", `Bearer ${associate.token}`);
         expect(res.status).toBe(200);
-        expect(res.body.client.hasConflicts).toBeUndefined();
+        expect(res.body.data.hasConflicts).toBeUndefined();
     })
 
     it("should return 400 for an empty client id", async () => {

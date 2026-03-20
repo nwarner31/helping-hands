@@ -1,9 +1,21 @@
 import {render, screen} from "@testing-library/react";
 import {BrowserRouter} from "react-router-dom";
-
+jest.mock("../../utility/ApiService", () => ({
+    post: jest.fn()
+}));
 import HomePage from "./HomePage";
+import {AuthProvider} from "../../context/AuthContext";
 
-const renderPage = () => render(<BrowserRouter><HomePage /></BrowserRouter>);
+
+const renderPage = () => {
+    render(
+        <AuthProvider>
+            <BrowserRouter>
+                <HomePage />
+            </BrowserRouter>
+        </AuthProvider>
+       );
+}
 describe("Home Page tests", () => {
     it("should render the header correctly", () => {
         renderPage();

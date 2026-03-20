@@ -7,7 +7,7 @@ describe("Number Validation Utility", () => {
         expect(validate).toBeUndefined();
     });
     it("should send the correct error for empty string", () => {
-        const validate = validateNumber("", "Test field");
+        const validate = validateNumber("", "Test field", {required: true});
         expect(validate).toBe("Test field is required");
     });
     it("should send the correct error for non-numeric input", () => {

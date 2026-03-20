@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import {FullEventSchema, eventQuerySchema } from "../../validation/event.validation";
-import {addEvent } from "../../services/event.service";
+import {addEvent, getEventById} from "../../services/event.service";
 import {getClientByClientId, getClientEventsInDateRange} from "../../services/client/client.service";
 import {getDateRange} from "../../tests/utlity/dataTransforms/date.transforms";
 import {flattenErrors} from "../../validation/utility.validation";
@@ -24,6 +24,11 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
             return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
         }
 
+        const eventWithSameId = await getEventById(req.body.id);
+        if(eventWithSameId) {
+            return next({status: 400, message: "invalid data", errors: {id: "Event ID already exists"}});
+        }
+
         const newEvent = await addEvent(parseResult.data);
 
         res.status(201).json({ message: "Event created", event: newEvent });
@@ -38,7 +43,7 @@ export const getEventsForClient = async (req: Request, res: Response, next: Next
         // Checks for client
         const client = await getClientByClientId(req.params.clientId);
         if (!client) {
-            return next({status: 404, message: "Client not found."});
+            return next({status: 404, message: "Client not found"});
         }
         // Validate query params
         const queryData = {month: req.query.month, toDate: req.query.to, fromDate: req.query.from};
@@ -59,7 +64,7 @@ export const getEventsForClient = async (req: Request, res: Response, next: Next
             pageSize,
         );
 
-        res.status(200).json({ message:"Events found", events, numPages, count });
+        res.status(200).json({ message:"Events found", data: {events, numPages, count} });
     } catch (err) {
         return next(err);
     }

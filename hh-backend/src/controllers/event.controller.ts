@@ -9,7 +9,7 @@ export const getEvent = async (req: Request, res: Response, next: NextFunction) 
         if (!eventId.trim()) return next({status: 400, message: "Event Id is required"});
         const event = await getEventById(eventId);
         if(!event) return next({status: 404, message: "Event not found"});
-        res.status(200).json({message: "Event found", event: event});
+        res.status(200).json({message: "Event found", data: event});
     } catch(error) {
         return next(error);
     }
@@ -40,7 +40,7 @@ export const recordAction = async (req: Request, res: Response, next: NextFuncti
         const empId = req.employee!.id;
 
         const updatedEvent = await recordEventAction( eventId, empId, action, results);
-        res.status(200).json({message: "Event action recorded", event: updatedEvent});
+        res.status(200).json({message: "Event action recorded", data: updatedEvent});
     } catch(error) {
         return next(error);
     }

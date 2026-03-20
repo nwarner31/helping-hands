@@ -3,7 +3,7 @@ import {userEvent} from "@testing-library/user-event";
 import  {BrowserRouter, useNavigate} from "react-router-dom";
 import RegisterPage from "./RegisterPage";
 import {AuthProvider} from "../../context/AuthContext";
-import * as authHook from "../../hooks/auth.hook";
+import * as authHook from "../../hooks/authHook/auth.hook";
 
 
 jest.mock("../../utility/ApiService", () => ({

@@ -18,3 +18,11 @@ export interface House {
     primaryHouseManager?: Employee;
     secondaryHouseManager?: Employee;
 }
+
+export const convertToHouseForm = (house: House) => {
+    return {
+        ...house,
+        maxClients: house.maxClients.toString(),
+        street2: house.street2 ?? ""
+    }
+}

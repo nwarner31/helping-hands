@@ -35,7 +35,12 @@ export const getClientByClientId = async (clientId: string, employeeRole?: strin
             where: { id: clientId },
             include: {
                 house: {
-                    include: {_count: {select: {clients: true}}}
+                    include: {
+                        _count: {select: {clients: true}},
+                        clients: {where: {id: {not: clientId}}},
+                        primaryHouseManager: {select: {id: true, name: true}},
+                        secondaryHouseManager: {select: {id: true, name: true}}
+                    }
                 },
                 events: {
                     where: {

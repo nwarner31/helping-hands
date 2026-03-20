@@ -12,7 +12,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
         }
         const clientWithSameId = await getClientByClientId(req.body.id);
         if (clientWithSameId) {
-            return next({status: 400, message: "invalid data", errors: {clientId: "Client ID already exists"}});
+            return next({status: 400, message: "invalid data", errors: {id: "Client ID already exists"}});
         }
         const newClient = await addClient(parseResult.data);
         res.status(201).json({message: "Client added", client: newClient})
@@ -25,7 +25,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
 export const getAllClients = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const clients = await getClients();
-        res.status(200).json({message: "clients successfully retrieved", clients: clients});
+        res.status(200).json({message: "clients successfully retrieved", data: clients});
     }
     catch (error) {
         return next(error);
@@ -53,7 +53,7 @@ export const getClient = async (req: Request, res: Response, next: NextFunction)
         let client = await getClientByClientId(clientId, employeeRole);
         if(!client) return next({status: 404, message: "client not found"});
 
-        res.status(200).json({message: "Client found", client: client});
+        res.status(200).json({message: "Client found", data: client});
     } catch(error) {
         return next(error);
     }
@@ -62,7 +62,7 @@ export const getClient = async (req: Request, res: Response, next: NextFunction)
 export const getAllUnhousedClients = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const clients = await getHomelessClients();
-        res.status(200).json({message: "clients found", clients: clients});
+        res.status(200).json({message: "clients found", data: clients});
     } catch (error) {
         return next(error);
     }

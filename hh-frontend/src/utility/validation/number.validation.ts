@@ -1,14 +1,18 @@
 export function validateNumber(
-    value: string,
+    value: string | undefined | null,
     fieldName: string,
     options?: {
+        required?: boolean
         min?: number;
         max?: number;
         isInteger?: boolean;
     }
 ): string | undefined {
-    if (value.trim() === "") {
-        return `${fieldName} is required`;
+    if (value == null || value.trim() === "") {
+        if (options?.required) {
+            return `${fieldName} is required`;
+        }
+        return undefined;
     }
     const num = Number(value);
 

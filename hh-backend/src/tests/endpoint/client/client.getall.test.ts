@@ -27,7 +27,7 @@ describe("Client Routes - Get All Clients", () => {
         const response = await request(app).get("/api/client")
             .set("Authorization", `Bearer ${associate.token}`);
         expect(response.body.message).toBe("clients successfully retrieved");
-        expect(response.body.clients).toHaveLength(2);
+        expect(response.body.data).toHaveLength(2);
     });
     it("should return 401 with no token", async () => {
         const response = await request(app).get("/api/client")

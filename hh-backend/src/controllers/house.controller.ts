@@ -43,7 +43,7 @@ export const createHouse = async (req: Request, res: Response, next: NextFunctio
 export const getAllHouses = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const houses = await getHouses();
-        res.status(200).json({message: "houses successfully retrieved", houses: houses});
+        res.status(200).json({message: "houses successfully retrieved", data: houses});
     } catch (error) {
         return next(error);
     }
@@ -54,7 +54,7 @@ export const getHouse = async (req: Request, res: Response, next: NextFunction) 
         const houseId = req.params.houseId;
         const house = await getHouseByHouseId(houseId);
         if(!house) return next({status: 404, message: "House not found"});
-        res.status(200).json({message: "House found", house: house})
+        res.status(200).json({message: "House found", data: house})
     } catch (error) {
         return next(error);
     }
@@ -62,18 +62,12 @@ export const getHouse = async (req: Request, res: Response, next: NextFunction) 
 
 export const putHouse = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // const errors = validateHouseData(req.body);
-        // if(Object.keys(errors).length > 0) {
-        //     return next({status: 400, message: "invalid data", errors: errors});
-        // }
         const parseResult = HouseSchema.safeParse(req.body);
         if(!parseResult.success) {
             return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
         }
         const houseIdCheck = await getHouseByHouseId(req.body.houseId);
         if (!houseIdCheck) return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
-        //const {clients, ...houseData} = { ...req.body };
-        //houseData.maxClients = +houseData.maxClients;
         const updatedHouse = await updateHouse(parseResult.data);
         res.status(200).json({message: "House successfully updated", house: updatedHouse});
     } catch (error) {
@@ -105,7 +99,7 @@ export const removeClientFromHouse = async (req: Request, res: Response, next: N
         const clientIdCheck = await getClientByClientId(clientId);
         if(!clientIdCheck) return next({status: 400, message: "invalid data", errors: {clientId: "Client ID not found"}});
         const house = await removeHouseClient(houseId, clientId);
-        res.status(209).json({message: "client removed from house", house: house});
+        res.status(209).json({message: "client removed from house", data: house});
     } catch (error) {
         return next(error);
     }
@@ -118,7 +112,7 @@ export const getAvailableManagersForHouse = async (req: Request, res: Response, 
         const houseIdCheck = await getHouseByHouseId(houseId);
         if(!houseIdCheck)  return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
         const availableManagers = await getAvailableManagers(houseId);
-        res.status(200).json({message: "available mangers found", managers: availableManagers});
+        res.status(200).json({message: "available mangers found", data: availableManagers});
     } catch (error) {
         return next(error);
     }
@@ -134,7 +128,7 @@ export const addManagerToHouse = async (req: Request, res: Response, next: NextF
         }
 
         const updatedHouse = await addHouseManager(houseId, employeeId, positionType);
-        res.status(200).json({message: "manager added to house", house: updatedHouse});
+        res.status(200).json({message: "manager added to house", data: updatedHouse});
     } catch (error) {
         return next(error);
     }
@@ -146,7 +140,7 @@ export const removeManagerFromHouse = async (req: Request, res: Response, next: 
         const managerId = req.params.managerId;
 
         const updatedHouse = await removeHouseManager(houseId, managerId);
-        res.status(200).json({message: "manager removed from house", house: updatedHouse})
+        res.status(200).json({message: "manager removed from house", data: updatedHouse})
     } catch (error) {
         return next(error);
     }

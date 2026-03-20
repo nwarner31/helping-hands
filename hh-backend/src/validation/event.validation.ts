@@ -6,17 +6,17 @@ const TimeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 export const MedicalEventSchema = z.object({
     recordNumber: z.string().max(10),
-    recordPrintedDate: z.coerce.date().optional(),
-    recordPrintedEmpId: z.string().max(40).optional(),
-    recordTakenToHouseDate: z.coerce.date().optional(),
-    recordTakenEmpId: z.string().max(40).optional(),
-    appointmentCompletedByEmpId: z.string().max(40).optional(),
-    recordFiledDate: z.coerce.date().optional(),
-    recordFiledEmpId: z.string().max(40).optional(),
+    recordPrintedDate: z.coerce.date().nullish(),
+    recordPrintedEmpId: z.string().max(40).nullish(),
+    recordTakenToHouseDate: z.coerce.date().nullish(),
+    recordTakenEmpId: z.string().max(40).nullish(),
+    appointmentCompletedByEmpId: z.string().max(40).nullish(),
+    recordFiledDate: z.coerce.date().nullish(),
+    recordFiledEmpId: z.string().max(40).nullish(),
     doctor: z.string().max(60),
     doctorType: z.string().max(30),
     appointmentForCondition: z.string().max(50),
-    appointmentResults: z.string().optional(),
+    appointmentResults: z.string().nullish(),
 });
 
 export const EventSchema = z.object({
@@ -27,9 +27,9 @@ export const EventSchema = z.object({
     endDate: z.coerce.date(),
     beginTime: z.string().regex(TimeRegex, "Invalid time format (expected HH:mm)"),
     endTime: z.string().regex(TimeRegex, "Invalid time format (expected HH:mm)"),
-    numberStaffRequired: z.number().int().nonnegative(),
+    numberStaffRequired: z.coerce.number().int().nonnegative(),
     clientId: z.string().max(40),
-    medical: MedicalEventSchema.optional(),
+    medical: MedicalEventSchema.nullish(),
 });
 
 export const FullEventSchema = EventSchema.superRefine((data, ctx) => {
@@ -128,6 +128,13 @@ export const eventQuerySchema = z
                     code: z.ZodIssueCode.custom,
                     path: ["toDate"],
                     message: "Invalid To date format (YYYY-MM-DD)",
+                });
+            }
+            if(data.toDate && new Date(data.fromDate) > new Date(data.toDate)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["toDate"],
+                    message: "To date must be after from date"
                 });
             }
         }

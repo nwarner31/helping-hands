@@ -1,5 +1,6 @@
 import {Employee} from "../Employee";
 import {Client} from "../Client";
+import {formatTime} from "../../utility/formatting";
 
 export interface MedicalEvent {
     recordNumber: string;
@@ -57,4 +58,15 @@ export const emptyEvent: Event = {
 export interface EventConflict {
     event: Event;
     conflicts: Event[];
+}
+
+export const convertToEventForm = (event: Event) => {
+    return {
+        ...event,
+        numberStaffRequired: event.numberStaffRequired.toString(),
+        beginDate: event.beginDate.split("T")[0],  //formatDate(event.beginDate),
+        endDate: event.endDate.split("T")[0], //formatDate(event.endDate),
+        beginTime: formatTime(event.beginTime),
+        endTime: formatTime(event.endTime),
+    }
 }

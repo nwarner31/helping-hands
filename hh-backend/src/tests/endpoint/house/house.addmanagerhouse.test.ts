@@ -64,7 +64,7 @@ describe("POST /house/:houseId/manager", () => {
             .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: manager1.id, positionType: "primary" });
         expect(response.status).toBe(200);
-        expect(response.body.house.primaryManagerId).toEqual(manager1.id);
+        expect(response.body.data.primaryManagerId).toEqual(manager1.id);
     });
 
     it("should add a secondary manager to a house", async () => {
@@ -73,7 +73,7 @@ describe("POST /house/:houseId/manager", () => {
             .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: manager2.id, positionType: "secondary" });
         expect(response.status).toBe(200);
-        expect(response.body.house.secondaryManagerId).toEqual(manager2.id);
+        expect(response.body.data.secondaryManagerId).toEqual(manager2.id);
 
     });
 
@@ -84,7 +84,7 @@ describe("POST /house/:houseId/manager", () => {
             .set("Authorization", `Bearer ${director.token}`)
             .send({ employeeId: manager3.id, positionType: "primary" });
         expect(response.status).toBe(200);
-        expect(response.body.house.primaryManagerId).toEqual(manager3.id);
+        expect(response.body.data.primaryManagerId).toEqual(manager3.id);
 
         // Then, try to add the same manager as secondary
         response = await request(app)

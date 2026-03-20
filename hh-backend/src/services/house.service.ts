@@ -137,7 +137,7 @@ export const checkForDuplicateHouse = async (houseId: string, name: string) => {
         const errors: { [key: string]: string } = {};
         const existingHouseId = await prisma.house.findFirst({where: {id: houseId}});
         if(existingHouseId) {
-            errors.houseId = "House ID already exists";
+            errors.id = "House ID already exists";
         }
         const existingHouseName = await prisma.house.findFirst({where: {name: name}});
         if(existingHouseName) {

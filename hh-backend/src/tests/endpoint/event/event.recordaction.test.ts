@@ -12,6 +12,8 @@ describe("POST /event/:eventId/record-action", () => {
     let client: TestClient;
 
     beforeAll(async () => {
+        await prisma.medicalEvent.deleteMany();
+        await prisma.event.deleteMany();
         const {employees, clients} = await eventSetupTests();
         admin = employees.admin;
         associate = employees.associate;
@@ -90,9 +92,9 @@ describe("POST /event/:eventId/record-action", () => {
 
         expect(res.status).toBe(200);
         expect(res.body.message).toMatch(/Event action recorded/i);
-        expect(res.body.event).toBeDefined();
-        expect(res.body.event.medical.recordPrintedEmpId).toBe(admin.id);
-        expect(res.body.event.medical.recordPrintedDate).toBeTruthy();
+        expect(res.body.data).toBeDefined();
+        expect(res.body.data.medical.recordPrintedEmpId).toBe(admin.id);
+        expect(res.body.data.medical.recordPrintedDate).toBeTruthy();
     });
 
     it("should record TAKE_TO_HOUSE action successfully", async () => {
@@ -102,8 +104,8 @@ describe("POST /event/:eventId/record-action", () => {
             .send({ action: "TAKE_TO_HOUSE" });
 
         expect(res.status).toBe(200);
-        expect(res.body.event.medical.recordTakenEmpId).toBe(admin.id);
-        expect(res.body.event.medical.recordTakenToHouseDate).toBeTruthy();
+        expect(res.body.data.medical.recordTakenEmpId).toBe(admin.id);
+        expect(res.body.data.medical.recordTakenToHouseDate).toBeTruthy();
     });
 
     it("should return 400 for FILE action without results", async () => {
@@ -123,9 +125,9 @@ describe("POST /event/:eventId/record-action", () => {
             .send({ action: "FILE", results: "All good" });
 
         expect(res.status).toBe(200);
-        expect(res.body.event.medical.recordFiledEmpId).toBe(admin.id);
-        expect(res.body.event.medical.recordFiledDate).toBeTruthy();
-        expect(res.body.event.medical.appointmentResults).toBe("All good");
+        expect(res.body.data.medical.recordFiledEmpId).toBe(admin.id);
+        expect(res.body.data.medical.recordFiledDate).toBeTruthy();
+        expect(res.body.data.medical.appointmentResults).toBe("All good");
     });
 
     it("should return 400 for invalid action", async () => {

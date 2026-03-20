@@ -1,5 +1,8 @@
 import clsx from "clsx";
-
+import {useAuth} from "../../../context/AuthContext";
+import Button from "../../Buttons/Button/Button";
+import {useNavigate} from "react-router-dom";
+import {useLogout} from "../../../hooks/authHook/auth.hook";
 
 const breakpointClasses: Record<string, string> = {
     xs: "rounded-none shadow-none xs:rounded-xl xs:shadow-md max-w-100 xs:min-h-0",
@@ -18,9 +21,25 @@ interface PageCardProps {
 }
 
 const PageCard = ({title, children, className, size = "md"}: PageCardProps) => {
+    const {employee} = useAuth();
+    const navigate = useNavigate();
+    const {logout} = useLogout();
+    const logoutHandler = async () => {
+        try {
+            await logout();
+        } catch (error) {
+
+        } finally {
+            navigate("/")
+        }
+
+    }
     return (
         <div className={clsx("bg-slate-300 w-full min-h-screen flex flex-col justify-center", breakpointClasses[size], className)}>
-            {title && <h1 className="font-header text-accent text-2xl font-bold mb-5 text-center">{title}</h1>}
+            <div className="flex justify-around w-full mb-5 items-center">
+                {title && <h1 className="font-header text-accent text-2xl font-bold text-center">{title}</h1>}
+                {employee && <Button type="button" onClick={logoutHandler} className="px-6">Logout</Button>}
+            </div>
             {children}
         </div>
     );

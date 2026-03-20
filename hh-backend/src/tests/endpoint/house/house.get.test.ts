@@ -43,8 +43,8 @@ describe("HOUSE - get house by ID", () => {
             .set("Authorization", `Bearer ${director.token}`);
 
         expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("house");
-        expect(res.body.house.id).toBe(houseId);
+        expect(res.body).toHaveProperty("data");
+        expect(res.body.data.id).toBe(houseId);
         expect(res.body.message).toBe("House found");
     });
 
