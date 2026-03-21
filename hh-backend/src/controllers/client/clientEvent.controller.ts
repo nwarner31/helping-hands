@@ -64,7 +64,7 @@ export const getEventsForClient = async (req: Request, res: Response, next: Next
             pageSize,
         );
 
-        res.status(200).json({ message:"Events found", data: {events, numPages, count} });
+        res.status(200).json({ message:"Events found", data: {events, numPages, count, pageNum} });
     } catch (err) {
         return next(err);
     }
@@ -77,9 +77,6 @@ export const getUpcomingEventsForClient = async (req: Request, res: Response, ne
         if (!client) {
             return next({ status: 404, message: "Client not found", errors: { clientId: "Client ID not found" } });
         }
-        // const clientId = req.params.clientId;
-        // const events = await getUpcomingEventsForClientId(clientId);
-        // console.log(events);
         res.status(200).json({ message: "Events found", events: client.events });
     } catch (error) {
         return next(error);

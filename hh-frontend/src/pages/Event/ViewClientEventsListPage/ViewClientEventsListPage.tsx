@@ -13,8 +13,11 @@ import ListItem from "../../../components/List/ListItem";
 import NavButtons from "../../../components/Buttons/NavButtons/NavButtons";
 import {useGet} from "../../../hooks/getHook/get.hook";
 import {toast} from "react-toastify";
+import {usePagination} from "../../../hooks/paginationHook/pagination.hook";
+import PaginationButtons from "../../../components/Buttons/PaginationButtons/PaginationButtons";
 
 const ViewClientEventsListPage = () => {
+    const pageSize = 7;
     const { clientId } = useParams();
     const [searchBy, setSearchBy] = useState("month");
     const [month, setMonth] = useState("");
@@ -25,13 +28,13 @@ const ViewClientEventsListPage = () => {
     function updateDateSearch(event: ChangeEvent<HTMLInputElement>) {
         setDateSearch(prevState => ({...prevState, [event.target.name]: event.target.value}));
     }
+    const {page, numPages, setSearch, goToPage} = usePagination();
 
-    const {data: eventsData, get: getEvents, errors: apiErrors, status: apiStatus} = useGet<{events: []}>(`client/${clientId}/event`, {events: []});
+    const {data: eventsData, get: getEvents, errors: apiErrors, status: apiStatus} = useGet<{events: [], numPages: number, pageNum: number}>(`client/${clientId}/event`, {events: [], numPages: 0, pageNum: 1});
 
     useEffect(() => {
-        getEvents();
+        getEvents({pageSize});
     }, [clientId]);
-
     useEffect(() => {
         if(apiErrors && apiErrors.message === "Client not found") {
             toast.error("Client not found", {autoClose: 1500, position: "top-right"});
@@ -40,7 +43,6 @@ const ViewClientEventsListPage = () => {
             setErrors({month: apiErrors?.errors?.month ?? undefined, to: apiErrors?.errors?.toDate ?? undefined, from: apiErrors?.errors?.fromDate ?? undefined});
         } else if(apiErrors) {
             toast.error("Unknown error occurred", {autoClose: 1500, position: "top-right"});
-
         }
     }, [apiErrors]);
     useEffect(() => {
@@ -48,6 +50,16 @@ const ViewClientEventsListPage = () => {
             if (apiStatus!== "failed" && apiStatus !== "not_found") setState(apiStatus);
             else setState("error");
     }, [apiStatus]);
+    useEffect(() => {
+        if (eventsData) {
+            let searchTerms: Record<string, string> = {};
+            if(searchBy === "month" && month) searchTerms = {month};
+            if(searchBy === "dates" && dateSearch.fromDate)  searchTerms.from = dateSearch.fromDate;
+            if(searchBy === "dates" && dateSearch.toDate) searchTerms.to = dateSearch.toDate;
+            if(Object.keys(searchTerms).length > 0) setSearch(eventsData.numPages, eventsData.pageNum, searchTerms);
+            else setSearch(eventsData.numPages, eventsData.pageNum)
+        }
+    }, [eventsData]);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -61,7 +73,7 @@ const ViewClientEventsListPage = () => {
                 setState("success");
                 return;
             }
-            body = {month}
+            body = {month, pageSize};
         } else if (searchBy === "dates") {
             setErrors(prevState => ({...prevState, from: "", to: ""}));
             const fromError = validateDate(dateSearch.fromDate, "From");
@@ -71,13 +83,18 @@ const ViewClientEventsListPage = () => {
                 setState("success");
                 return;
             }
-            body = {from: dateSearch.fromDate, to: dateSearch.toDate};
+            body = {from: dateSearch.fromDate, to: dateSearch.toDate, pageSize};
         } else {
             toast.error("Invalid search type", {autoClose: 1500, position: "top-right"});
             setState("error");
             return;
         }
         getEvents(body);
+    }
+
+    function paginate (pageNumber: number) {
+        const {canGoTo, data} = goToPage(pageNumber);
+        if(canGoTo) getEvents({...data, pageSize});
     }
 
     return (
@@ -108,7 +125,7 @@ const ViewClientEventsListPage = () => {
                     <List inset="small" borderVariant="secondary">
                         {eventsData.events.map((event: Event) => (<ListItem id={event.id} key={event.id} ><ViewClientEventItem event={event}  /></ListItem>))}
                     </List>
-
+                    {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={paginate} />}
                 </div>
             </PageCard>
         </div>

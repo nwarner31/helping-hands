@@ -27,6 +27,10 @@ export const getHouses = async () => {
 
 export const updateHouse = async (house: House) => {
     try {
+        const houseWithSameName = await prisma.house.findFirst({where: {name: house.name}});
+        if(houseWithSameName && houseWithSameName.id !== house.id) {
+            throw new HttpError(400, "invalid input", {name: "House name already exists"});
+        }
         return await prisma.house.update({where: {id: house.id}, data: house});
     } catch (error) {
         // istanbul ignore next

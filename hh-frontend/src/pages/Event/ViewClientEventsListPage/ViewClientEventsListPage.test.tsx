@@ -35,6 +35,24 @@ function renderWithRouter(clientId = "client123") {
     );
 }
 
+function createFakeEvent(id: string) {
+    return {
+        id,
+        title: `Event ${id}`,
+        beginDate: "2023-10-01T10:00:00.000Z",
+        endDate: "2023-10-01T12:00:00.000Z",
+        beginTime: "2023-10-01T10:00:00.000Z",
+        endTime: "2023-10-01T12:00:00.000Z",
+    };
+}
+
+function paginatedEventsResponse(events: any[], numPages = 1, pageNum = 1) {
+    return {
+        message: "Events found",
+        data: { events, numPages, pageNum },
+    };
+}
+
 describe("ViewClientEventsListPage", () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -62,7 +80,7 @@ describe("ViewClientEventsListPage", () => {
         act(() => { jest.advanceTimersByTime(1500); });
 
         await waitFor(() => {
-            expect(mockedGet).toHaveBeenCalledWith("client/client123/event", expect.objectContaining({"params": undefined}));
+            expect(mockedGet).toHaveBeenCalledWith("client/client123/event", expect.objectContaining({"params": {"pageSize": 7}}));
             expect(screen.getByText("T12345")).toBeInTheDocument();
         });
     });
@@ -144,8 +162,8 @@ describe("ViewClientEventsListPage", () => {
 
         await waitFor(() => {
             expect(mockedGet).toHaveBeenCalledTimes(2); // once on mount and once on search
-            expect(mockedGet).toHaveBeenNthCalledWith(1,"client/client123/event", expect.objectContaining({"params": undefined}));
-            expect(mockedGet).toHaveBeenNthCalledWith(2, "client/client123/event", expect.objectContaining({"params": {"month": "2025-08"}}));
+            expect(mockedGet).toHaveBeenNthCalledWith(1,"client/client123/event", expect.objectContaining({"params": {"pageSize": 7}}));
+            expect(mockedGet).toHaveBeenNthCalledWith(2, "client/client123/event", expect.objectContaining({"params": {"month": "2025-08", "pageSize": 7}}));
             expect(screen.getByText("T12345")).toBeInTheDocument();
         });
     });
@@ -204,8 +222,132 @@ describe("ViewClientEventsListPage", () => {
         fireEvent.click(screen.getByRole("button", { name: /Search/i }));
 
         await waitFor(() => {
-            expect(mockedGet).toHaveBeenNthCalledWith(2, "client/client123/event", expect.objectContaining({"params": {"from": "2023-01-01", "to": "2023-01-02"}}));
+            expect(mockedGet).toHaveBeenNthCalledWith(2, "client/client123/event", expect.objectContaining({"params": {"from": "2023-01-01", "to": "2023-01-02", "pageSize": 7}}));
             expect(screen.getByText("T12345")).toBeInTheDocument();
+        });
+    });
+
+    it("shows pagination controls only when more than one page is available and reflects the current page", async () => {
+        mockedGet.mockResolvedValueOnce(
+            paginatedEventsResponse([createFakeEvent("PAGE-2-EVENT")], 3, 2)
+        );
+
+        await act(async () => {
+            renderWithRouter();
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText("PAGE-2-EVENT")).toBeInTheDocument();
+        });
+
+        expect(screen.getByRole("spinbutton")).toHaveValue(2);
+        expect(screen.getByText("/ 3")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "<" })).toBeEnabled();
+        expect(screen.getByRole("button", { name: ">" })).toBeEnabled();
+    });
+
+    it("does not render pagination controls when the response only has one page", async () => {
+        mockedGet.mockResolvedValueOnce(
+            paginatedEventsResponse([createFakeEvent("ONLY-PAGE")], 1, 1)
+        );
+
+        await act(async () => {
+            renderWithRouter();
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText("ONLY-PAGE")).toBeInTheDocument();
+        });
+
+        expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "<" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: ">" })).not.toBeInTheDocument();
+    });
+
+    it("paginates month search results and preserves the active month filter", async () => {
+        mockedGet
+            .mockResolvedValueOnce(paginatedEventsResponse([createFakeEvent("INITIAL")], 1, 1))
+            .mockResolvedValueOnce(paginatedEventsResponse([createFakeEvent("MONTH-PAGE-1")], 3, 1))
+            .mockResolvedValueOnce(paginatedEventsResponse([createFakeEvent("MONTH-PAGE-2")], 3, 2));
+
+        await act(async () => {
+            renderWithRouter();
+        });
+
+        fireEvent.change(screen.getByLabelText(/Month/i), { target: { value: "2025-08" } });
+        fireEvent.click(screen.getByRole("button", { name: /Search/i }));
+
+        await waitFor(() => {
+            expect(mockedGet).toHaveBeenNthCalledWith(
+                2,
+                "client/client123/event",
+                expect.objectContaining({ params: { month: "2025-08", pageSize: 7 } })
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.getByRole("spinbutton")).toHaveValue(1);
+            expect(screen.getByText("MONTH-PAGE-1")).toBeInTheDocument();
+        });
+
+        fireEvent.click(screen.getByRole("button", { name: ">" }));
+
+        await waitFor(() => {
+            expect(mockedGet).toHaveBeenNthCalledWith(
+                3,
+                "client/client123/event",
+                expect.objectContaining({ params: { month: "2025-08", page: 2, pageSize: 7 } })
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText("MONTH-PAGE-2")).toBeInTheDocument();
+            expect(screen.getByRole("spinbutton")).toHaveValue(2);
+        });
+    });
+
+    it("paginates date-search results and preserves the active date filters", async () => {
+        mockedGet
+            .mockResolvedValueOnce(paginatedEventsResponse([createFakeEvent("INITIAL")], 1, 1))
+            .mockResolvedValueOnce(paginatedEventsResponse([createFakeEvent("DATES-PAGE-1")], 4, 1))
+            .mockResolvedValueOnce(paginatedEventsResponse([createFakeEvent("DATES-PAGE-3")], 4, 3));
+
+        await act(async () => {
+            renderWithRouter();
+        });
+
+        fireEvent.change(screen.getByLabelText(/Search by/i), { target: { value: "dates" } });
+
+        const fromInput = await screen.findByLabelText(/From/i);
+        const toInput = await screen.findByLabelText(/To/i);
+
+        fireEvent.change(fromInput, { target: { value: "2023-01-01" } });
+        fireEvent.change(toInput, { target: { value: "2023-01-02" } });
+        fireEvent.click(screen.getByRole("button", { name: /Search/i }));
+
+        await waitFor(() => {
+            expect(mockedGet).toHaveBeenNthCalledWith(
+                2,
+                "client/client123/event",
+                expect.objectContaining({ params: { from: "2023-01-01", to: "2023-01-02", pageSize: 7 } })
+            );
+        });
+
+        const pageInput = await screen.findByRole("spinbutton");
+        fireEvent.change(pageInput, { target: { value: "3" } });
+        fireEvent.submit(pageInput.closest("form") as HTMLFormElement);
+
+        await waitFor(() => {
+            expect(mockedGet).toHaveBeenNthCalledWith(
+                3,
+                "client/client123/event",
+                expect.objectContaining({ params: { from: "2023-01-01", to: "2023-01-02", page: 3, pageSize: 7 } })
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText("DATES-PAGE-3")).toBeInTheDocument();
+            expect(screen.getByRole("spinbutton")).toHaveValue(3);
         });
     });
 
@@ -236,7 +378,7 @@ describe("ViewClientEventsListPage", () => {
         fireEvent.click(screen.getByRole("button", { name: /Search/i }));
 
         await waitFor( () => {
-            expect(mockedGet).toHaveBeenNthCalledWith(2, "client/client123/event", expect.objectContaining({"params": {"from": "2023-01-01", "to": "2023-01-02"}}));
+            expect(mockedGet).toHaveBeenNthCalledWith(2, "client/client123/event", expect.objectContaining({"params": {"from": "2023-01-01", "to": "2023-01-02", "pageSize": 7}}));
             fireEvent.change(screen.getByLabelText(/Search by/i), { target: { value: "dates" } });
             expect(screen.getByText("To error")).toBeInTheDocument();
             expect(screen.getByText("From error")).toBeInTheDocument();
