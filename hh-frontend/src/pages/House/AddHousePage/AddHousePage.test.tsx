@@ -1,21 +1,37 @@
 import {render, screen, waitFor} from "@testing-library/react";
-
+const mockToastSuccess = jest.fn();
+jest.mock("react-toastify", () => ({
+    __esModule: true,
+    toast: {
+        success: mockToastSuccess
+    },
+}));
 import {userEvent} from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes} from "react-router-dom";
 import apiService from "../../../utility/ApiService";
 import AddHousePage from "./AddHousePage";
 import {AuthProvider} from "../../../context/AuthContext";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {afterEach} from "@jest/globals";
 
 jest.mock("../../../utility/ApiService", () => ({
     get: jest.fn(() => Promise.resolve()),
-    post: jest.fn(() => Promise.resolve( { message: "Client added", client: { id: "123" }})),
-    put: jest.fn(() => Promise.resolve({ message: "client updated successfully", client: { id: "123" }})),
+    post: jest.fn(),
 }));
 
 
 
     const renderPage = () => {
+        const testQuery = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    retry: false
+                }
+            }
+        });
+
         render(
+            <QueryClientProvider client={testQuery}>
             <AuthProvider>
                 <MemoryRouter initialEntries={[{ pathname: `/test` }]}>
                     <Routes>
@@ -24,16 +40,16 @@ jest.mock("../../../utility/ApiService", () => ({
                     </Routes>
                 </MemoryRouter>
             </AuthProvider>
+            </QueryClientProvider>
         );
     }
 
-
-
-
 describe("Add House", () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
-
-    it('should display "Add House" header and empty form when in add mode', () => {
+    it('should display "Add House" header and empty form', () => {
         renderPage();
 
         // Check header text
@@ -83,7 +99,7 @@ describe("Add House", () => {
         expect(apiService.post).not.toHaveBeenCalled();
     });
     it("should submit the form if correct data is entered", async () => {
-        const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "House successfully added", house: {id: "H12345"}});
+        const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "House successfully added", data: {id: "H12345"}});
         renderPage();
 
         await userEvent.type(screen.getByLabelText("House ID"), "H12345");
@@ -93,10 +109,9 @@ describe("Add House", () => {
         await userEvent.type(screen.getByLabelText("State"), "TX");
 
         await userEvent.click(screen.getByRole("button", {name: "Add House"}));
-
         await waitFor(() => {
             expect(mockPost).toHaveBeenCalled();
-            expect(screen.findByText("House successfully added"));
+            expect(mockToastSuccess).toHaveBeenCalledWith("House successfully added", {autoClose: 1500, position: "top-right"});
             expect(screen.getByText("View Houses Page")).toBeInTheDocument();
         })
 
@@ -120,6 +135,24 @@ describe("Add House", () => {
         await userEvent.type(maxClients, "-11");
         await userEvent.click(screen.getByRole("button", {name: "Add House"}));
         expect(screen.getByText("Max clients must be at least 1")).toBeInTheDocument();
+    });
+    it("should display field errors for api errors", async () => {
+        const mockPost = (apiService.post as jest.Mock).mockRejectedValue({ errors: {id: "House ID API error", name: "House Name API error"}});
+        renderPage();
+
+        await userEvent.type(screen.getByLabelText("House ID"), "H12345");
+        await userEvent.type(screen.getByLabelText("House Name"), "Testable");
+        await userEvent.type(screen.getByLabelText("Street 1"), "100 Testing Rd");
+        await userEvent.type(screen.getByLabelText("City"), "Reactville");
+        await userEvent.type(screen.getByLabelText("State"), "TX");
+
+        await userEvent.click(screen.getByRole("button", {name: "Add House"}));
+
+        await waitFor(() => {
+            expect(mockPost).toHaveBeenCalled();
+            expect(screen.getByText("House ID API error")).toBeInTheDocument()
+            expect(screen.getByText("House Name API error")).toBeInTheDocument();
+        })
     });
 });
 

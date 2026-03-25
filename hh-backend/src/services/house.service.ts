@@ -31,7 +31,8 @@ export const updateHouse = async (house: House) => {
         if(houseWithSameName && houseWithSameName.id !== house.id) {
             throw new HttpError(400, "invalid input", {name: "House name already exists"});
         }
-        return await prisma.house.update({where: {id: house.id}, data: house});
+        return await prisma.house.update({where: {id: house.id}, data: house,
+            include: { primaryHouseManager: true, secondaryHouseManager: true, clients: true }});
     } catch (error) {
         // istanbul ignore next
         throw error;
@@ -40,7 +41,8 @@ export const updateHouse = async (house: House) => {
 
 export const getHouseByHouseId = async (houseId: string) => {
     try {
-        return await prisma.house.findFirst({where: {id: houseId},include: {clients: true}});
+        return await prisma.house.findFirst({where: {id: houseId},
+            include: {clients: true, primaryHouseManager: true, secondaryHouseManager: true}});
     } catch (error) {
         // istanbul ignore next
         throw error;
@@ -101,7 +103,7 @@ export const addHouseManager = async (houseId: string, employeeId: string, posit
             {secondaryManagerId: manager.id}
 
         return await prisma.house.update({where: {id: houseId}, data: updateData,
-            include: { primaryHouseManager: true, secondaryHouseManager: true }});
+            include: { primaryHouseManager: true, secondaryHouseManager: true, clients: true }});
     } catch (error) {
         throw error;
     }
@@ -130,7 +132,7 @@ export const removeHouseManager = async (houseId: string, managerId: string) => 
         }
 
         return await prisma.house.update({where: {id: houseId}, data: updateData,
-            include: { primaryHouseManager: true, secondaryHouseManager: true }});
+            include: { primaryHouseManager: true, secondaryHouseManager: true, clients: true }});
     } catch (error) {
         throw error;
     }

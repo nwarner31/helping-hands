@@ -1,7 +1,8 @@
-import {render, screen} from "@testing-library/react";
+import {render, screen, waitFor} from "@testing-library/react";
 import ViewClientUpcomingEvent from "./ViewClientUpcomingEvent";
 import {Event, EventType} from "../../../models/Event/Event";
 import {MemoryRouter} from "react-router-dom";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 // mock formatting utilities so test output is stable
 jest.mock("../../../utility/formatting", () => ({
@@ -23,37 +24,52 @@ const mockEvent: Event = {
 };
 
 const renderComponent = (isOdd: boolean) => {
+    const testQuery = new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    });
     return render (
+        <QueryClientProvider client={testQuery}>
         <MemoryRouter>
             <ViewClientUpcomingEvent event={mockEvent} isOdd={isOdd} />
         </MemoryRouter>
+        </QueryClientProvider>
     );
 }
 
 describe("ViewClientUpcomingEvent", () => {
-    it("renders the event information", () => {
+    it("renders the event information", async () => {
         renderComponent(false);
+        await waitFor(() => {
+            expect(screen.getByText("e1")).toBeInTheDocument();
+            expect(screen.getByText("Begin")).toBeInTheDocument();
+            expect(screen.getByText("End")).toBeInTheDocument();
+            expect(screen.getByText("Type")).toBeInTheDocument();
 
-        expect(screen.getByText("View")).toBeInTheDocument();
-        expect(screen.getByText("Begin")).toBeInTheDocument();
-        expect(screen.getByText("End")).toBeInTheDocument();
-        expect(screen.getByText("Type")).toBeInTheDocument();
+            expect(screen.getByText("formatted-2025-08-20")).toBeInTheDocument();
+            expect(screen.getByText("formatted-2025-08-21")).toBeInTheDocument();
+            expect(screen.getByText("MEDICAL")).toBeInTheDocument();
+            expect(screen.getByText("formatted-10:00")).toBeInTheDocument();
+            expect(screen.getByText("formatted-11:00")).toBeInTheDocument();
+            expect(screen.getByText("3")).toBeInTheDocument();
+        })
 
-        expect(screen.getByText("formatted-2025-08-20")).toBeInTheDocument();
-        expect(screen.getByText("formatted-2025-08-21")).toBeInTheDocument();
-        expect(screen.getByText("MEDICAL")).toBeInTheDocument();
-        expect(screen.getByText("formatted-10:00")).toBeInTheDocument();
-        expect(screen.getByText("formatted-11:00")).toBeInTheDocument();
-        expect(screen.getByText("3")).toBeInTheDocument();
     });
 
-    it("applies correct button classes when isOdd=false (even row)", () => {
+    it("applies correct button classes when isOdd=false (even row)", async () => {
         renderComponent(false);
-        expect(screen.getByText("View")).toHaveClass("bg-secondary");
+        await waitFor(() => {
+            expect(screen.getByText("e1")).toHaveClass("bg-secondary");
+        });
     });
 
-    it("applies correct button classes when isOdd=true (odd row)", () => {
+    it("applies correct button classes when isOdd=true (odd row)", async () => {
         renderComponent(true);
-        expect(screen.getByText("View")).toHaveClass("bg-accent");
+        await waitFor(() => {
+            expect(screen.getByText("e1")).toHaveClass("bg-accent");
+        });
     });
 });

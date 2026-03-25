@@ -11,6 +11,7 @@ import EditClientPage from "./EditClientPage";
 import { MemoryRouter } from "react-router-dom";
 import apiService from "../../../utility/ApiService";
 import {AuthProvider} from "../../../context/AuthContext";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 jest.mock("../../../utility/ApiService", () => ({
     get: jest.fn(() => Promise.resolve({data: {id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01", sex: "F"}})),
@@ -18,12 +19,21 @@ jest.mock("../../../utility/ApiService", () => ({
 }));
 
 const renderPage = (state?: any) => {
+    const testQuery = new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    });
     render(
+        <QueryClientProvider client={testQuery}>
         <AuthProvider>
             <MemoryRouter initialEntries={[{state: {client: state}}]}>
                 <EditClientPage />
             </MemoryRouter>
         </AuthProvider>
+        </QueryClientProvider>
         )
 }
 
@@ -64,12 +74,25 @@ describe("EditClientPage tests", () => {
             expect(mockToastSuccess).toHaveBeenCalledWith("Client successfully updated", {autoClose: 1500, position: "top-right"});
         });
     });
-    it("should not fetch the data if it is provided by the state", async () => {
-        jest.clearAllMocks();
-        const mockFetch = (apiService.get as jest.Mock);
-        renderPage({id: "111", legalName: "John Doe", dateOfBirth: "2000-01-01", sex: "F"});
-        await waitFor(() => {
-            expect(mockFetch).not.toHaveBeenCalled();
+    it("should fail validation and show empty fields", async () => {
+        renderPage();
+        await waitFor(async () => {
+            await userEvent.clear(screen.getByLabelText("Legal Name"));
+            await userEvent.clear(screen.getByLabelText("Date of Birth"));
+            await userEvent.click(screen.getByRole("button", { name: "Update Client"}));
+
+            expect(screen.getByText("Legal name is required")).toBeInTheDocument();
+            expect(screen.getByText("Date of Birth is required"));
         });
     });
+    it("should show validation errors from the backend", async () => {
+        renderPage();
+        (apiService.put as jest.Mock).mockRejectedValue({errors: {legalName: "Legal Name API error", dateOfBirth: "Date of Birth API error"}});
+        await waitFor(async () => {
+            await userEvent.click(screen.getByRole("button", {name: "Update Client"}));
+
+            expect(screen.getByText("Legal Name API error")).toBeInTheDocument();
+            expect(screen.getByText("Date of Birth API error")).toBeInTheDocument();
+        })
+    })
 });

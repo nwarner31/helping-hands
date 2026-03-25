@@ -1,9 +1,8 @@
 import {AuthProvider} from "../../../context/AuthContext";
 
-jest.mock("../../../hooks/getHook/get.hook", () => ({
-    useGet: jest.fn(),
-}));
+
 jest.mock("../../../utility/ApiService", () => ({
+    get: jest.fn(),
     post: jest.fn()
 }));
 jest.mock("react-router-dom", () => {
@@ -18,18 +17,29 @@ jest.mock("./ViewClientEventConflictsItem", () => (props: any) => (
     <div data-testid={`conflict-${props.conflict.event.id}`}>{props.conflict.event.id}</div>
 ));
 
-import { render, screen } from "@testing-library/react";
+import {render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { useGet } from "../../../hooks/getHook/get.hook";
 import ViewClientEventConflictsPage from "./ViewClientEventConflictsPage";
 import {BrowserRouter} from "react-router-dom";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import apiService from "../../../utility/ApiService";
 
-const mockedUseGet = useGet as jest.MockedFunction<typeof useGet> | jest.Mock;
 
 function renderPage() {
+    const testQuery = new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    });
     return render(
-        <AuthProvider><BrowserRouter><ViewClientEventConflictsPage /></BrowserRouter></AuthProvider>);
+        <QueryClientProvider client={testQuery}>
+        <AuthProvider>
+            <BrowserRouter><ViewClientEventConflictsPage /></BrowserRouter>
+        </AuthProvider>
+        </QueryClientProvider>);
 }
 
 describe("ViewClientEventConflictsPage", () => {
@@ -38,8 +48,7 @@ describe("ViewClientEventConflictsPage", () => {
     });
 
     it("renders the date inputs and search button", async () => {
-        mockedUseGet.mockReturnValue({ get: jest.fn(), data: [], status: "idle", errors: null, clearErrors: jest.fn() });
-
+        (apiService.get as jest.Mock).mockResolvedValue({ data: [] });
         renderPage();
 
         expect(screen.getByLabelText("Begin Date")).toBeInTheDocument();
@@ -48,18 +57,15 @@ describe("ViewClientEventConflictsPage", () => {
     });
 
     it("calls get on mount with empty dates", async () => {
-        const mockGet = jest.fn();
-        mockedUseGet.mockReturnValue({ get: mockGet, data: [], status: "idle", errors: null, clearErrors: jest.fn() });
-
+        const mockGet = (apiService.get as jest.Mock).mockResolvedValue({ data: [] });
         renderPage();
 
         expect(mockGet).toHaveBeenCalledTimes(1);
-        expect(mockGet).toHaveBeenCalledWith({ beginDate: "", endDate: "" });
+        expect(mockGet).toHaveBeenCalledWith("client/client123/event/get-conflicts", {"params": {}});
     });
 
     it("submits the search form with selected dates", async () => {
-        const mockGet = jest.fn();
-        mockedUseGet.mockReturnValue({ get: mockGet, data: [], status: "idle", errors: null, clearErrors: jest.fn() });
+        const mockGet = (apiService.get as jest.Mock).mockResolvedValue({ data: [] });
 
         const user = userEvent.setup();
         renderPage();
@@ -74,32 +80,47 @@ describe("ViewClientEventConflictsPage", () => {
 
         expect(mockGet).toHaveBeenCalled();
         // last call should include the provided dates
-        expect(mockGet).toHaveBeenLastCalledWith({ beginDate: "2025-08-01", endDate: "2025-08-31" });
+        expect(mockGet).toHaveBeenLastCalledWith("client/client123/event/get-conflicts", {"params": {"beginDate": "2025-08-01", "endDate": "2025-08-31"}});
     });
 
-    it("shows Loading... when status is 'loading' and hides it when status is not 'loading'", async () => {
+    it("shows Loading... when status is isLoading is true", async () => {
         // according to component logic Loading... is shown when status !== "loading"
-        mockedUseGet.mockReturnValue({ get: jest.fn(), data: [], status: "idle", errors: null, clearErrors: jest.fn() });
-        renderPage();
-        expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-
-        // when status is "loading" the Loading... should not be present
-        jest.clearAllMocks();
-        mockedUseGet.mockReturnValue({ get: jest.fn(), data: [], status: "loading", errors: null, clearErrors: jest.fn() });
+        (apiService.get as jest.Mock).mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve({ data: [] }), 100)));
         renderPage();
         expect(screen.queryByText("Loading...")).toBeInTheDocument();
     });
+    it("does not show Loading when isLoading is false", async () => {
+        (apiService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+        renderPage();
+        expect(screen.queryByText("Loading...")).toBeInTheDocument();
+    })
 
     it("renders a list of conflicts when data is provided", async () => {
         const conflictData = [
             { event: { id: "e1", description: "One" }, conflictingEvents: [] },
             { event: { id: "e2", description: "Two" }, conflictingEvents: [] },
         ];
-        mockedUseGet.mockReturnValue({ get: jest.fn(), data: conflictData, status: "success", errors: null, clearErrors: jest.fn() });
-
+        (apiService.get as jest.Mock).mockResolvedValue({ data: conflictData });
         renderPage();
 
         expect(await screen.findByTestId("conflict-e1")).toBeInTheDocument();
         expect(screen.getByTestId("conflict-e2")).toBeInTheDocument();
+    });
+    it("should display pages properly", async () => {
+       const conflictData = [];
+       for (let i = 0; i < 10; i++) {
+           conflictData.push({event: {id: `e${i}`, description: "event"}, conflictingEvents: []});
+       }
+        (apiService.get as jest.Mock).mockResolvedValueOnce({data: conflictData});
+       renderPage();
+
+       await waitFor(async () => {
+           const pageInput = screen.getByTestId("pagination-input");
+          expect(screen.getByTestId("pagination-buttons")).toBeInTheDocument();
+          expect(pageInput).toHaveValue(1);
+          await userEvent.click(screen.getByTestId("pagination-next"));
+          expect(pageInput).toHaveValue(2);
+       });
     });
 });

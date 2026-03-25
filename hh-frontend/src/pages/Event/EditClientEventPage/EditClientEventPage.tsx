@@ -2,30 +2,58 @@ import PageCard from "../../../components/Cards/PageCard/PageCard";
 import { useNavigate, useParams} from "react-router-dom";
 import {convertToEventForm, Event} from "../../../models/Event/Event";
 import ClientEventForm, {ClientEvent} from "../../../components/Forms/ClientEventForm/ClientEventForm";
-import {useMutate} from "../../../hooks/mutateHook/mutate.hook";
 import {EventInputSchema} from "../../../utility/validation/event.validation";
 import {toast} from "react-toastify";
 import {formatDate} from "../../../utility/formatting";
-import {usePrefetchData} from "../../../hooks/prefetchData/prefetchData.hook";
-import {useEffect} from "react";
+import {useState} from "react";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import apiService from "../../../utility/ApiService";
+import {mapZodErrors} from "../../../utility/validation/utility.validation";
+import {getEvent} from "../../../data/event.data";
+import LoadingText from "../../../components/TextAreas/LoadingText/LoadingText";
 
 const EditClientEventPage = () => {
     const {eventId} = useParams();
-    const {data: event, fetchData} = usePrefetchData<Event>("event", `event/${eventId}`);
-    const {errors, mutate} = useMutate<ClientEvent>(`event/${eventId}`, "PUT", EventInputSchema);
+    const queryClient = useQueryClient();
+    const [errors, setErrors] = useState<Record<string, string>>({})
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const {data: event, isLoading} = useQuery({
+        queryKey: ["event", eventId],
+        queryFn: () => getEvent(eventId!),
+        staleTime: 5 * 60 *1000,
+    })
 
     const handleSubmit = async (formData: ClientEvent) => {
-        const success = await mutate(formData);
-        if(success) {
-            toast.success("Event successfully updated", {autoClose: 1500, position: "top-right"});
-            navigate(-1);
+        const result = EventInputSchema.safeParse(formData);
+        if(result.success) {
+            mutate(formData);
+        } else {
+            setErrors(mapZodErrors(result.error));
+
         }
     }
+    const updateEvent = async (data: ClientEvent) => {
+        try {
+            const response = await apiService.put<{data: Event}>(`event/${eventId}`, data);
+            return response.data;
+        } catch (error: any) {
+            throw error;
+        }
+    }
+    const {mutate} = useMutation({
+        mutationFn: updateEvent,
+        onSuccess: (updatedEvent) => {
+            toast.success("Event successfully updated", {autoClose: 1500, position: "top-right"});
+            queryClient.setQueryData(["event", updatedEvent.id], updatedEvent);
+            navigate(-1);
+        },
+        onError: (error: any) => {
+            if(error.errors) {
+                setErrors(error.errors);
+            }
+        }
+    })
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
@@ -40,6 +68,7 @@ const EditClientEventPage = () => {
                         <ClientEventForm errors={errors} submitButtonText="Update Event" onSubmit={handleSubmit} initialData={convertToEventForm(event)} />
                     </>
             }
+                {isLoading && <LoadingText />}
             </PageCard>
         </div>
     );

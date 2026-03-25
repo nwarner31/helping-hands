@@ -5,28 +5,67 @@ import React, {useEffect, useState} from "react";
 import {EventConflict} from "../../../models/Event/Event";
 import List from "../../../components/List/List";
 import ListItem from "../../../components/List/ListItem";
-import {useGet} from "../../../hooks/getHook/get.hook";
 import {useParams} from "react-router-dom";
 import ViewClientEventConflictsItem from "./ViewClientEventConflictsItem";
 import NavButtons from "../../../components/Buttons/NavButtons/NavButtons";
+import apiService from "../../../utility/ApiService";
+import {useQuery} from "@tanstack/react-query";
+import LoadingText from "../../../components/TextAreas/LoadingText/LoadingText";
+import PaginationButtons from "../../../components/Buttons/PaginationButtons/PaginationButtons";
 
 
 const ViewClientEventConflictsPage = () => {
+    const pageSize = 8;
     const { clientId } = useParams();
     const [searchDates, setSearchDates] = useState<{beginDate: string, endDate: string}>({beginDate: "", endDate: ""});
-    const {get, data, status} = useGet<EventConflict[]>(`client/${clientId}/event/get-conflicts`, []);
-    useEffect(() => {
-        getEventConflicts();
-    }, [clientId]);
+    const [searchTerms, setSearchTerms] = useState<{beginDate?:string, endDate?: string}>({})
+    const [page, setPage] = useState(1);
+    const [numPages, setNumPages] = useState(1);
+    const [paginateConflicts, setPaginateConflicts] = useState<EventConflict[]>([])
 
     const getEventConflicts = async (e?: React.FormEvent<HTMLFormElement>) => {
         if(e) e.preventDefault();
-        await get(searchDates);
+        let search = {};
+        if(searchDates.beginDate.trim() !== "") {
+            search = {beginDate: searchDates.beginDate};
+        }
+        if(searchDates.endDate.trim() !== "") {
+            search = {...search, endDate: searchDates.endDate};
+        }
+        setSearchTerms(search);
     }
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSearchDates(prevState => ({ ...prevState, [name]: value }));
+    }
+
+    const getConflicts = async (search: {beginDate?: string, endDate?: string})=> {
+        try {
+            const response = await apiService.get<{data: EventConflict[]}>(`client/${clientId}/event/get-conflicts`, {params: search});
+            return response.data;
+        } catch (error: any) {
+
+        }
+    }
+    const {data: eventConflicts, isLoading} = useQuery({
+        queryKey: ["event-conflicts", clientId, searchTerms],
+        queryFn: () => getConflicts(searchTerms),
+        staleTime: 45 * 1000,
+        retry: false
+    });
+    useEffect(() => {
+        if (eventConflicts) {
+            setPaginateConflicts(eventConflicts.slice((page - 1) * pageSize, page * pageSize));
+            setPage(1);
+            setNumPages(Math.ceil(eventConflicts.length / pageSize));
+        }
+    }, [eventConflicts]);
+    useEffect(() => {
+        setPaginateConflicts(eventConflicts ? eventConflicts.slice((page - 1) * pageSize, page * pageSize) : []);
+    }, [page]);
+    const changePage = (pageNumber: number) => {
+        setPage(pageNumber);
     }
 
     return (
@@ -40,14 +79,15 @@ const ViewClientEventConflictsPage = () => {
                     </div>
                     <Button className="w-full">Search</Button>
                 </form>
-                {status === "loading" && <h2 className="text-center text-xl font-header font-bold">Loading...</h2>}
-                {data.length > 0 &&
+                {isLoading && <LoadingText />}
+                {paginateConflicts.length > 0 &&
                 <List>
-                    {data.map(ec =>
+                    {paginateConflicts.map(ec =>
                     <ListItem id={ec.event.id} key={ec.event.id} >
                         <ViewClientEventConflictsItem conflict={ec} />
                     </ListItem>)}
                 </List>}
+                {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={changePage} />}
             </PageCard>
         </div>
     );

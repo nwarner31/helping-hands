@@ -70,32 +70,18 @@ export const getClientByClientId = async (clientId: string, employeeRole?: strin
     }
 }
 
-export const getClientEventsInDateRange = async (clientId: string, startDate: Date, endDate: Date, pageNum: number, pageSize: number) => {
+export const getClientEventsInDateRange = async (clientId: string, startDate: Date, endDate: Date) => {
     try {
-        const skip = (pageNum - 1) * pageSize;
-
-        const events = await prisma.event.findMany({
+        return await prisma.event.findMany({
             where: {
                 clientId: clientId,
-                beginDate : { gte: startDate, lte: endDate },
+                beginDate: {gte: startDate, lte: endDate},
             },
-            skip,
-            take: pageSize,
-            orderBy: { beginDate: "asc" },
+            orderBy: {beginDate: "asc"},
             include: {
                 medical: true
             }
         });
-
-        const totalCount = await prisma.event.count({
-            where: {
-                clientId: clientId,
-                beginDate: { gte: startDate, lte: endDate },
-            },
-        });
-
-        return {events: events, numPages: Math.ceil(totalCount / pageSize), count: totalCount };
-
     } catch (error) {
         // istanbul ignore next
         throw error;

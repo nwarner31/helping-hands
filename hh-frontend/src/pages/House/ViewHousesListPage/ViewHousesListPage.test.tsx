@@ -1,10 +1,11 @@
-import {render, screen, waitFor} from "@testing-library/react";
+import {fireEvent, render, screen, waitFor} from "@testing-library/react";
 import ViewHousesListPage from "./ViewHousesListPage";
 import { useAuth } from "../../../context/AuthContext";
 import { MemoryRouter } from "react-router-dom";
 import {userEvent} from "@testing-library/user-event";
 import {Client} from "../../../models/Client";
 import apiService from "../../../utility/ApiService";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 jest.mock("../../../context/AuthContext", () => ({
     useAuth: jest.fn(),
@@ -36,14 +37,33 @@ const sampleHouses = [
     { id: "H2", name: "Test House 2", maxClients: 3, clients: [{id: "C1", legalName: "Bob Smith"}], femaleEmployeeOnly: true },
 ];
 
+const generateHouses = (count: number) =>
+    Array.from({ length: count }, (_, i) => ({
+        id: `H${i + 1}`,
+        name: `Test House ${i + 1}`,
+        maxClients: 3,
+        clients: [],
+        femaleEmployeeOnly: false,
+    }));
+
 // Inside each test
-const renderPage = (role: "DIRECTOR" | "ADMIN" | "MANAGER") => {
+const renderPage = (role: "DIRECTOR" | "ADMIN" | "MANAGER", data = sampleHouses) => {
     (useAuth as jest.Mock).mockReturnValue({ employee: { position: role } });
-    (apiService.get as jest.Mock).mockResolvedValue({ message: "houses successfully retrieved", data: sampleHouses });
+    (apiService.get as jest.Mock).mockResolvedValue({ message: "houses successfully retrieved", data: data });
+    const testQuery = new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    });
+
     render(
+        <QueryClientProvider client={testQuery}>
         <MemoryRouter>
             <ViewHousesListPage />
         </MemoryRouter>
+        </QueryClientProvider>
     );
 }
 
@@ -144,5 +164,107 @@ describe("ViewHousesListPage", () => {
             expect(screen.queryByText("Remove Manager")).not.toBeInTheDocument();
         })
 
-    })
+    });
+
+    describe("pagination", () => {
+        it("does NOT show pagination when house count is at or below page size (5)", async () => {
+            renderPage("ADMIN", generateHouses(5));
+            await waitFor(() => {
+                expect(screen.getAllByTestId("house-item")).toHaveLength(5);
+                expect(screen.queryByRole("button", { name: "<" })).not.toBeInTheDocument();
+                expect(screen.queryByRole("button", { name: ">" })).not.toBeInTheDocument();
+            });
+        });
+
+        it("shows pagination buttons when house count exceeds page size (5)", async () => {
+            renderPage("ADMIN", generateHouses(6));
+            await waitFor(() => {
+                expect(screen.getByRole("button", { name: "<" })).toBeInTheDocument();
+                expect(screen.getByRole("button", { name: ">" })).toBeInTheDocument();
+            });
+        });
+
+        it("shows only the first page of houses on initial load", async () => {
+            renderPage("ADMIN", generateHouses(8));
+            await waitFor(() => {
+                const items = screen.getAllByTestId("house-item");
+                expect(items).toHaveLength(5);
+                expect(items[0]).toHaveTextContent("Test House 1");
+                expect(items[4]).toHaveTextContent("Test House 5");
+            });
+        });
+
+        it("navigates to the next page when the '>' button is clicked", async () => {
+            renderPage("ADMIN", generateHouses(8));
+            await waitFor(() => expect(screen.getAllByTestId("house-item")).toHaveLength(5));
+
+            await userEvent.click(screen.getByRole("button", { name: ">" }), { pointerEventsCheck: 0 });
+
+            await waitFor(() => {
+                const items = screen.getAllByTestId("house-item");
+                expect(items).toHaveLength(3);
+                expect(items[0]).toHaveTextContent("Test House 6");
+                expect(items[2]).toHaveTextContent("Test House 8");
+            });
+        });
+
+        it("navigates back to the previous page when the '<' button is clicked", async () => {
+            renderPage("ADMIN", generateHouses(8));
+            await waitFor(() => expect(screen.getAllByTestId("house-item")).toHaveLength(5));
+
+            await userEvent.click(screen.getByRole("button", { name: ">" }), { pointerEventsCheck: 0 });
+            await waitFor(() => expect(screen.getAllByTestId("house-item")).toHaveLength(3));
+
+            await userEvent.click(screen.getByRole("button", { name: "<" }), { pointerEventsCheck: 0 });
+
+            await waitFor(() => {
+                const items = screen.getAllByTestId("house-item");
+                expect(items).toHaveLength(5);
+                expect(items[0]).toHaveTextContent("Test House 1");
+            });
+        });
+
+        it("disables the '<' button on the first page", async () => {
+            renderPage("ADMIN", generateHouses(6));
+            await waitFor(() => {
+                expect(screen.getByRole("button", { name: "<" })).toBeDisabled();
+            });
+        });
+
+        it("disables the '>' button on the last page", async () => {
+            renderPage("ADMIN", generateHouses(6));
+            await waitFor(() => expect(screen.getByRole("button", { name: ">" })).toBeInTheDocument());
+
+            await userEvent.click(screen.getByRole("button", { name: ">" }), { pointerEventsCheck: 0 });
+
+            await waitFor(() => {
+                expect(screen.getByRole("button", { name: ">" })).toBeDisabled();
+            });
+        });
+
+        it("displays the correct total page count", async () => {
+            renderPage("ADMIN", generateHouses(11)); //WithManyHouses(11);
+            await waitFor(() => {
+                expect(screen.getByText(/\/\s*3/)).toBeInTheDocument();
+            });
+        });
+
+        it("navigates to a specific page via the page number input", async () => {
+            renderPage("ADMIN", generateHouses(11));
+            await waitFor(() => expect(screen.getAllByTestId("house-item")).toHaveLength(5));
+
+            const input = screen.getByTestId("pagination-input");
+            await userEvent.clear(input);
+
+            await userEvent.type(input, "3{enter}");
+            expect(input).toHaveValue(3);
+            fireEvent.submit(screen.getByTestId("pagination-form"));
+
+            await waitFor(() => {
+                const items = screen.getAllByTestId("house-item");
+                expect(items).toHaveLength(1);
+                expect(items[0]).toHaveTextContent("Test House 11");
+            });
+        });
+    });
 });

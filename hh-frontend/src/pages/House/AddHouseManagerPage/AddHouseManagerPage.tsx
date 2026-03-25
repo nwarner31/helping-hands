@@ -1,25 +1,35 @@
 import { useNavigate, useParams} from "react-router-dom";
 import {Employee} from "../../../models/Employee";
 import AddManagerListItem from "./AddManagerListItem";
-import {useEffect} from "react";
+import {useCallback} from "react";
 import {House} from "../../../models/House";
 import Button from "../../../components/Buttons/Button/Button";
 import PageCard from "../../../components/Cards/PageCard/PageCard";
 import List from "../../../components/List/List";
 import ListItem from "../../../components/List/ListItem";
-import {usePrefetchData} from "../../../hooks/prefetchData/prefetchData.hook";
-import {useGet} from "../../../hooks/getHook/get.hook";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
+import LoadingText from "../../../components/TextAreas/LoadingText/LoadingText";
+import {getHouse} from "../../../data/house.data";
+import apiService from "../../../utility/ApiService";
 
 export const AddHouseManagerPage = () => {
     const { houseId } = useParams();
     const navigate = useNavigate();
-    const {data: managers, get: getManagers} = useGet<Employee[]>(`house/${houseId}/available-managers`, []);
-    const {data: house, fetchData: fetchHouse} = usePrefetchData<House>("house", `house/${houseId}`);
-    useEffect(() => {
-        fetchHouse();
-        getManagers();
-    }, []);
 
+    useQueryClient();
+    const {data: house, isLoading: isLoadingHouse} = useQuery<House>({
+        queryKey: ["house", houseId],
+        queryFn: () => getHouse(houseId!),
+        staleTime: 5 * 60 * 1000
+    });
+    const getManagers = useCallback(async () => {
+        const res = await apiService.get<{data: Employee[]}>(`house/${houseId}/available-managers`);
+        return res.data;
+    }, [houseId]);
+    const {data: managers = []} = useQuery<Employee[]>({
+        queryKey: ["house", houseId, "available-managers"],
+        queryFn: getManagers
+    });
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100 font-body">
             <PageCard title="Add House Manager" size="sm" className="py-4" >
@@ -31,6 +41,7 @@ export const AddHouseManagerPage = () => {
                         <div>{house.name}</div>
                     </div>
                 }
+                {isLoadingHouse && <LoadingText />}
                 <div className="px-3 w-full mb-4">
                     <Button className="w-full" variant="secondary" onClick={() => navigate(-1)} >Cancel</Button>
                 </div>

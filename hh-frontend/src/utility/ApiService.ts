@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosRequestConfig } from "axios";
 import {API_BASE_URL} from "../config";
 import {getAccessToken, setNewAccessToken} from "../context/AuthContext";
 
@@ -39,7 +39,7 @@ class ApiService {
         return Promise.reject(error.response?.data || "An error occurred");
     };
 
-    get<T>(url: string, config?: InternalAxiosRequestConfig<T>): Promise<T> {
+    get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
         return this.api.get<T>(url, config).then((res) => res.data);
     }
 

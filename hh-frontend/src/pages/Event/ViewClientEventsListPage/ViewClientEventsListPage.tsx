@@ -11,90 +11,96 @@ import PageCard from "../../../components/Cards/PageCard/PageCard";
 import List from "../../../components/List/List";
 import ListItem from "../../../components/List/ListItem";
 import NavButtons from "../../../components/Buttons/NavButtons/NavButtons";
-import {useGet} from "../../../hooks/getHook/get.hook";
 import {toast} from "react-toastify";
-import {usePagination} from "../../../hooks/paginationHook/pagination.hook";
 import PaginationButtons from "../../../components/Buttons/PaginationButtons/PaginationButtons";
+import {useQuery} from "@tanstack/react-query";
+import apiService from "../../../utility/ApiService";
+import LoadingText from "../../../components/TextAreas/LoadingText/LoadingText";
 
 const ViewClientEventsListPage = () => {
     const pageSize = 7;
     const { clientId } = useParams();
     const [searchBy, setSearchBy] = useState("month");
     const [month, setMonth] = useState("");
+    const [page, setPage] = useState(1);
+    const [numPages, setNumPages] = useState(1);
     const [dateSearch, setDateSearch] = useState<{fromDate: string, toDate: string}>({fromDate: "", toDate: ""});
     const [errors, setErrors] = useState<{from?: string, to?: string, month?: string}>({from: "", to: "", month: ""});
-    const [state, setState] = useState<"loading"|"error"|"success">("loading");
+    //const [state, setState] = useState<"loading"|"error"|"success">("loading");
+    const [paginateEvents, setPaginateEvents] = useState<Event[]>([])
     const navigate = useNavigate();
     function updateDateSearch(event: ChangeEvent<HTMLInputElement>) {
         setDateSearch(prevState => ({...prevState, [event.target.name]: event.target.value}));
     }
-    const {page, numPages, setSearch, goToPage} = usePagination();
-
-    const {data: eventsData, get: getEvents, errors: apiErrors, status: apiStatus} = useGet<{events: [], numPages: number, pageNum: number}>(`client/${clientId}/event`, {events: [], numPages: 0, pageNum: 1});
-
-    useEffect(() => {
-        getEvents({pageSize});
-    }, [clientId]);
-    useEffect(() => {
-        if(apiErrors && apiErrors.message === "Client not found") {
-            toast.error("Client not found", {autoClose: 1500, position: "top-right"});
-            navigate("/view-clients");
-        } else if(apiErrors && apiErrors.errors) {
-            setErrors({month: apiErrors?.errors?.month ?? undefined, to: apiErrors?.errors?.toDate ?? undefined, from: apiErrors?.errors?.fromDate ?? undefined});
-        } else if(apiErrors) {
-            toast.error("Unknown error occurred", {autoClose: 1500, position: "top-right"});
-        }
-    }, [apiErrors]);
-    useEffect(() => {
-        if(apiStatus !== "idle")
-            if (apiStatus!== "failed" && apiStatus !== "not_found") setState(apiStatus);
-            else setState("error");
-    }, [apiStatus]);
-    useEffect(() => {
-        if (eventsData) {
-            let searchTerms: Record<string, string> = {};
-            if(searchBy === "month" && month) searchTerms = {month};
-            if(searchBy === "dates" && dateSearch.fromDate)  searchTerms.from = dateSearch.fromDate;
-            if(searchBy === "dates" && dateSearch.toDate) searchTerms.to = dateSearch.toDate;
-            if(Object.keys(searchTerms).length > 0) setSearch(eventsData.numPages, eventsData.pageNum, searchTerms);
-            else setSearch(eventsData.numPages, eventsData.pageNum)
-        }
-    }, [eventsData]);
+    const [searchTerms, setSearchTerms] = useState<{to?: string, from?: string, month?: string}>({})
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        let body = {};
         // The else block is a fallback but should never execute within normal usage
         /* istanbul ignore else */
+        setErrors({});
         if (searchBy === "month") {
             const monthError = validateMonth(month, "Month");
             if(monthError) {
                 setErrors(prevState => ({...prevState, month: monthError}));
-                setState("success");
                 return;
             }
-            body = {month, pageSize};
+            setSearchTerms({month});
         } else if (searchBy === "dates") {
             setErrors(prevState => ({...prevState, from: "", to: ""}));
             const fromError = validateDate(dateSearch.fromDate, "From");
             const toError = validateDate(dateSearch.toDate, "To");
             if(fromError || toError) {
                 setErrors(prevState => ({...prevState, from: fromError, to: toError}));
-                setState("success");
                 return;
             }
-            body = {from: dateSearch.fromDate, to: dateSearch.toDate, pageSize};
+            setSearchTerms({from: dateSearch.fromDate, to: dateSearch.toDate});
         } else {
             toast.error("Invalid search type", {autoClose: 1500, position: "top-right"});
-            setState("error");
             return;
         }
-        getEvents(body);
     }
 
+    const getEvents = async (search: {month?: string, to?: string, from?: string}) => {
+        try {
+            const response = await apiService.get<{data: Event[]}>(`client/${clientId}/event`, {params: search});
+            return response.data;
+        } catch (error: any) {
+            throw error;
+        }
+    }
+    const {data: events, error, isLoading} = useQuery<Event[], {message: string, errors: { toDate?: string, fromDate?: string, month?: string}}>({
+        queryKey: ["client-events", clientId, {searchTerms}],
+        queryFn: () => getEvents(searchTerms),
+        staleTime: 45 * 1000,
+        retry: false
+    })
+
+    useEffect(() => {
+        if(events) {
+            setPage(1);
+            setNumPages(Math.ceil(events.length / pageSize));
+            setPaginateEvents(events.slice(0, pageSize));
+        }
+    }, [events]);
+    useEffect(() => {
+        setPaginateEvents(events ? events.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize) : []);
+    }, [page]);
+    useEffect(() => {
+        if(error) {
+            if(error.message === "Client not found") navigate("/view-clients");
+            if(error.errors) {
+                const errorMap = {to: error.errors.toDate, from: error.errors.fromDate, month: error.errors.month};
+                setErrors(errorMap);
+            } else {
+
+            }
+
+        }
+    }, [error]);
+
     function paginate (pageNumber: number) {
-        const {canGoTo, data} = goToPage(pageNumber);
-        if(canGoTo) getEvents({...data, pageSize});
+        setPage(pageNumber);
     }
 
     return (
@@ -111,19 +117,18 @@ const ViewClientEventsListPage = () => {
                         <StaticLabelInput label="To" name="toDate" type="date" value={dateSearch.toDate} onChange={updateDateSearch} error={errors.to} errorOnBaseline={false} />
                     </div>
                     <div className="px-3 w-full">
-                        <Button className="w-full" disabled={state === "loading"} >{state === "loading" ? "Loading..." : "Search"}</Button>
+                        <Button className="w-full" disabled={isLoading} >{isLoading ? "Loading..." : "Search"}</Button>
                     </div>
 
                 </form>
                 <div className="w-full">
-                    {eventsData.events.length === 0 &&
-                        <div className="text-center text-xl font-semibold">
-                            {state === "loading" && "Fetching Events..."}
-                            {state === "error" && "Unable to fetch events."}
-                            {state === "success" && "No Events Found."}
-                        </div>}
+                    {isLoading && <LoadingText />}
+                    {!isLoading && !error && paginateEvents.length === 0 &&
+                        <div className="text-center text-xl font-semibold">No Events Found </div>}
+                    {error &&  <div className="text-center text-xl font-semibold">Unable to fetch events</div>}
+
                     <List inset="small" borderVariant="secondary">
-                        {eventsData.events.map((event: Event) => (<ListItem id={event.id} key={event.id} ><ViewClientEventItem event={event}  /></ListItem>))}
+                        {paginateEvents.map((event: Event) => (<ListItem id={event.id} key={event.id} ><ViewClientEventItem event={event}  /></ListItem>))}
                     </List>
                     {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={paginate} />}
                 </div>

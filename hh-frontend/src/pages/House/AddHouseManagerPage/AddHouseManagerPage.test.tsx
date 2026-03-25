@@ -4,23 +4,36 @@ import { AddHouseManagerPage } from "./AddHouseManagerPage";
 import * as reactRouterDom from "react-router-dom";
 import apiService from "../../../utility/ApiService";
 import {AuthProvider} from "../../../context/AuthContext";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 jest.mock("../../../utility/ApiService", () => ({
     get: jest.fn(() => Promise.resolve( { message: "Employee registered successfully", employee: {}, accessToken: "hello" })),
 }));
+const mockedNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
     useParams: jest.fn(),
-    useLocation: jest.fn()
+    useLocation: jest.fn(),
+    useNavigate: () => mockedNavigate,
 }));
 
 const renderPage = () => {
+    const testQuery = new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    });
+
     render(
+        <QueryClientProvider client={testQuery}>
         <AuthProvider>
             <MemoryRouter>
                 <AddHouseManagerPage />
             </MemoryRouter>
         </AuthProvider>
+        </QueryClientProvider>
        );
 }
 
@@ -31,8 +44,9 @@ describe("AddHouseManagePage tests", () => {
             { id: "E1", employeeId: "EMP1", name: "Alice", position: "MANAGER" },
             { id: "E2", employeeId: "EMP2", name: "Bob", position: "MANAGER" }
         ];
+        (apiService.get as jest.Mock).mockResolvedValueOnce({ data: house  });
         (apiService.get as jest.Mock).mockResolvedValue( { message: "Event found", data:  managers });
-        (reactRouterDom.useLocation as jest.Mock).mockReturnValue({ state: { house } });
+
         (reactRouterDom.useParams as jest.Mock).mockReturnValue({ houseId: "H1" });
 
         renderPage();
@@ -50,7 +64,6 @@ describe("AddHouseManagePage tests", () => {
         const house = { houseId: "H2", name: "Fetched House" };
         const managers = [{ id: "E1", employeeId: "EMP1", name: "Charlie", position: "MANAGER" }];
 
-        (reactRouterDom.useLocation as jest.Mock).mockReturnValue({ state: null });
         (reactRouterDom.useParams as jest.Mock).mockReturnValue({ houseId: "H2" });
 
         (apiService.get as jest.Mock).mockImplementation(async (url: string) => {
@@ -84,7 +97,16 @@ describe("AddHouseManagePage tests", () => {
             expect(screen.getByText("Add House Manager")).toBeInTheDocument();
             expect(screen.queryByText(/Alice|Bob|Charlie/)).not.toBeInTheDocument();
         })
-
     });
-
+    it("should navigate back when cancel is clicked", async () => {
+        (apiService.get as jest.Mock).mockResolvedValue({ data: [] });
+        (reactRouterDom.useParams as jest.Mock).mockReturnValue({ houseId: "H3" });
+        renderPage();
+        await waitFor(() => {
+            const cancelButton = screen.getByRole("button", {name: /cancel/i});
+            expect(cancelButton).toBeInTheDocument();
+            cancelButton.click();
+            expect(mockedNavigate).toHaveBeenCalledWith(-1);
+        });
+    });
 })

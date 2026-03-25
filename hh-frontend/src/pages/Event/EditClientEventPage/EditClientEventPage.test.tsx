@@ -12,6 +12,7 @@ import EditClientEventPage from "./EditClientEventPage";
 import {userEvent} from "@testing-library/user-event";
 import {AuthProvider} from "../../../context/AuthContext";
 import apiService from "../../../utility/ApiService";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 jest.mock("../../../utility/ApiService", () => ({
     get: jest.fn(() => Promise.resolve()),
     put: jest.fn(() => Promise.resolve( { message: "Event created", data: { id: "123" }})),
@@ -41,9 +42,18 @@ describe("EditClientEventPage", () => {
             sex: "M"
         }
     };
-
+    mockedApi.get.mockResolvedValue({ data: testEvent });
     const renderPage = (state: Event | undefined = undefined) => {
+        const testQuery = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    retry: false
+                }
+            }
+        });
+
         render(
+            <QueryClientProvider client={testQuery}>
             <AuthProvider>
                 <MemoryRouter initialEntries={[{ pathname: `/edit-event/e123`, state: { event: state } }]}>
                     <Routes>
@@ -51,32 +61,42 @@ describe("EditClientEventPage", () => {
                     </Routes>
                 </MemoryRouter>
             </AuthProvider>
+            </QueryClientProvider>
         );
     }
 
-    it("renders form with pre-filled data in edit mode", () => {
+    it("renders form with pre-filled data", async () => {
         renderPage(testEvent);
-        expect(screen.getByLabelText(/event id/i)).toHaveValue(testEvent.id);
-        expect(screen.getByLabelText(/begin date/i)).toHaveValue(testEvent.beginDate);
-        expect(screen.getByLabelText(/begin time/i)).toHaveValue(testEvent.beginTime.split("T")[1]);
-        expect(screen.getByLabelText(/end date/i)).toHaveValue(testEvent.endDate);
-        expect(screen.getByLabelText(/end time/i)).toHaveValue(testEvent.endTime.split("T")[1]);
-        expect(screen.getByLabelText(/staff required/i)).toHaveValue(Number(testEvent.numberStaffRequired));
-        expect(screen.getByLabelText(/event type/i)).toHaveValue(testEvent.type);
-        expect(screen.getByLabelText(/description/i)).toHaveValue(testEvent.description);
+        await waitFor(() => {
+            expect(screen.getByLabelText(/event id/i)).toHaveValue(testEvent.id);
+            expect(screen.getByLabelText(/begin date/i)).toHaveValue(testEvent.beginDate);
+            expect(screen.getByLabelText(/begin time/i)).toHaveValue(testEvent.beginTime.split("T")[1]);
+            expect(screen.getByLabelText(/end date/i)).toHaveValue(testEvent.endDate);
+            expect(screen.getByLabelText(/end time/i)).toHaveValue(testEvent.endTime.split("T")[1]);
+            expect(screen.getByLabelText(/staff required/i)).toHaveValue(Number(testEvent.numberStaffRequired));
+            expect(screen.getByLabelText(/event type/i)).toHaveValue(testEvent.type);
+            expect(screen.getByLabelText(/description/i)).toHaveValue(testEvent.description);
+        })
+
     });
     it("should submit the updated event", async () => {
         renderPage(testEvent);
-        await userEvent.clear(screen.getByLabelText(/description/i));
-        await userEvent.type(screen.getByLabelText(/description/i), "Updated event description");
-        await userEvent.click(screen.getByRole("button", { name: /update event/i }));
+        await waitFor(async () => {
+            await userEvent.clear(screen.getByLabelText(/description/i));
+            await userEvent.type(screen.getByLabelText(/description/i), "Updated event description");
+            await userEvent.click(screen.getByRole("button", { name: /update event/i }));
+            expect(mockToastSuccess).toHaveBeenCalledWith("Event successfully updated", expect.objectContaining({autoClose: 1500, position: "top-right"}));
+        });
 
-        expect(mockToastSuccess).toHaveBeenCalledWith("Event successfully updated", expect.objectContaining({autoClose: 1500, position: "top-right"}));
     });
-    it("disables Event Type field whentype is MEDICAL", () => {
+    it("disables Event Type field when type is MEDICAL", async () => {
         const medicalEvent = { ...testEvent, type: "MEDICAL" as EventType };
+        mockedApi.get.mockResolvedValueOnce({ data: medicalEvent });
         renderPage(medicalEvent);
-        expect(screen.getByLabelText(/event type/i)).toBeDisabled();
+        await waitFor(() => {
+            expect(screen.getByLabelText(/event type/i)).toBeDisabled();
+        })
+
     });
     it("should disable Event ID field in edit mode", async () => {
         renderPage(testEvent);
@@ -88,14 +108,33 @@ describe("EditClientEventPage", () => {
     it("should fetch event data", async () => {
         const mockGet = (mockedApi.get as jest.Mock).mockResolvedValue({ data: testEvent });
 
-       //  = (apiService.get as jest.Mock).mockResolvedValue({message: "event successfully retrieved", event: mockReturnEvent});
         renderPage();
         await waitFor(() => {
-            expect(mockGet).toHaveBeenCalledWith(`event/e123`);
+            expect(mockGet).toHaveBeenCalledWith(`/event/e123`);
             expect(screen.getByLabelText(/event id/i)).toHaveValue(testEvent.id);
         });
     });
-    it("should go back if the cancel button is pressed", async () => {
+    it("should display validation errors", async () => {
 
+        renderPage();
+        await waitFor(async () => {
+           await userEvent.clear(screen.getByLabelText("Begin Date"));
+           await userEvent.clear(screen.getByLabelText("End Date"));
+           await userEvent.click(screen.getByRole("button", {name: "Update Event"}));
+
+           expect(screen.getByText("Begin date is required")).toBeInTheDocument();
+           expect(screen.getByText("End date is required")).toBeInTheDocument();
+        });
+    });
+    it("should display field errors from the API", async () => {
+        (apiService.put as jest.Mock).mockRejectedValueOnce({errors: {id: "Event ID API error", beginDate: "Begin Date API error", numberStaffRequired: "Staff Required API error"}});
+        renderPage();
+        await waitFor(async () => {
+            await userEvent.click(screen.getByRole("button", {name: "Update Event"}));
+
+            expect(screen.getByText("Event ID API error")).toBeInTheDocument();
+            expect(screen.getByText("Begin Date API error")).toBeInTheDocument();
+            expect(screen.getByText("Staff Required API error")).toBeInTheDocument();
+        });
     })
 });

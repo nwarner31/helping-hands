@@ -31,7 +31,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
 
         const newEvent = await addEvent(parseResult.data);
 
-        res.status(201).json({ message: "Event created", event: newEvent });
+        res.status(201).json({ message: "Event created", data: newEvent });
     } catch (error) {
         return next(error);
     }
@@ -40,8 +40,9 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
 
 export const getEventsForClient = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const clientId = req.params.clientId;
         // Checks for client
-        const client = await getClientByClientId(req.params.clientId);
+        const client = await getClientByClientId(clientId);
         if (!client) {
             return next({status: 404, message: "Client not found"});
         }
@@ -53,18 +54,10 @@ export const getEventsForClient = async (req: Request, res: Response, next: Next
         }
         const {month, fromDate, toDate} = data;
         const { from, to } = getDateRange(month, fromDate, toDate);
-        const pageNum = req.query.page ? Number(req.query.page) : 1;
-        const pageSize = req.query.pageSize ? Number(req.query.pageSize) : 20;
         // Fetch events from service
-        const { events, numPages, count } = await getClientEventsInDateRange(
-            req.params.clientId,
-            from,
-            to,
-            pageNum,
-            pageSize,
-        );
+        const events = await getClientEventsInDateRange(clientId, from, to);
 
-        res.status(200).json({ message:"Events found", data: {events, numPages, count, pageNum} });
+        res.status(200).json({ message:"Events found", data: events });
     } catch (err) {
         return next(err);
     }

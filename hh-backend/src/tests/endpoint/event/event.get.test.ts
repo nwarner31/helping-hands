@@ -4,6 +4,7 @@ import prisma from "../../../utility/prisma";
 import {eventSetupTests, eventTeardownTests} from "./event.setuptest";
 import {TestEmployee} from "../../setuptestemployees";
 import {TestClient} from "../../setuptestclients";
+import {TestEvent} from "../../setuptestevents";
 
 
 describe("GET /event/:eventId", () => {
@@ -11,8 +12,9 @@ describe("GET /event/:eventId", () => {
     let admin: TestEmployee;
     //let clients: TestClient[];
     let eventId = "E99999";
+    let events: TestEvent[];
     beforeAll(async () => {
-        const {employees, clients} = await eventSetupTests();
+        const {employees, clients, events: setupEvents} = await eventSetupTests();
         admin = employees.admin;
         await prisma.event.create({
             data: {
@@ -27,10 +29,11 @@ describe("GET /event/:eventId", () => {
                 numberStaffRequired: 1
             }
         });
+        events = setupEvents;
     });
 
     afterAll(async () => {
-        await prisma.event.deleteMany();
+        //await prisma.event.deleteMany();
         await eventTeardownTests();
     });
 
@@ -55,21 +58,21 @@ describe("GET /event/:eventId", () => {
     it("should return 200 and the event if found", async () => {
 
         const res = await request(app)
-            .get(`${ENDPOINT}/${eventId}`)
+            .get(`${ENDPOINT}/${events[0].id}`)
             .set("Authorization", `Bearer ${admin.token}`);
 
         expect(res.status).toBe(200);
         expect(res.body.message).toBe("Event found");
         expect(res.body.data).toEqual(expect.objectContaining({
-            id: eventId,
-            type: "SOCIAL",
+            id: events[0].id,
+            type: events[0].type,
         }));
     });
 
     it("should return 401 for no token", async () => {
 
         const res = await request(app)
-            .get(`${ENDPOINT}/${eventId}`);
+            .get(`${ENDPOINT}/${events[0].id}`);
 
         expect(res.status).toBe(401);
     });
@@ -79,7 +82,7 @@ describe("GET /event/:eventId", () => {
             .mockRejectedValue(new Error("Database connection failed"));
 
         const res = await request(app)
-            .get(`${ENDPOINT}/${eventId}`)
+            .get(`${ENDPOINT}/${events[0].id}`)
             .set("Authorization", `Bearer ${admin.token}`);
 
         expect(res.status).toBe(500);

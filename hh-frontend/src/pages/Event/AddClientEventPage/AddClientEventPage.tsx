@@ -1,30 +1,56 @@
 import { useNavigate, useParams } from "react-router-dom";
-import {Client} from "../../../models/Client";
 import PageCard from "../../../components/Cards/PageCard/PageCard";
 import {formatDate} from "../../../utility/formatting";
 import ClientEventForm, {ClientEvent} from "../../../components/Forms/ClientEventForm/ClientEventForm";
-import {useMutate} from "../../../hooks/mutateHook/mutate.hook";
 import {EventInputSchema} from "../../../utility/validation/event.validation";
 import {toast} from "react-toastify";
-import {usePrefetchData} from "../../../hooks/prefetchData/prefetchData.hook";
-import {useEffect} from "react";
+import {useState} from "react";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {mapZodErrors} from "../../../utility/validation/utility.validation";
+import apiService from "../../../utility/ApiService";
+import {Event} from "../../../models/Event/Event";
+import {getClient} from "../../../data/client.data";
 
 const AddClientEventPage = () => {
     const {clientId} = useParams();
-    const { fetchData, data: client} = usePrefetchData<Client>("client", `client/${clientId}`);
+    const [errors, setErrors] = useState<Record<string, string>>({})
     const navigate = useNavigate();
-    const { errors, mutate} = useMutate<ClientEvent>(`client/${clientId}/event`, "POST", EventInputSchema);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const {data: client} = useQuery({
+        queryKey: ["client", clientId],
+        queryFn: () => getClient(clientId!),
+        staleTime: 5 * 60 * 1000,
+    })
     const handleSubmit = async (formData: ClientEvent) => {
-        const success = await mutate(formData);
-        if(success) {
-            toast.success("Event successfully added", {autoClose: 1500, position: "top-right"});
-            navigate(`/view-client/${clientId}`);
+        const result = EventInputSchema.safeParse(formData);
+        if (result.success) {
+            mutate(formData);
+        } else {
+            setErrors(mapZodErrors(result.error));
         }
     }
+    const createEvent = async (data: ClientEvent) => {
+        try {
+            const response = await apiService.post<{data: Event}>(`client/${clientId}/event`, data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+    const {mutate} = useMutation<Event, {errors: Record<string, string>}, ClientEvent>({
+        mutationFn: createEvent,
+        onSuccess: (newEvent) => {
+            toast.success("Event successfully added", {autoClose: 1500, position: "top-right"});
+            queryClient.setQueryData(["event", newEvent.id], () => newEvent);
+            navigate(`/view-client/${clientId}`);
+        },
+        onError: (error) => {
+            if(error.errors) {
+                setErrors(error.errors);
+            }
+        }
+    })
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">

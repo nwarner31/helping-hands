@@ -27,7 +27,7 @@ export const putEvent = async (req: Request, res: Response, next: NextFunction) 
             return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
         }
         const updatedEvent = await updateEvent(parseResult.data);
-        res.status(200).json({message: "Event updated", event: updatedEvent});
+        res.status(200).json({message: "Event updated", data: updatedEvent});
     } catch(error) {
         return next(error);
     }

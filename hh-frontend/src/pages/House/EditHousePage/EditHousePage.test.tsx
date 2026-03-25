@@ -6,6 +6,7 @@ import apiService from "../../../utility/ApiService";
 import {AuthProvider} from "../../../context/AuthContext";
 import EditHousePage from "./EditHousePage";
 import {convertToHouseForm} from "../../../models/House";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 jest.mock("../../../utility/ApiService", () => ({
     get: jest.fn(() => Promise.resolve()),
@@ -15,17 +16,26 @@ jest.mock("../../../utility/ApiService", () => ({
 
 
 
-    const renderPage = (state?: any) => {
+    const renderPage = () => {
+        const testQuery = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    retry: false
+                }
+            }
+        });
+
         render(
+            <QueryClientProvider client={testQuery}>
             <AuthProvider>
-                <MemoryRouter initialEntries={[{ pathname: `/test/123`, state: { house: state} }]}>
+                <MemoryRouter initialEntries={[{ pathname: `/test/123` }]}>
                     <Routes>
                         <Route path="/test/:houseId" element={<EditHousePage />} />
                         <Route path="view-houses" element={<div>View Houses Page</div>} />
                     </Routes>
                 </MemoryRouter>
             </AuthProvider>
-
+            </QueryClientProvider>
         );
 
 
@@ -43,22 +53,9 @@ describe("Edit House", () => {
         femaleEmployeeOnly: true
     };
 
-    // const renderEdit = (state = testHouse) => render(
-    //     <MemoryRouter initialEntries={[{ pathname: `/test/${testHouse.id}`, state: { house: state} }]}>
-    //         <Routes>
-    //             <Route path="/test/:houseId" element={<AddEditHousePage isEdit={true} />} />
-    //             <Route path="view-houses" element={<div>View Houses Page</div>} />
-    //         </Routes>
-    //     </MemoryRouter>
-    // );
-
-    beforeEach(() => {
-        // Simulate `location.state.house`
-        window.history.pushState({ house: testHouse }, '', `/edit-house/${testHouse.id}`);
-    });
-
     it('should render form with pre-filled data', async () => {
-        renderPage(testHouse);
+        (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", data: testHouse});
+        renderPage();
         await waitFor(() => {
             expect(screen.getByLabelText('House ID')).toHaveValue(testHouse.id);
             expect(screen.getByLabelText('House Name')).toHaveValue(testHouse.name);
@@ -74,9 +71,11 @@ describe("Edit House", () => {
 
     it('should submit updated data when form is valid', async () => {
         const mockPut = (apiService.put as jest.Mock).mockResolvedValue({message: "House successfully updated", house: {id: "H12345"}});
+        (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", data: testHouse});
 
-        renderPage(testHouse);
+        renderPage();
 
+        await waitFor(async () => {
         await userEvent.clear(screen.getByLabelText('House Name'));
         await userEvent.type(screen.getByLabelText('House Name'), "Updated House");
 
@@ -90,16 +89,19 @@ describe("Edit House", () => {
             })
         );
 
-        await waitFor(() => {
             expect(mockPut).toHaveBeenCalled();
             expect(screen.findByText("House successfully updated"));
             expect(screen.getByText("View Houses Page")).toBeInTheDocument();
         })
     });
 
-    it('should disable the House ID field in edit mode', () => {
-        renderPage(testHouse);
-        expect(screen.getByLabelText('House ID')).toBeDisabled();
+    it('should disable the House ID field', async () => {
+        (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", data: testHouse});
+
+        renderPage();
+        await waitFor(() => {
+            expect(screen.getByLabelText('House ID')).toBeDisabled();
+        });
     });
     it("should fetch existing house data when in edit mode", async () => {
         const mockFetch = (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", data: testHouse});
@@ -108,6 +110,26 @@ describe("Edit House", () => {
             expect(mockFetch).toHaveBeenCalledWith("house/123");
             expect(screen.getByLabelText('House ID')).toHaveValue(testHouse.id);
         });
+    });
+    it("should show validation errors", async () => {
+        (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", data: testHouse});
+        renderPage();
+        await waitFor(async () => {
+           await userEvent.clear(screen.getByLabelText('House Name'));
+           await userEvent.click(screen.getByRole("button", { name: "Update House" }));
 
+
+           expect(screen.getByText("House name is required")).toBeInTheDocument();
+        });
+    });
+    it("should show field errors returned from the api", async () => {
+        (apiService.get as jest.Mock).mockResolvedValue({message: "house successfully retrieved", data: testHouse});
+        (apiService.put as jest.Mock).mockRejectedValue({ errors: { name: "House Name API error" } });
+        renderPage();
+        await waitFor(async () => {
+           await userEvent.click(screen.getByRole("button", { name: "Update House" }));
+
+           expect(screen.getByText("House Name API error")).toBeInTheDocument();
+        });
     })
 });

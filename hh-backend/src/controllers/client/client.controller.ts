@@ -15,7 +15,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
             return next({status: 400, message: "invalid data", errors: {id: "Client ID already exists"}});
         }
         const newClient = await addClient(parseResult.data);
-        res.status(201).json({message: "Client added", client: newClient})
+        res.status(201).json({message: "Client added", data: newClient})
     } catch (error) {
         return next(error);
     }
@@ -40,7 +40,7 @@ export const putClient = async (req: Request, res: Response, next: NextFunction)
             return next({status: 400, message: "Validation failed", errors: flattenErrors(parseResult.error)});
         }
         const updatedClient = await updateClient(parseResult.data);
-        res.status(200).json({message: "client updated successfully", client: updatedClient});
+        res.status(200).json({message: "client updated successfully", data: updatedClient});
     } catch (error) {
         return next(error);
     }

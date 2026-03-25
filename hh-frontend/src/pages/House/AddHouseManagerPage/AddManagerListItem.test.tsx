@@ -14,6 +14,8 @@ jest.mock("react-toastify", () => ({
     },
 }));
 import AddManagerListItem from "./AddManagerListItem";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {Employee} from "../../../models/Employee";
 jest.mock("react-router-dom", () => {
     const actual = jest.requireActual("react-router-dom");
     return {
@@ -25,16 +27,31 @@ jest.mock("react-router-dom", () => {
 
 describe("AddManagerListItem tests", () => {
     const manager = { id: "EMP1", name: "Jane", position: "MANAGER", primaryHouses: [], secondaryHouses: [], email: "test@email.com", hireDate: "2024-01-01" };
-    it("renders employee info correctly", () => {
+
+    const renderPage = (employee: Employee = manager) => {
+        const testQuery = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    retry: false
+                }
+            }
+        });
+
         render(
+            <QueryClientProvider client={testQuery}>
             <MemoryRouter>
                 <AddManagerListItem
-                    employee={manager}
+                    employee={employee}
                     houseId="H1"
-                    isOdd={true}
+                    isOdd={false}
                 />
             </MemoryRouter>
+            </QueryClientProvider>
         );
+    }
+
+      it("renders employee info correctly", () => {
+        renderPage();
 
         expect(screen.getByText("ID: EMP1")).toBeInTheDocument();
         expect(screen.getByText("Jane")).toBeInTheDocument();
@@ -43,15 +60,7 @@ describe("AddManagerListItem tests", () => {
     });
 
     it("toggles detail panel", () => {
-        render(
-            <MemoryRouter>
-                <AddManagerListItem
-                    employee={manager}
-                    houseId="H1"
-                    isOdd={false}
-                />
-            </MemoryRouter>
-        );
+        renderPage();
 
         const toggleBtn = screen.getByRole("button", { name: "▶" });
         fireEvent.click(toggleBtn);
@@ -64,19 +73,8 @@ describe("AddManagerListItem tests", () => {
 
     it("displays managed houses", () => {
         const partialHouse = {street1: "100 W Test Ave", city: "Testopolis", state: "TE", maxClients: 2, femaleEmployeeOnly: false};
-        render(
-            <MemoryRouter>
-                <AddManagerListItem
-                    employee={{
-                        ...manager,
-                        primaryHouses: [{ id: "H100", name: "Main House", ...partialHouse }],
-                        secondaryHouses: [{ id: "H200", name: "Side House", ...partialHouse }]
-                    }}
-                    houseId="H2"
-                    isOdd={true}
-                />
-            </MemoryRouter>
-        );
+        renderPage({...manager, primaryHouses: [{ id: "H100", name: "Main House", ...partialHouse }], secondaryHouses: [{ id: "H200", name: "Side House", ...partialHouse }]
+        });
 
         fireEvent.click(screen.getByRole("button", { name: "▶" }));
 
@@ -91,15 +89,7 @@ describe("AddManagerListItem tests", () => {
             data: { houseId: "H1", name: "Test House" }
         });
 
-        render(
-            <MemoryRouter>
-                <AddManagerListItem
-                    employee={manager}
-                    houseId="H1"
-                    isOdd={false}
-                />
-            </MemoryRouter>
-        );
+        renderPage();
 
         fireEvent.click(screen.getByRole("button", { name: "Add" }));
 

@@ -4,6 +4,7 @@ import prisma from "../../../utility/prisma";
 import {TestClient} from "../../setuptestclients";
 import request from "supertest";
 import app from "../../../app";
+import {TestEvent} from "../../setuptestevents";
 
 
 describe("PUT /events/:id - update event", () => {
@@ -12,6 +13,7 @@ describe("PUT /events/:id - update event", () => {
     let admin: TestEmployee;
     let associate: TestEmployee;
     let client: TestClient;
+    let event: TestEvent;
     const testEventData = {
         id: eventId,
         description: "Test description",
@@ -21,25 +23,16 @@ describe("PUT /events/:id - update event", () => {
         endTime: new Date("2023-09-01T11:00:00.000Z"),
         numberStaffRequired: 1
     }
-    beforeAll(async () => {
-        const {employees, clients} = await eventSetupTests();
+
+    beforeEach(async () => {
+        const {employees, clients, events} = await eventSetupTests();
         admin = employees.admin;
         associate = employees.associate;
         client = clients.client1;
-    });
-    beforeEach(async () => {
-        await prisma.event.create({
-            data: {
-                ...testEventData,
-                type: "SOCIAL",
-                clientId: client.id
-            }
-        });
-    });
+        eventId = events[0].id;
+    })
+
     afterEach(async () => {
-        await prisma.event.deleteMany();
-    });
-    afterAll(async () => {
         await eventTeardownTests();
     });
     it("should update event successfully for ADMIN", async () => {
@@ -48,6 +41,7 @@ describe("PUT /events/:id - update event", () => {
             .set("Authorization", `Bearer ${admin.token}`)
             .send({
                 ...testEventData,
+                id: eventId,
                 description: "Updated description",
                 type: "SOCIAL",
                 beginTime: "10:00",
@@ -64,6 +58,7 @@ describe("PUT /events/:id - update event", () => {
             .put(`${endpoint}/${eventId}`)
             .send({
                 ...testEventData,
+                id: eventId,
                 description: "Updated description",
                 type: "SOCIAL",
                 beginTime: "10:00",
@@ -77,6 +72,7 @@ describe("PUT /events/:id - update event", () => {
             .set("Authorization", `Bearer ${associate.token}`)
             .send({
                 ...testEventData,
+                id: eventId,
                 description: "Updated description",
                 type: "SOCIAL",
                 beginTime: "10:00",
@@ -98,6 +94,7 @@ describe("PUT /events/:id - update event", () => {
     requiredFields.forEach((field) => {
         const validEvent = {
             ...testEventData,
+            id: eventId,
             description: "Updated description",
             type: "SOCIAL",
             beginTime: "10:00",
@@ -156,6 +153,7 @@ describe("PUT /events/:id - update event", () => {
             .set("Authorization", `Bearer ${admin.token}`)
             .send({
                 ...testEventData,
+                id: eventId,
                 description: "Updated description",
                 type: "SOCIAL",
                 beginTime: "10:00",

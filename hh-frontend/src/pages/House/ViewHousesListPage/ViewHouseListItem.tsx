@@ -2,7 +2,6 @@ import React, {Fragment, useState} from 'react';
 import clsx from "clsx";
 import Button from "../../../components/Buttons/Button/Button";
 import {House} from "../../../models/House";
-import {Link} from "react-router-dom";
 import {formatDate} from "../../../utility/formatting";
 import {Client} from "../../../models/Client";
 import {Employee} from "../../../models/Employee";
@@ -84,19 +83,19 @@ const ViewHouseListItem: React.FC<Props> = ({ house, isOdd, canEdit, onRemoveCli
                         <div className="flex items-center mb-2">
                             <strong>Primary Manager:</strong> {house.primaryHouseManager ?
                             <><div className="grow">{house.primaryHouseManager.name}</div>
-                            {canEdit && <Button className="w-25" onClick={() => onRemoveManager(house, house.primaryHouseManager!)} variant={buttonVariant} >Remove</Button>}</> :
+                            {canEdit && <Button className="w-25" onClick={() => onRemoveManager(house, house.primaryHouseManager!)} variant={buttonVariant} data-testid="primary-remove" >Remove</Button>}</> :
                             <><div className="grow">N/A</div>
-                            {canEdit && <Link to={`/house/${house.id}/add-manager?position=primary`}><Button className="w-25" variant={buttonVariant} >Add</Button></Link>}</>}
+                            {canEdit && <LinkButton to={`/house/${house.id}/add-manager?position=primary`} className="w-25" variant={buttonVariant} data-testid="primary-add" >Add</LinkButton>}</>}
                         </div>
                         <div className="flex items-center mb-2">
                             <strong>Secondary Manager:</strong> {house.secondaryHouseManager ?
                             <>
                                 <div className="grow">{house.secondaryHouseManager.name}</div>
-                                {canEdit && <Button className="w-25" onClick={() => onRemoveManager(house, house.secondaryHouseManager!)} variant={buttonVariant} >Remove</Button>}
+                                {canEdit && <Button className="w-25" onClick={() => onRemoveManager(house, house.secondaryHouseManager!)} variant={buttonVariant} data-testid="secondary-remove" >Remove</Button>}
                             </> :
                             <>
                                 <div className="grow">N/A</div>
-                                {canEdit && <Link to={`/house/${house.id}/add-manager?position=secondary`}><Button className="w-25" variant={buttonVariant}>Add</Button></Link>}
+                                {canEdit && <LinkButton to={`/house/${house.id}/add-manager?position=secondary`} className="w-25" variant={buttonVariant} data-testid="secondary-add">Add</LinkButton>}
                         </>}
                         </div>
                         <div className="text-left sm:hidden">

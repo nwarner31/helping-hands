@@ -1,6 +1,4 @@
 import { useParams} from "react-router-dom";
-import {useEffect} from "react";
-import {Client} from "../../../models/Client";
 import {formatDate} from "../../../utility/formatting";
 import Accordion from "../../../components/Accordion/Accordion";
 import {useAuth} from "../../../context/AuthContext";
@@ -8,7 +6,8 @@ import ViewClientUpcomingEvent from "./ViewClientUpcomingEvent";
 import LinkButton from "../../../components/Buttons/LinkButton/LinkButton";
 import PageCard from "../../../components/Cards/PageCard/PageCard";
 import NavButtons from "../../../components/Buttons/NavButtons/NavButtons";
-import {useGet} from "../../../hooks/getHook/get.hook";
+import {useQuery} from "@tanstack/react-query";
+import {getClient} from "../../../data/client.data";
 
 
 const ViewClientPage = () => {
@@ -16,10 +15,11 @@ const ViewClientPage = () => {
     const {employee} = useAuth();
     const canEdit = ["ADMIN", "DIRECTOR", "MANAGER"].includes(employee?.position as string);
 
-    const {data: client, get } = useGet<Client | null>(`client/${clientId}`, null);
-    useEffect(() => {
-        get();
-    }, []);
+    const {data: client} = useQuery({
+        queryKey: ["client", clientId],
+        queryFn: () => getClient(clientId!)
+    })
+
     return (
         <div className="flex justify-center items-center bg-slate-100 min-h-screen">
            <PageCard title="View Client" className="py-4 px-3" >

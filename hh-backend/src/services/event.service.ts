@@ -29,6 +29,7 @@ export const addEvent = async (eventData: EventInput) => {
                         ...medical,
                         id: newEvent.id,
                     },
+
                 });
             }
 
@@ -42,7 +43,7 @@ export const addEvent = async (eventData: EventInput) => {
 
 export const updateEvent = async (eventData: EventInput) => {
     try {
-        return await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx) => {
             const { medical, clientId, ...event } = eventData;
             const beginTime = convertTimeToDate(event.beginTime);
             const endTime = convertTimeToDate(event.endTime);
@@ -71,8 +72,9 @@ export const updateEvent = async (eventData: EventInput) => {
                 });
             }
 
-            return updatedEvent;
+
         });
+        return getEventById(eventData.id);
     } catch (error) {
         // istanbul ignore next
         throw error;

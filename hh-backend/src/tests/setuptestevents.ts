@@ -1,14 +1,21 @@
 import prisma from "../utility/prisma";
 import {Event, MedicalEvent} from "@prisma/client";
 
+export type TestEvent = {
+    id: string;
+    type: string
+}
+
 export const setupTestEvents = async (...clientIDs: string[]) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
     const events: Event[] = [
         {
             id: "e1",
             description: "Event 1",
-            beginDate: new Date("2026-06-10T00:00"),
+            beginDate: tomorrow,
             beginTime: new Date("2000-01-01T10:00"),
-            endDate: new Date("2026-06-10T00:00"),
+            endDate: tomorrow,
             endTime: new Date("2000-01-01T11:00"),
             type: "WORK",
             numberStaffRequired: 2,
@@ -63,6 +70,8 @@ export const setupTestEvents = async (...clientIDs: string[]) => {
     await prisma.medicalEvent.create({
         data: medicalEvents[0]
     });
+    return events;
+    //events[1].medical = medicalEvents[0];
 }
 
 export const teardownTestEvents = async () => {

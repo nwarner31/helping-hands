@@ -5,9 +5,10 @@ import {Employee} from "../../../models/Employee";
 import {House} from "../../../models/House";
 import {useNavigate, useSearchParams} from "react-router-dom";
 import Card from "../../../components/Cards/Card/Card";
-import {useMutate} from "../../../hooks/mutateHook/mutate.hook";
 import {z} from "zod";
 import {toast} from "react-toastify";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import apiService from "../../../utility/ApiService";
 
 interface Props {
     employee: Employee;
@@ -19,7 +20,7 @@ const AddManagerListItem = ({ employee, houseId, isOdd }: Props) => {
     const [expanded, setExpanded] = useState(false);
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const {mutate: post} = useMutate(`house/${houseId}/manager`, "POST", z.object({employeeId: z.string(), positionType: z.enum(["primary", "secondary"])}));
+    const queryClient = useQueryClient();
     const position = searchParams.get("position") ?? "primary";
     const createHouseRow = (house: House, managerType: string) => {
         return (
@@ -32,12 +33,25 @@ const AddManagerListItem = ({ employee, houseId, isOdd }: Props) => {
     }
 
     const addManagerHandler = async () => {
-        const success = await post({employeeId: employee.id, positionType: position});
-        if(success) {
-            toast.success("Manager added to house successfully", {autoClose: 1500, position: "top-right"});
-            navigate("/view-houses");
+        const result = z.object({employeeId: z.string(), positionType: z.enum(["primary", "secondary"])}).safeParse({employeeId: employee.id, positionType: position});
+        if(result.success) {
+            mutate();
         }
     }
+    const addManager = async () => {
+        const response = await apiService.post<{data: House}>(`house/${houseId}/manager`, {employeeId: employee.id, positionType: position});
+        return response.data;
+    }
+    const {mutate} = useMutation<House, Error>({
+        mutationFn: addManager,
+        onSuccess: (updatedHouse) => {
+            toast.success("Manager added to house successfully", {autoClose: 1500, position: "top-right"});
+            queryClient.setQueryData(["houses"], (prev: House[] | undefined) =>
+                prev ? prev.map(house => (house.id === updatedHouse.id ? {...updatedHouse} : house)): [])
+            navigate("/view-houses");
+        }
+    });
+
     const buttonType = isOdd ? "secondary" : "accent"
     return (
         <div className={clsx(" p-2 w-full")}>

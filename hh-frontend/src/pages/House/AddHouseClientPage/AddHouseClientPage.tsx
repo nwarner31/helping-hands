@@ -1,24 +1,35 @@
-import {useEffect} from "react";
+import {useCallback} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {House} from "../../../models/House";
 import AddClientSearchList from "./AddClientSearchList";
 import {Client} from "../../../models/Client";
 import {formatDate} from "../../../utility/formatting";
 import PageCard from "../../../components/Cards/PageCard/PageCard";
-import {useGet} from "../../../hooks/getHook/get.hook";
-import {usePrefetchData} from "../../../hooks/prefetchData/prefetchData.hook";
 import Button from "../../../components/Buttons/Button/Button";
+import {useQuery} from "@tanstack/react-query"
+import apiService from "../../../utility/ApiService";
+import LoadingText from "../../../components/TextAreas/LoadingText/LoadingText";
+import {getHouse} from "../../../data/house.data";
 
 const AddHouseClientPage = () => {
     const { houseId } = useParams();
     const navigate = useNavigate();
 
-    const {data: clients, get: getClients} = useGet<Client[]>("client/no-house", []);
-    const {data: house, fetchData: fetchHouse} = usePrefetchData<House>("house", `house/${houseId}`);
-    useEffect(() => {
-        fetchHouse();
-        getClients();
+    const getUnhousedClients = useCallback(async () => {
+        const res = await apiService.get<{data: Client[]}>("client/no-house");
+        return res.data;
     }, []);
+    const{data: clients = [], isLoading: isLoadingClient} = useQuery<Client[]>({
+        queryKey: ["clients", "no-house"],
+        queryFn: getUnhousedClients,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const{data: house, isLoading: isLoadingHouse} = useQuery<House>({
+        queryKey: ["house", houseId],
+        queryFn: () => getHouse(houseId!),
+        staleTime: 5 * 60 * 1000
+    });
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
@@ -57,8 +68,10 @@ const AddHouseClientPage = () => {
                     {clients &&
                         <AddClientSearchList clients={clients} houseId={house.id} />
                     }
+                    {isLoadingClient && <LoadingText />}
                 </>
                 }
+                {isLoadingHouse && <LoadingText />}
                 <Button className="mx-3" variant="secondary" onClick={() => navigate(-1)}>Cancel</Button>
             </PageCard>
         </div>

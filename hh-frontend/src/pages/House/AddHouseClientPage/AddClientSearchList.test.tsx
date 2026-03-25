@@ -20,6 +20,7 @@ jest.mock("react-toastify", () => ({
     },
 }));
 import AddClientSearchList from "./AddClientSearchList";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 const mockClients = [
     {
         id: "1",
@@ -35,12 +36,23 @@ const mockClients = [
     },
 ];
 
-const renderComponent = () =>
+const renderComponent = () => {
+    const testQuery = new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    });
     render(
+        <QueryClientProvider client={testQuery}>
         <BrowserRouter>
             <AddClientSearchList clients={mockClients} houseId="abc123" />
         </BrowserRouter>
+        </QueryClientProvider>
     );
+}
+
 
 describe("AddClientSearchList", () => {
     beforeEach(() => {

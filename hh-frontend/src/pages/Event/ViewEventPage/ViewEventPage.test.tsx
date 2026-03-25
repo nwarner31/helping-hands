@@ -1,6 +1,6 @@
 import { render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import {MemoryRouter, Route, Routes} from "react-router-dom";
 import apiService from "../../../utility/ApiService";
 import {useAuth} from "../../../context/AuthContext";
 
@@ -24,6 +24,7 @@ jest.mock("react-toastify", () => ({
 }));
 
 import ViewEventPage from "./ViewEventPage";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 const workEvent = {
     id: "event-123",
@@ -44,13 +45,21 @@ const workEvent = {
 
 
     describe("View Event Page", () => {
-        function setup(role: "ADMIN" | "ASSOCIATE" = "ADMIN", initialState: any = undefined) {
+        function setup(role: "ADMIN" | "ASSOCIATE" = "ADMIN", eventId = "event-123") {
             (useAuth as jest.Mock).mockReturnValue({
                 employee: { position: role }
             });
+            const testQuery = new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        retry: false
+                    }
+                }
+            });
 
         render(
-            <MemoryRouter initialEntries={["/events", {pathname: "/events/event-123", state: initialState}]}  >
+            <QueryClientProvider client={testQuery}>
+            <MemoryRouter initialEntries={["/events", {pathname: `/events/${eventId}`}]}  >
                 <>
                     <Routes>
                     <Route path="/events/:eventId" element={<ViewEventPage />} />
@@ -61,14 +70,15 @@ const workEvent = {
 
                 </>
 
-            </MemoryRouter>);
+            </MemoryRouter>
+            </QueryClientProvider>);
     }
         beforeEach(() => jest.resetAllMocks());
 
 
 
         it("navigates back on error", async () => {
-            (apiService.get as jest.Mock).mockRejectedValue(new Error("Not found"));
+            (apiService.get as jest.Mock).mockRejectedValue(new Error("Event not found"));
 
             setup();
 
@@ -151,91 +161,22 @@ const workEvent = {
             expect(await screen.findByText("Events List Page")).toBeInTheDocument();
         });
 
-        // it("navigates to dashboard for no event id", async () => {
-        //     (apiService.get as jest.Mock).mockRejectedValue(new Error("Event Id is required"));
-        //
-        //     setup();
-        //     await waitFor(async () => {
-        //         expect(mockToastError).toHaveBeenCalledWith("Unable to find event", {autoClose: 1500, position: "top-right"});
-        //     });
-        //
-        //     expect(await screen.findByText("Events List Page")).toBeInTheDocument();
-        // });
-        //
-        // it("navigates back for all other fetch event errors", async () => {
-        //     (apiService.get as jest.Mock).mockRejectedValue(new Error("Some other error"));
-        //     setup();
-        //     await waitFor(async () => {
-        //         expect(mockToastError).toHaveBeenCalledWith("An error occurred. Going back.", {autoClose: 1500, position: "top-right"});
-        //     });
-        //
-        //     expect(await screen.findByText("Events List Page")).toBeInTheDocument();
-        // });
+        it("navigates to dashboard for no event id", async () => {
+            //(useParams as jest.Mock).mockReturnValue({});
 
-        // // Fetch client tests
-        // it("fetches client if not provided in event", async () => {
-        //     const eventWithoutClient = { ...workEvent, clientId: "c1", client: undefined };
-        //     (apiService.get as jest.Mock).mockReturnValue({message: "Client found", client: {id: "c1", legalName: "John Doe", dateOfBirth: "2025-09-13T11:00:00.000Z"
-        //     }});
-        //     setup( undefined, { event: eventWithoutClient });
-        //
-        //     await waitFor(() => {
-        //         expect(screen.getByText("Some description")).toBeInTheDocument();
-        //         expect(screen.getByText("John Doe")).toBeInTheDocument();
-        //         expect(apiService.get).toHaveBeenCalledWith("client/c1");
-        //     });
-        // });
-        // it("navigates to the dashboard for client not found", async () => {
-        //     const eventWithoutClient = { ...workEvent, clientId: "c1", client: undefined };
-        //     (apiService.get as jest.Mock).mockRejectedValue(new Error("Client not found"));
-        //     setup(undefined, { event: eventWithoutClient });
-        //
-        //     await waitFor(async () => {
-        //         expect(mockToastError).toHaveBeenCalledWith("Associated client for this event not found. Returning to dashboard.", {autoClose: 1500, position: "top-right"});
-        //
-        //         expect(await screen.findByText("Dashboard Page")).toBeInTheDocument();
-        //     });
-        // });
-        // it("navigates to the dashboard for no client id", async () => {
-        //     const eventWithoutClient = { ...workEvent, clientId: "c1", client: undefined };
-        //     (apiService.get as jest.Mock).mockRejectedValue(new Error("Client Id is required"));
-        //     setup(undefined, { event: eventWithoutClient });
-        //
-        //     await waitFor(async () => {
-        //         expect(mockToastError).toHaveBeenCalledWith("Client Id is required. Returning to dashboard.", {autoClose: 1500, position: "top-right"});
-        //
-        //         expect(await screen.findByText("Dashboard Page")).toBeInTheDocument();
-        //     });
-        // });
-        //
-        // it("navigates back for all other fetch client errors", async () => {
-        //     const eventWithoutClient = { ...workEvent, clientId: "c1", client: undefined };
-        //     (apiService.get as jest.Mock).mockRejectedValue(new Error("Some other error"));
-        //     setup(undefined, { event: eventWithoutClient });
-        //
-        //     await waitFor(async () => {
-        //         expect(mockToastError).toHaveBeenCalledWith("An error occurred. Going back.", {autoClose: 1500, position: "top-right"});
-        //
-        //         expect(await screen.findByText("Events List Page")).toBeInTheDocument();
-        //     });
-        //});
+            setup("ADMIN", " ");
+            await waitFor(async () => {
+                expect(mockToastError).toHaveBeenCalledWith("Event ID not found", {autoClose: 1500, position: "top-right"});
+            });
 
-
-        it("loads and displays an event from state without api call", async () => {
-            const mocked = (apiService.get as jest.Mock).mockResolvedValue({message: "Event found", event: { ...workEvent }});
-
-            setup(undefined, { event: { ...workEvent }});
-
-            await waitFor(() => {
-                expect(screen.getByText("Some description")).toBeInTheDocument();
-                expect(screen.getByText("John Doe")).toBeInTheDocument();
-                expect(mocked).not.toHaveBeenCalled();
-            })
+            expect(await screen.findByText("Events List Page")).toBeInTheDocument();
         });
+
 
         it("displays medical event details correctly", async () => {
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care", appointmentForCondition: "General Health" }};
-            setup(undefined, {event:  { ...medicalEvent } });
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
             expect(await screen.findByText("Medical Info")).toBeInTheDocument();
             expect(await screen.findByText("m3147")).toBeInTheDocument();
             expect(screen.getByText("Dr. Smith")).toBeInTheDocument();
@@ -243,11 +184,12 @@ const workEvent = {
             expect(screen.getByText("General Health")).toBeInTheDocument();
             expect(screen.getAllByText("N/A").length).toBe(3);
         });
-        it("displays the record dates and names if included", async () => {
-            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+        it("displays the record dates, names and results if included", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care", appointmentResults: "Appointment went well",
                     appointmentForCondition: "General Health", recordTakenToHouseDate: "2025-09-11T11:00:00.000Z", recordPrintedDate: "2025-09-10T11:00:00.000Z",
                     recordFiledDate: "2025-09-12T11:00:00.000Z", recordPrintedBy: {name: "Dan Doe"}, recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledBy: {name: "Jim Director"} }};
-            setup(undefined, {event:  { ...medicalEvent } });
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
             await waitFor(() => {
                 expect(screen.getByText("09/10/2025")).toBeInTheDocument();
                 expect(screen.getByText("Dan Doe")).toBeInTheDocument();
@@ -255,41 +197,50 @@ const workEvent = {
                 expect(screen.getByText("Jane Manager")).toBeInTheDocument();
                 expect(screen.getByText("09/12/2025")).toBeInTheDocument();
                 expect(screen.getByText("Jim Director")).toBeInTheDocument();
+                expect(screen.getByText("Appointment went well")).toBeInTheDocument();
             })
         });
 
         it("displays the modal when the record action button is clicked", async () => {
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health",  }};
-            setup(undefined, {event:  { ...medicalEvent } });
-            const actionButton = screen.getByText("Print Record");
-            await userEvent.click(actionButton);
-            expect(await screen.findByText("Confirm Action")).toBeInTheDocument();
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("Print Record");
+                await userEvent.click(actionButton);
+                expect(await screen.findByText("Confirm Action")).toBeInTheDocument();
+            })
+
         });
 
         it("closes the modal when no is clicked", async () => {
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health",  }};
-            setup(undefined, {event:  { ...medicalEvent } });
-            const actionButton = screen.getByText("Print Record");
-            await userEvent.click(actionButton);
-            expect(await screen.findByText("Confirm Action")).toBeInTheDocument();
-            const noButton = screen.getByRole("button", { name: /no/i });
-            await userEvent.click(noButton);
-            expect(screen.queryByText("Confirm Action")).not.toBeInTheDocument();
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent})
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("Print Record");
+                await userEvent.click(actionButton);
+                expect(await screen.findByText("Confirm Action")).toBeInTheDocument();
+                const noButton = screen.getByRole("button", { name: /no/i });
+                await userEvent.click(noButton);
+                expect(screen.queryByText("Confirm Action")).not.toBeInTheDocument();
+            });
         });
 
         it("displays the results text area and updates the text properly when the action is file record", async () => {
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: "2025-09-11T11:00:00.000Z",
                     recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledDate: null }};
-            setup(undefined, {event:  { ...medicalEvent } });
-            const actionButton = screen.getByText("File Record");
-            await userEvent.click(actionButton);
-            const textArea = await screen.findByLabelText("Appointment Results");
-            expect(textArea).toBeInTheDocument();
-            await userEvent.type(textArea, "Patient is in good health.");
-            await waitFor(() => {
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("File Record");
+                await userEvent.click(actionButton);
+                const textArea = await screen.findByLabelText("Appointment Results");
+                expect(textArea).toBeInTheDocument();
+                await userEvent.type(textArea, "Patient is in good health.");
                 expect(textArea).toHaveValue("Patient is in good health.");
             });
         });
@@ -298,42 +249,49 @@ const workEvent = {
             const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "All good", data: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}});
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health",}};
-            setup(undefined, {event: {...medicalEvent}});
-            const actionButton = screen.getByText("Print Record");
-            await userEvent.click(actionButton);
-            const yesButton = screen.getByText("Yes");
-            await userEvent.click(yesButton);
-
-            await waitFor(() => {
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("Print Record");
+                await userEvent.click(actionButton);
+                const yesButton = screen.getByText("Yes");
+                await userEvent.click(yesButton);
                 expect(mockPost).toHaveBeenCalledTimes(1);
                 expect(mockToastSuccess).toHaveBeenCalledWith(`Successfully recorded print record action.`, {autoClose: 1500, position: "top-right"});
-            })
+            });
         });
 
         it("displays 'Print Record' on the button when the record has not been printed and submits when yes is pressed", async () => {
             const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "All good",event: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}});
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health", recordPrintedDate: null }};
-            setup(undefined, {event:  { ...medicalEvent } });
-            const actionButton = screen.getByText("Print Record")
-            expect(actionButton).toBeInTheDocument();
-            await userEvent.click(actionButton);
-            const yesButton = screen.getByText("Yes");
-            await userEvent.click(yesButton);
-            expect(mockPost).toHaveBeenCalledTimes(1);
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("Print Record")
+                expect(actionButton).toBeInTheDocument();
+                await userEvent.click(actionButton);
+                const yesButton = screen.getByText("Yes");
+                await userEvent.click(yesButton);
+                expect(mockPost).toHaveBeenCalledTimes(1);
+            });
         });
 
         it("displays 'Take Record to House' on the button when the record has been printed but not taken to the house and submits when yes in the modal is pressed", async () => {
             const mockPost = (apiService.post as jest.Mock).mockResolvedValue({message: "All good",event: {...workEvent, medical: {doctor: "Dr Sam", recordNumber: "r1", doctorType: "Good", appointmentForCondition: "Health"}}});
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: null }};
-            setup(undefined, {event:  { ...medicalEvent } });
-            const actionButton = screen.getByText("Take Record to House")
-            expect(actionButton).toBeInTheDocument();
-            await userEvent.click(actionButton);
-            const yesButton = screen.getByText("Yes");
-            await userEvent.click(yesButton);
-            expect(mockPost).toHaveBeenCalledTimes(1);
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("Take Record to House")
+                expect(actionButton).toBeInTheDocument();
+                await userEvent.click(actionButton);
+                const yesButton = screen.getByText("Yes");
+                await userEvent.click(yesButton);
+                expect(mockPost).toHaveBeenCalledTimes(1);
+            })
+
         });
 
         it("displays 'File Record' on the button when the record has been taken to the house but not filed and submits when yes in the modal is pressed", async () => {
@@ -341,14 +299,49 @@ const workEvent = {
             const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
                     appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: "2025-09-11T11:00:00.000Z",
                     recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledDate: null }};
-            setup(undefined, {event:  { ...medicalEvent } });
-            const actionButton = screen.getByText("File Record")
-            expect(actionButton).toBeInTheDocument();
-              await userEvent.click(actionButton);
-              await userEvent.type(screen.getByLabelText("Appointment Results"), "Patient is in good health.");
-            const yesButton = screen.getByText("Yes");
-            await userEvent.click(yesButton);
-            expect(mockPost).toHaveBeenCalledTimes(1);
+            (apiService.get as jest.Mock).mockResolvedValue({message: "Event found", data: { ...medicalEvent}});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("File Record")
+                expect(actionButton).toBeInTheDocument();
+                await userEvent.click(actionButton);
+                await userEvent.type(screen.getByLabelText("Appointment Results"), "Patient is in good health.");
+                const yesButton = screen.getByText("Yes");
+                await userEvent.click(yesButton);
+                expect(mockPost).toHaveBeenCalledTimes(1);
+            });
         });
 
+        it("displays a toast for record action validation error (no result for file action)", async () => {
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: "2025-09-11T11:00:00.000Z",
+                    recordTakenToHouseBy: {name: "Jane Manager"}, recordFiledDate: null }};
+            (apiService.get as jest.Mock).mockResolvedValue({message: "Event found", data: { ...medicalEvent}});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("File Record")
+                expect(actionButton).toBeInTheDocument();
+                await userEvent.click(actionButton);
+                // await userEvent.type(screen.getByLabelText("Appointment Results"), "Patient is in good health.");
+                const yesButton = screen.getByText("Yes");
+                await userEvent.click(yesButton);
+                // expect(mockPost).toHaveBeenCalledTimes(1);
+                expect(mockToastError).toHaveBeenCalledWith("Invalid action data. Please try again.", {autoClose: 1500, position: "top-right"})
+            });
+        });
+        it("displays an error toast for an api error", async () => {
+            (apiService.post as jest.Mock).mockRejectedValue(new Error("Network error"));
+            const medicalEvent = { ...workEvent, type: "MEDICAL", medical: { recordNumber: "m3147", doctor: "Dr. Smith", doctorType: "Primary Care",
+                    appointmentForCondition: "General Health", recordPrintedDate: "2025-09-10T11:00:00.000Z", recordPrintedBy: {name: "Bill Manager"}, recordTakenToHouseDate: null }};
+            (apiService.get as jest.Mock).mockResolvedValue({data: medicalEvent});
+            setup();
+            await waitFor(async () => {
+                const actionButton = screen.getByText("Take Record to House")
+                expect(actionButton).toBeInTheDocument();
+                await userEvent.click(actionButton);
+                const yesButton = screen.getByText("Yes");
+                await userEvent.click(yesButton);
+                expect(mockToastError).toHaveBeenCalledWith(`Unable to save take record to house action`, {autoClose: 1500, position: "top-right"})
+            });
+        });
     });

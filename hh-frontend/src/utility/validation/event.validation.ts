@@ -19,7 +19,7 @@ export const EventInputSchema = z
         beginTime: z.string().optional(),
         endTime: z.string().optional(),
         numberStaffRequired: z.string().optional(),
-        medical: medicalSchema.optional(),
+        medical: medicalSchema.nullish(),
     })
     .superRefine((data, ctx) => {
         if (!data.id) {

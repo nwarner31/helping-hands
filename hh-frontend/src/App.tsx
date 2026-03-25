@@ -22,7 +22,10 @@ import AddHousePage from "./pages/House/AddHousePage/AddHousePage";
 import EditHousePage from "./pages/House/EditHousePage/EditHousePage";
 import AddClientPage from "./pages/Client/AddClientPage/AddClientPage";
 import EditClientPage from "./pages/Client/EditClientPage/EditClientPage";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+
 function App() {
+    const queryClient = new QueryClient();
 
     const router = createBrowserRouter([
         {path: "/", element: <HomePage />},
@@ -52,10 +55,12 @@ function App() {
             ]}
          ]);
   return (
-    <div className='body'>
-        <RouterProvider router={router} />
-        <ToastContainer />
-    </div>
+      <QueryClientProvider client={queryClient}>
+        <div className='body'>
+            <RouterProvider router={router} />
+            <ToastContainer />
+        </div>
+      </QueryClientProvider>
   );
 }
 

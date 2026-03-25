@@ -13,5 +13,5 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 export const getButtonClasses = (variant: ButtonVariant, className?: string) => {
-    return clsx(baseClasses, variantClasses[variant], className);
+    return clsx( baseClasses, variantClasses[variant], className);
 }

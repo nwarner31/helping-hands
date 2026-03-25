@@ -7,9 +7,7 @@ import {
     getHouses, removeHouseClient, removeHouseManager,
     updateHouse
 } from "../services/house.service";
-import {House} from "@prisma/client";
 import {getClientByClientId} from "../services/client/client.service";
-import advanceTimersToNextTimerAsync = jest.advanceTimersToNextTimerAsync;
 import {HouseSchema} from "../validation/house.validation";
 
 interface HouseErrors {
@@ -34,7 +32,7 @@ export const createHouse = async (req: Request, res: Response, next: NextFunctio
             return next({status: 400, message: "invalid data", errors: duplicate});
         }
         const newHouse = await addHouse(parseResult.data);
-        res.status(201).json({message: "House successfully added", house: newHouse});
+        res.status(201).json({message: "House successfully added", data: newHouse});
     } catch (error) {
         return next(error);
     }
@@ -69,7 +67,7 @@ export const putHouse = async (req: Request, res: Response, next: NextFunction) 
         const houseIdCheck = await getHouseByHouseId(req.body.houseId);
         if (!houseIdCheck) return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
         const updatedHouse = await updateHouse(parseResult.data);
-        res.status(200).json({message: "House successfully updated", house: updatedHouse});
+        res.status(200).json({message: "House successfully updated", data: updatedHouse});
     } catch (error) {
         return next(error);
     }
@@ -84,7 +82,7 @@ export const addClientToHouse = async (req: Request, res: Response, next: NextFu
         const clientIdCheck = await getClientByClientId(clientId);
         if(!clientIdCheck) return next({status: 400, message: "invalid data", errors: {clientId: "Client ID not found"}});
         const house = await addHouseClient(houseIdCheck, clientId);
-        res.status(209).json({message: "client added to house", house: house});
+        res.status(209).json({message: "client added to house", data: house});
     } catch (error) {
         return next(error);
     }

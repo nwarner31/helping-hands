@@ -46,6 +46,7 @@ describe("ViewHouseListItem Component", () => {
         expect(screen.getByText("Bob Smith")).toBeInTheDocument();
         expect(screen.getByText("Secondary Manager:")).toBeInTheDocument();
         expect(screen.getByText("N/A")).toBeInTheDocument();
+        expect(screen.getAllByText("Yes")).toHaveLength(2);
 
         expect(screen.getByText("C001")).toBeInTheDocument();
         expect(screen.getByText("Alice Smith")).toBeInTheDocument();
@@ -57,6 +58,11 @@ describe("ViewHouseListItem Component", () => {
 
         expect(screen.getByText("Empty")).toBeInTheDocument(); // one client slot left
     });
+    it("shows no for houses that are not female only", () => {
+        render(<BrowserRouter><ViewHouseListItem house={{...house, femaleEmployeeOnly: false}} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        fireEvent.click(screen.getByRole("button", { name: /▶/i }));
+        expect(screen.getAllByText("No")).toHaveLength(2);
+    })
 
     it("renders correct number of Add and Remove buttons", () => {
         render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
@@ -67,10 +73,20 @@ describe("ViewHouseListItem Component", () => {
 
         expect(removeButtons?.length).toBe(2); // 2 clients
         expect(addButtons?.length).toBe(1);    // 1 empty slot
+        expect(screen.getByTestId("primary-remove")).toBeInTheDocument();
+        expect(screen.getByTestId("secondary-add")).toBeInTheDocument();
     });
+    it("displays the proper manager buttons (reverse of above test)", async () => {
+        const houseData = {...house, primaryHouseManager: undefined, secondaryHouseManager: {name: "Mario Mario"} as any};
+        render(<BrowserRouter><ViewHouseListItem house={houseData} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        fireEvent.click(screen.getByRole("button", { name: /▶/i }));
+
+        expect(screen.getByTestId("primary-add")).toBeInTheDocument();
+        expect(screen.getByTestId("secondary-remove")).toBeInTheDocument();
+    })
 
     it("hides Edit, Add, and Remove buttons when canEdit is false", async () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={false} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={{...house, secondaryHouseManager: {name: "Ann Manager"} as any}} isOdd={false} canEdit={false} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
         expect(screen.queryByText("Edit")).not.toBeInTheDocument();
         expect(screen.queryByText("Remove")).not.toBeInTheDocument();
@@ -261,16 +277,11 @@ describe("ViewHouseListItem Component", () => {
         );
 
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
-
         const managerRemoveButtons = screen.getAllByRole("button", { name: "Remove" });
-
         // click primary manager remove
         await userEvent.click(managerRemoveButtons[0]);
-
         expect(mockRemoveManager).toHaveBeenCalledWith(houseWithManagers, houseWithManagers.primaryHouseManager);
-
         await userEvent.click(managerRemoveButtons[1]);
-
         expect(mockRemoveManager).toHaveBeenCalledWith(houseWithManagers, houseWithManagers.secondaryHouseManager);
     });
 

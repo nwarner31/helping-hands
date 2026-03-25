@@ -10,8 +10,9 @@ jest.mock("react-toastify", () => ({
     },
 }));
 import AddClientEventPage from "./AddClientEventPage";
-import {Client} from "../../../models/Client";
 import {AuthProvider} from "../../../context/AuthContext";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import apiService from "../../../utility/ApiService";
 
 
 // Mock useNavigate
@@ -32,10 +33,19 @@ jest.mock("../../../utility/ApiService", () => ({
 
 describe("AddClientEventPage", () => {
 
-    const renderPage = (locationState: { client: Client } | undefined = undefined) => {
+    const renderPage = () => {
+        const testQuery = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    retry: false
+                }
+            }
+        });
+
         render(
+            <QueryClientProvider client={testQuery}>
             <AuthProvider>
-                <MemoryRouter initialEntries={[{pathname: "/client/abc123/event", state: locationState}]}>
+                <MemoryRouter initialEntries={[{pathname: "/client/abc123/event"}]}>
                     <Routes>
                         <Route
                             path="/client/:clientId/event"
@@ -44,6 +54,7 @@ describe("AddClientEventPage", () => {
                     </Routes>
                 </MemoryRouter>
             </AuthProvider>
+            </QueryClientProvider>
         );
     };
 
@@ -69,7 +80,8 @@ describe("AddClientEventPage", () => {
     });
 
     it("renders the client when the data is available", async () => {
-        renderPage({client: {id: "abc123", legalName: "John Doe", dateOfBirth: "1990-01-01", sex: "F"}});
+        (apiService.get as jest.Mock).mockResolvedValueOnce({data: {id: "abc123", legalName: "John Doe", dateOfBirth: "1990-01-01"}});
+        renderPage();
         await waitFor(() => {
             expect(screen.queryByTestId("client-data")).toBeInTheDocument();
             expect(screen.getByText(/client id: abc123/i)).toBeInTheDocument();
@@ -216,6 +228,24 @@ describe("AddClientEventPage", () => {
 
             expect(mockToastSuccess).toHaveBeenCalledWith("Event successfully added", {autoClose: 1500, position: "top-right"});
             expect(mockNavigate).toHaveBeenCalledWith("/view-client/abc123");
-        })
+        });
     });
+    it("should show API field errors", async () => {
+        (apiService.post as jest.Mock).mockRejectedValueOnce({errors: {id: "Event ID API error", beginDate: "Begin Date API error", numberStaffRequired: "Staff Required API error"}});
+        renderPage();
+        await userEvent.type(screen.getByLabelText(/event id/i), "EVT123");
+        await userEvent.type(screen.getByLabelText(/begin date/i), "2028-07-10");
+        await userEvent.type(screen.getByLabelText(/begin time/i), "09:00");
+        await userEvent.type(screen.getByLabelText(/end date/i), "2028-07-10");
+        await userEvent.type(screen.getByLabelText(/end time/i), "11:00");
+        await userEvent.type(screen.getByLabelText(/staff required/i), "2");
+        await userEvent.selectOptions(screen.getByLabelText(/event type/i), "WORK");
+        await userEvent.type(screen.getByLabelText(/description/i), "Test event");
+        await userEvent.click(screen.getByRole("button", {name: /add event/i}));
+
+        expect(screen.getByText("Event ID API error")).toBeInTheDocument();
+        expect(screen.getByText("Begin Date API error")).toBeInTheDocument();
+        expect(screen.getByText("Staff Required API error")).toBeInTheDocument();
+    });
+
 });

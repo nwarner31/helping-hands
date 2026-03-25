@@ -6,9 +6,11 @@ import {useNavigate} from "react-router-dom";
 import List from "../../../components/List/List";
 import ListItem from "../../../components/List/ListItem";
 import {clsx} from "clsx";
-import {useMutate} from "../../../hooks/mutateHook/mutate.hook";
 import {z} from "zod";
 import {toast} from "react-toastify";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import apiService from "../../../utility/ApiService";
+import {House} from "../../../models/House";
 
 type Props = {
     clients: Client[];
@@ -26,16 +28,32 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
             return matchesSearch && matchesSex;
         });
     }, [clients, search, sexFilter]);
-    const {mutate: patch} = useMutate(`house/${houseId}/clients`, "PATCH", z.object({clientId: z.string()}));
 
-    const addClientHandler = async (clientId: string) => {
-        const success = await patch({clientId});
-        if(success) {
-
+    const queryClient = useQueryClient();
+    const handleAddClick = (clientId: string) => {
+        const result = z.object({clientId: z.string()}).safeParse({clientId});
+        if(result.success) {
+            addHandler(clientId);
+        }
+    }
+    const addClient = async (clientId: string) => {
+        const res = await apiService.patch<{data: House}>(`house/${houseId}/clients`, {clientId});
+        return res.data;
+    }
+    const {mutate: addHandler} = useMutation<House, Error, string>({
+        mutationFn: addClient,
+        onSuccess: (updatedHouse, variable) => {
+            // istanbul ignore next
+            queryClient.setQueryData(["clients", "no-house"], (prev: Client[] | undefined) =>
+            prev ? prev.filter(client => client.id !== variable) : prev);
+            // istanbul ignore next
+            queryClient.setQueryData(["houses"], (prev: House[] | undefined) =>
+                prev ? prev.map(house => (house.id === updatedHouse.id ? {...updatedHouse} : house)): []);
+            queryClient.setQueryData(["house", updatedHouse.id], updatedHouse);
             toast.success("Client added to house successfully", {autoClose: 1500, position: "top-right"});
             navigate("/view-houses");
         }
-    }
+    })
     const gridCols = "grid items-center grid-cols-[2fr_3fr_1fr_1fr] sm:grid-cols-[2fr_3fr_2fr_1fr_2fr]";
     const gridCells = "text-center font-body";
     return (
@@ -70,7 +88,7 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
                             <div className={gridCells}>{client.legalName}</div>
                             <div className={clsx("hidden sm:block", gridCells)}>{formatDate(client.dateOfBirth)}</div>
                             <div className={gridCells}>{client.sex}</div>
-                            <Button variant={index % 2 === 0 ? "primary" : "accent"} onClick={() => addClientHandler(client.id)}><div className="hidden sm:block">Add</div><div className="sm:hidden">+</div></Button>
+                            <Button variant={index % 2 === 0 ? "primary" : "accent"} onClick={() => handleAddClick(client.id)}><div className="hidden sm:block">Add</div><div className="sm:hidden">+</div></Button>
                         </div>
                     </ListItem>
                 ))}
