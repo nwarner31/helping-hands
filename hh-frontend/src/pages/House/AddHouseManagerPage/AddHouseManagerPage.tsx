@@ -26,13 +26,13 @@ export const AddHouseManagerPage = () => {
         const res = await apiService.get<{data: Employee[]}>(`house/${houseId}/available-managers`);
         return res.data;
     }, [houseId]);
-    const {data: managers = []} = useQuery<Employee[]>({
+    const {data: managers = [], isLoading: isLoadingManagers} = useQuery<Employee[]>({
         queryKey: ["house", houseId, "available-managers"],
         queryFn: getManagers
     });
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100 font-body">
-            <PageCard title="Add House Manager" size="sm" className="py-4" >
+            <PageCard title="Add Manager" size="sm" className="py-4" >
                 {house &&
                     <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-center mb-3 mx-auto w-50">
                         <div className="font-semibold">House ID</div>
@@ -46,11 +46,12 @@ export const AddHouseManagerPage = () => {
                     <Button className="w-full" variant="secondary" onClick={() => navigate(-1)} >Cancel</Button>
                 </div>
 
-                <List>
-                    {managers.map((manager, index) =>
+                <List inset="small" borderVariant="secondary">
+                    {managers.map((manager) =>
                         <ListItem id={manager.id} key={manager.id}>
-                        <AddManagerListItem employee={manager} houseId={houseId!} isOdd={index % 2 === 0} />
+                        <AddManagerListItem employee={manager} houseId={houseId!} />
                         </ListItem>)}
+                    {isLoadingManagers && [1,2,3,4,5,6].map(n => <ListItem key={n} id={`loading-${n}`}><LoadingText className="h-13" bgColorType="primary" /></ListItem>)}
                 </List>
 
             </PageCard>

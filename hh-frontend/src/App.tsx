@@ -23,6 +23,7 @@ import EditHousePage from "./pages/House/EditHousePage/EditHousePage";
 import AddClientPage from "./pages/Client/AddClientPage/AddClientPage";
 import EditClientPage from "./pages/Client/EditClientPage/EditClientPage";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import ViewEmployeesListPage from "./pages/Employee/ViewEmployeesListPage/ViewEmployeesListPage";
 
 function App() {
     const queryClient = new QueryClient();
@@ -31,28 +32,26 @@ function App() {
         {path: "/", element: <HomePage />},
         {path: '/register', element: <RegisterPage />},
         {path: "/login", element: <LoginPage />},
-        {element: <ProtectedRoute />,
-            children: [
-
-                {path: '/dashboard', element: <DashboardPage />},
-                // Client routes
-                {path: '/view-clients', element: <ViewClientsListPage />},
-                {path: '/view-client/:clientId', element: <ViewClientPage />},
-                {path: "/add-client", element: <AddClientPage />},
-                {path: "/edit-client/:clientId", element: <EditClientPage />},
-                // Event routes
-                {path: "/client/:clientId/add-event", element: <AddClientEventPage />},
-                {path: "/client/:clientId/view-events", element: <ViewClientEventsListPage />},
-                {path: "/client/:clientId/view-event-conflicts", element: <ViewClientEventConflictsPage />},
-                {path: "/event/:eventId", element: <ViewEventPage />},
-                {path: "/edit-event/:eventId", element: <EditClientEventPage />},
-                // House routes
-                {path: "/view-houses", element: <ViewHousesListPage />},
-                {path: "/edit-house/:houseId", element: <EditHousePage /> },
-                {path: "/add-house", element: <AddHousePage />},
-                {path: "/house/:houseId/add-client", element: <AddHouseClientPage />},
-                {path: "/house/:houseId/add-manager", element: <AddHouseManagerPage />},
-            ]}
+        {path: '/dashboard', element: <ProtectedRoute><DashboardPage /></ProtectedRoute> },
+        // Client routes
+        {path: '/view-clients', element: <ProtectedRoute><ViewClientsListPage /></ProtectedRoute>},
+        {path: '/view-client/:clientId', element: <ProtectedRoute><ViewClientPage /></ProtectedRoute>},
+        {path: "/add-client", element: <ProtectedRoute><AddClientPage /></ProtectedRoute>},
+        {path: "/edit-client/:clientId", element: <ProtectedRoute><EditClientPage /></ProtectedRoute>},
+        // Event routes
+        {path: "/client/:clientId/add-event", element: <ProtectedRoute><AddClientEventPage /></ProtectedRoute>},
+        {path: "/client/:clientId/view-events", element: <ProtectedRoute><ViewClientEventsListPage /></ProtectedRoute>},
+        {path: "/client/:clientId/view-event-conflicts", element: <ProtectedRoute><ViewClientEventConflictsPage /></ProtectedRoute>},
+        {path: "/event/:eventId", element: <ProtectedRoute><ViewEventPage /></ProtectedRoute>},
+        {path: "/edit-event/:eventId", element: <ProtectedRoute><EditClientEventPage /></ProtectedRoute>},
+        // House routes
+        {path: "/view-houses", element: <ProtectedRoute><ViewHousesListPage /></ProtectedRoute>},
+        {path: "/edit-house/:houseId", element: <EditHousePage /> },
+        {path: "/add-house", element: <AddHousePage />},
+        {path: "/house/:houseId/add-client", element: <AddHouseClientPage />},
+        {path: "/house/:houseId/add-manager", element: <AddHouseManagerPage />},
+        // Employee routes
+        {path: "/view-employees", element: <ProtectedRoute rolesAllowed={["ADMIN"]}><ViewEmployeesListPage /></ProtectedRoute>}
          ]);
   return (
       <QueryClientProvider client={queryClient}>

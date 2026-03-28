@@ -25,7 +25,7 @@ describe("ListItem component", () => {
             </List>
         );
         const li = screen.getByRole("listitem");
-        expect(li).toHaveClass("after:bg-primary");
+        expect(li).toHaveClass("after:bg-primary-500");
         expect(li).toHaveClass("after:left-8");
         expect(li).toHaveClass("after:right-8");
         expect(li).toHaveClass("after:absolute");

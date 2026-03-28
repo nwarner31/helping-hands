@@ -47,11 +47,10 @@ describe("PUT /events/:id - update event", () => {
                 beginTime: "10:00",
                 endTime: "11:00",
                 clientId: client.id});
-        console.log(res.body);
         expect(res.status).toBe(200);
         expect(res.body.message).toBe("Event updated");
-        expect(res.body).toHaveProperty("event");
-        expect(res.body.event.id).toBe(eventId);
+        expect(res.body).toHaveProperty("data");
+        expect(res.body.data.id).toBe(eventId);
     });
     it("should return 401 if no token provided", async () => {
         const res = await request(app)

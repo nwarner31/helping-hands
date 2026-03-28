@@ -95,21 +95,29 @@ const ViewHousesListPage = () => {
             <PageCard size="md-lg" className="py-5 px-2" title="Houses" >
                 <div className="flex mx-4 gap-x-2 mb-3">
                     {canEdit && <LinkButton to="/add-house" className="grow basis-0">Add House</LinkButton>}
-                    <LinkButton to="/dashboard" variant="secondary" className="font-header font-bold grow basis-0">Back to Dashboard</LinkButton>
+                    <LinkButton to="/dashboard" variant="secondary" className="font-header font-bold grow basis-0">Dashboard</LinkButton>
                 </div>
                 {!isLoading &&
                     <>
-                        <List inset="small">
-                            {pageHouseList.map((house, index) =>
+                        <List inset="small" borderVariant="secondary">
+                            {pageHouseList.map((house) =>
                                 <ListItem id={house.id} key={house.id}>
-                                    <ViewHouseListItem house={house} isOdd={index % 2 === 0}  canEdit={canEdit} onRemoveClient={removeHandlerClient} onRemoveManager={removeHandlerManager} />
+                                    <ViewHouseListItem house={house}  canEdit={canEdit} onRemoveClient={removeHandlerClient} onRemoveManager={removeHandlerManager} />
                                 </ListItem>   )}
                         </List>
                         {houseList.length > pageSize &&
                             <PaginationButtons page={page} numPages={pages} onPageChange={handlePageChange} />}
                     </>
                 }
-                {isLoading && <LoadingText />
+                {isLoading &&
+                    <div>
+                        <List inset="small" borderVariant="secondary">
+                            {[1,2,3,4,5, 6].map(n =>
+                                <ListItem id={`loading-${n}`} key={`loading-${n}`}>
+                                    <LoadingText className="h-15 m-2" bgColorType="primary" />
+                                </ListItem>)}
+                        </List>
+                    </div>
 
                 }
 

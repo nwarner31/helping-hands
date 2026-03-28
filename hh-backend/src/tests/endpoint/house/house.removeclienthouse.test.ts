@@ -34,8 +34,8 @@ describe("DELETE /api/house/:houseId/clients/:clientId", () => {
         const response = await request(app).post("/api/house")
             .set("Authorization", `Bearer ${director.token}`)
             .send(house);
-        house.id = response.body.house.id;
-        client.houseId = response.body.house.id;
+        house.id = response.body.data.id;
+        client.houseId = response.body.data.id;
     });
     beforeEach(async () => {
         await request(app).post("/api/client")

@@ -2,7 +2,11 @@
 
 
 @theme {
-  --color-primary: #0077B6;
+  --color-primary-100: #b3d6e9;
+  --color-primary-300: #3392c5;
+  --color-primary-500: #0077B6;
+  --color-primary-700: #00537f;
+  --color-primary-900: #002437;
   --color-secondary: #00A896;
   --color-accent: #F4A261;
     --color-danger: #FF746C;
@@ -16,9 +20,19 @@
 
   --breakpoint-xs: 25rem; /* 400px */
   --breakpoint-sm: 30rem; /* 480px */
+  --breakpoint-sm-md: 34rem; /* 544px  */
   --breakpoint-md: 36rem; /* 576px */
     --breakpoint-md-lg: 38rem;
     --breakpoint-lg: 42rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 :root {

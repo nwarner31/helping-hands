@@ -34,11 +34,15 @@ const PageCard = ({title, children, className, size = "md"}: PageCardProps) => {
         }
 
     }
+    // Look into putting other nav buttons next to Logout button on larger screens
     return (
         <div className={clsx("bg-slate-300 w-full min-h-screen flex flex-col justify-center", breakpointClasses[size], className)}>
-            <div className="flex justify-around w-full mb-5 items-center">
-                {title && <h1 className="font-header text-accent text-2xl font-bold text-center">{title}</h1>}
-                {employee && <Button type="button" onClick={logoutHandler} className="px-6">Logout</Button>}
+            <div className="flex justify-between w-full mb-5 items-center px-5">
+                {title && <h1 className="font-header text-accent text-4xl font-bold text-center">{title}</h1>}
+                <div className="flex gap-1">
+                    {employee && <Button type="button" onClick={logoutHandler} className="px-6" variant="ghost-primary">Logout</Button>}
+                </div>
+
             </div>
             {children}
         </div>

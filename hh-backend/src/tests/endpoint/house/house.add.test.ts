@@ -25,7 +25,7 @@ describe("HOUSE - add house", () => {
             .set("Authorization", `Bearer ${director.token}`)
             .send(validHouse);
         expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty("house");
+        expect(response.body).toHaveProperty("data");
         expect(response.body.message).toBe("House successfully added");
     });
     it("should return a 401 if no token provided", async () => {

@@ -13,10 +13,9 @@ import apiService from "../../../utility/ApiService";
 interface Props {
     employee: Employee;
     houseId: string;
-    isOdd: boolean;
 }
 
-const AddManagerListItem = ({ employee, houseId, isOdd }: Props) => {
+const AddManagerListItem = ({ employee, houseId }: Props) => {
     const [expanded, setExpanded] = useState(false);
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -52,7 +51,6 @@ const AddManagerListItem = ({ employee, houseId, isOdd }: Props) => {
         }
     });
 
-    const buttonType = isOdd ? "secondary" : "accent"
     return (
         <div className={clsx(" p-2 w-full")}>
             {/* Top Row */}
@@ -60,14 +58,14 @@ const AddManagerListItem = ({ employee, houseId, isOdd }: Props) => {
                     <Button
                         onClick={() => setExpanded((prev) => !prev)}
                         className="w-16"
-                        variant={buttonType}
+                        variant="primary"
                     >
                         {expanded ? '▼' : '▶'}
                     </Button>
                     <span>ID: {employee.id}</span>
                     <span className="grow">{employee.name}</span>
 
-                <Button variant={buttonType} className="w-25" onClick={addManagerHandler}>Add</Button>
+                <Button variant="primary" className="w-25" onClick={addManagerHandler}>Add</Button>
             </div>
 
             {/* Detail Panel */}

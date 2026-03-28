@@ -26,7 +26,7 @@ describe("Client Routes - Add Client",  () => {
             .set("Authorization", `Bearer ${admin.token}`)
             .send(validClient);
         expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty("client");
+        expect(response.body).toHaveProperty("data");
         expect(response.body.message).toBe("Client added");
     });
     it("should come back with a 401 if no token provided", async () => {
@@ -72,7 +72,7 @@ describe("Client Routes - Add Client",  () => {
             .set("Authorization", `Bearer ${admin.token}`)
             .send(validClient);
         expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty("client");
+        expect(response.body).toHaveProperty("data");
         expect(response.body.message).toBe("Client added");
         const badResponse = await request(app).post("/api/client")
             .set("Authorization", `Bearer ${admin.token}`)

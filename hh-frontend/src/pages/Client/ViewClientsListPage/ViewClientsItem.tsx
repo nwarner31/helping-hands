@@ -4,32 +4,34 @@ import clsx from "clsx";
 import LinkButton from "../../../components/Buttons/LinkButton/LinkButton";
 
 
-const ViewClientsItem = ({client, isOddRow}: {client: Client, isOddRow: boolean}) => {
+const ViewClientsItem = ({client}: {client: Client}) => {
 
     return(
             <div
-                className={clsx(
-                    "items-center gap-2 p-2 font-body grid grid-rows-2",
-                     "grid-cols-[auto_1fr_1fr] md:grid-cols-[auto_1fr_1fr_1fr]",
-                )}
-                data-testid="view-clients-item"
-            >
-                {/* ID Button: spans both rows */}
-                <LinkButton to={`/view-client/${client.id}`} state={{client: client}} className="row-span-2" variant={isOddRow ? "accent": "secondary"}>
+                className="items-center my-2 mx-1 font-body grid grid-cols-[4fr_5fr_3fr] sm:grid-cols-[3fr_5fr_3fr_1fr] md:grid-cols-[3fr_5fr_3fr_3fr_1fr] gap-x-2"
+                data-testid="view-clients-item">
+                <LinkButton to={`/view-client/${client.id}`} state={{client: client}} className="row-span-2" variant="primary">
                     {client.id}
                 </LinkButton>
-                <div className={clsx("font-semibold")}>Legal Name</div>
-                <div className={clsx("font-semibold")}>Date of Birth</div>
-                <div className="font-semibold hidden md:block" >Nickname</div>
-                {/* Legal Name */}
-                <div className="font-medium truncate sm:flex-1"> {client.legalName}</div>
-                {/* Date of Birth */}
-                <div className="text-sm"> {formatDate(client.dateOfBirth)}</div>
-                {/* Nickname */}
-                    <div className="hidden md:block text-sm">
-                        {client.name ? client.name : "None"}
-                    </div>
+                <div className="display-block">
+                    <div className={clsx("font-semibold text-slate-700 text-xs  xs:text-sm ")}>Legal Name</div>
+                    <div className="font-medium truncate text-sm xs:text-base"> {client.legalName}</div>
+                </div>
+                <div className="m-auto">
+                    <div className={clsx("font-semibold text-slate-700 text-xs xs:text-sm")}>Date of Birth</div>
+                    <div className="text-sm xs:text-base"> {formatDate(client.dateOfBirth)}</div>
+                </div>
+                <div className="hidden md:block text-center">
+                    <div className="font-semibold " >Nickname</div>
+                    <div className="text-sm">
+                    {client.name ? client.name : "None"}
+                </div>
+                </div>
+                <div className="hidden sm:block text-center">
+                    <div className="font-semibold text-sm" >Sex</div>
+                    <div>{client.sex}</div>
 
+                </div>
             </div>
 
     );

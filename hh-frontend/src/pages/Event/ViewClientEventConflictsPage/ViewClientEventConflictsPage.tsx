@@ -79,8 +79,11 @@ const ViewClientEventConflictsPage = () => {
                     </div>
                     <Button className="w-full">Search</Button>
                 </form>
-                {isLoading && <LoadingText />}
-                {paginateConflicts.length > 0 &&
+                {isLoading && <List>
+                    {[1,2,3,4,5,6].map(n => (<ListItem id={`loading-${n}`} key={`loading-${n}`} ><LoadingText /></ListItem>))}
+                </List>}
+
+                {!isLoading && paginateConflicts.length > 0 &&
                 <List>
                     {paginateConflicts.map(ec =>
                     <ListItem id={ec.event.id} key={ec.event.id} >

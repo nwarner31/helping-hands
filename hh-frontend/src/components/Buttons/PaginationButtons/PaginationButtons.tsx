@@ -23,7 +23,7 @@ const PaginationButtons = ({page, numPages, onPageChange}: PaginationButtonsProp
         setPageNum(e.target.value);
     }
     return (
-        <div className="flex items-center justify-center gap-x-2 my-3" data-testid="pagination-buttons">
+        <div className="flex items-center justify-center gap-x-2 my-1" data-testid="pagination-buttons">
             <Button disabled={page < 2} onClick={() => onPageChange(page-1)} data-testid="pagination-previous">&lt;</Button>
             <form onSubmit={handleSubmit} data-testid="pagination-form">
                 <input type="number" className="border-1 w-10" onChange={handlePageChange} value={pageNum} data-testid="pagination-input"/> / {numPages}

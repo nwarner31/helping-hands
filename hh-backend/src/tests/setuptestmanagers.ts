@@ -60,5 +60,7 @@ export const setupTestManagers = async () => {
 };
 
 export const teardownTestManagers = async () => {
+    await prisma.session.deleteMany();
+    await prisma.refreshToken.deleteMany();
     await prisma.employee.deleteMany();
 }

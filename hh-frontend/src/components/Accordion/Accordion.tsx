@@ -13,14 +13,14 @@ interface AccordionProps {
     childrenClassName?: string;
 }
 
-const variantClasses: Record<ButtonVariant, string> = {
-    primary: "bg-primary text-white",
+const variantClasses: Partial<Record<ButtonVariant, string>> = {
+    primary: "bg-primary-500 text-white",
     secondary: "bg-secondary text-white",
     danger: "bg-danger text-white",
     success: "bg-success text-white",
     accent: "bg-accent text-white",
 };
-const focusVariant: Record<ButtonVariant, string> = {
+const focusVariant: Partial<Record<ButtonVariant, string>> = {
     primary: "focus:outline-cyan-200",
     secondary: "focus:outline-emerald-900",
     danger: "focus:outline-red-900",

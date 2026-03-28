@@ -6,7 +6,7 @@ import {setupHouseTest, teardownHouseTests} from "./house.setuptest";
 import prisma from "../../../utility/prisma";
 import {Employee} from "@prisma/client";
 import {TestEmployee} from "../../setuptestemployees";
-import {setupTestManagers} from "../../setuptestmanagers";
+import {setupTestManagers, teardownTestManagers} from "../../setuptestmanagers";
 
 // Mock service
 //jest.mock("../../services/houseService");
@@ -55,6 +55,7 @@ describe("POST /house/:houseId/manager", () => {
         jest.clearAllMocks();
     });
     afterAll(async () => {
+        await teardownTestManagers();
         await teardownHouseTests();
     })
 

@@ -63,12 +63,6 @@ export const setupTestEmployees = async () => {
     };
 };
 
-export const clearTestEmployees = async () => {
-    await prisma.employee.deleteMany();
-    await prisma.refreshToken.deleteMany();
-    await prisma.employee.deleteMany();
-}
-
 export const teardownTestEmployees = async () => {
     await prisma.session.deleteMany();
     await prisma.refreshToken.deleteMany();

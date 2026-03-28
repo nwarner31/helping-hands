@@ -44,8 +44,8 @@ describe("HOUSE - update house", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.message).toBe("House successfully updated");
-        expect(response.body.house.name).toBe("Updated Name");
-        expect(response.body.house.city).toBe("Tacoma");
+        expect(response.body.data.name).toBe("Updated Name");
+        expect(response.body.data.city).toBe("Tacoma");
     });
 
     it("should return 401 if no token provided", async () => {

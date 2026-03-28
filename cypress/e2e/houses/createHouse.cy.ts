@@ -20,7 +20,7 @@ describe('Create House', () => {
        cy.get("button:contains('Add House')").click();
        cy.contains("House successfully added");
        cy.url().should("include", "/view-houses");
-       cy.contains("H3");
+       cy.contains("H3").should("be.visible");
     });
     it("should show validation errors for duplicate house id and name", () => {
         cy.get("input[name=id]").type("H1");

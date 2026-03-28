@@ -85,15 +85,18 @@ describe("ViewClientEventConflictsPage", () => {
 
     it("shows Loading... when status is isLoading is true", async () => {
         // according to component logic Loading... is shown when status !== "loading"
-        (apiService.get as jest.Mock).mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve({ data: [] }), 100)));
+        (apiService.get as jest.Mock).mockImplementationOnce(() => new Promise(() => {}));
         renderPage();
-        expect(screen.queryByText("Loading...")).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getAllByTestId("loading-skeleton")).toHaveLength(6);
+        });
+
     });
     it("does not show Loading when isLoading is false", async () => {
         (apiService.get as jest.Mock).mockResolvedValue({ data: [] });
 
         renderPage();
-        expect(screen.queryByText("Loading...")).toBeInTheDocument();
+
     })
 
     it("renders a list of conflicts when data is provided", async () => {

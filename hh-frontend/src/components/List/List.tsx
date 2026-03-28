@@ -4,7 +4,6 @@ import {createContext} from "react";
 interface ListContextType {
     dividerColor?: string;
     dividerInset?: string;
-    // setDividerInfo: (color: string, inset: string) => void;
 }
 
 export const ListContext = createContext<ListContextType | null>(null);
@@ -16,8 +15,8 @@ interface ListProps {
 }
 const List = ({children, borderVariant = "primary", inset = "medium"}: ListProps) => {
     const dividerColors = {
-        primary: "after:bg-primary",
-        secondary: "after:bg-secondary",
+        primary: "after:bg-primary-500",
+        secondary: "after:bg-secondary/50",
         accent: "after:bg-accent",
     }
     const dividerInsets = {

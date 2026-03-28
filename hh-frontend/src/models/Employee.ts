@@ -7,6 +7,7 @@ export interface Employee {
     password?: string;
     position: string;
     hireDate: string;
+    sex: string;
     primaryHouses?: House[];
     secondaryHouses?: House[];
 }

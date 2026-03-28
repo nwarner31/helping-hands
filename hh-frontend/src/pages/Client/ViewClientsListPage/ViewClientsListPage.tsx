@@ -67,28 +67,40 @@ const ViewClientsListPage = () => {
         setPage(newPage);
     }
 
+
     return (
         <div className="flex justify-center items-center bg-slate-100 min-h-screen">
-            <PageCard size="md-lg" title="Clients" className="py-4" >
-                <div >
+            <PageCard size="lg" title="Clients" className="py-4 flex flex-col max-h-screen" >
+
                     <div className="flex mx-4 gap-x-2 mb-3">
                         {employee?.position === "ADMIN" && <LinkButton to="/add-client" className=" grow basis-0">Add Client</LinkButton>}
-                        <LinkButton to="/dashboard" variant="secondary" className="font-header font-bold grow basis-0">Back to Dashboard</LinkButton>
+                        <LinkButton to="/dashboard" variant="secondary" className="font-header font-bold grow basis-0">Dashboard</LinkButton>
                     </div>
                     <div className="flex gap-x-4 mb-5 justify-center items-end">
                         <Input label="Search Name" name="nameFilter" value={nameText} onChange={updateNameText} />
                         <Select name="sexFilter" label="Sex" options={sexes} value={sexFilter} onChange={updateSex} />
                     </div>
-                    <List inset="medium">
-                        {paginatedClients.map((client, index) => (
-                            <ListItem id={client.id} key={client.id}>
-                                <ViewClientsItem client={client} isOddRow={index % 2 === 0} />
-                            </ListItem> ))}
-                    </List>
+                    {paginatedClients.length > 0 &&
+                    <div className="grow overflow-y-auto">
+                         <List inset="small" borderVariant="secondary">
+                            {paginatedClients.map((client) => (
+                                <ListItem id={client.id} key={client.id}>
+                                    <ViewClientsItem client={client} />
+                                </ListItem> ))}
+                        </List>
+                    </div>}
                     {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={changePage} />}
-                    {isLoading && <LoadingText />}
+                    {isLoading &&
+                        <div className="grow overflow-y-auto">
+                        <List inset="small" borderVariant="secondary">
+                            {[1,2,3,4,5,6].map(num => (
+                            <ListItem id={`loading-${num}`} key={num}>
+                                <LoadingText className="h-16 m-2" bgColorType="primary"  />
+                            </ListItem>))}
 
-                </div>
+                        </List></div>}
+
+
             </PageCard>
         </div>
     );

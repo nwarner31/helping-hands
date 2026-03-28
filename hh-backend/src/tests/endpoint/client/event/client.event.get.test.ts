@@ -65,8 +65,7 @@ describe("GET /client/:clientId/event", () => {
             .set("Authorization", `Bearer ${associate.token}`);
 
         expect(res.status).toBe(200);
-        expect(res.body.data.events.length).toBeGreaterThan(0);
-        expect(res.body.data.numPages).toBeDefined();
+        expect(res.body.data.length).toBeGreaterThan(0);
     });
 
     it("returns events for a given month", async () => {
@@ -78,9 +77,9 @@ describe("GET /client/:clientId/event", () => {
             .set("Authorization", `Bearer ${associate.token}`);
 
         expect(res.status).toBe(200);
-        expect(res.body.data.events.length).toBe(1);
-        expect(res.body.data.events[0].id).toBe("T02");
-        expect(res.body.data.events.every((e: any) => e.beginDate.startsWith(`${year}-${monthString}`))).toBe(true);
+        expect(res.body.data.length).toBe(1);
+        expect(res.body.data[0].id).toBe("T02");
+        expect(res.body.data.every((e: any) => e.beginDate.startsWith(`${year}-${monthString}`))).toBe(true);
     });
 
     it("returns events for a from/to range", async () => {
@@ -98,8 +97,8 @@ describe("GET /client/:clientId/event", () => {
             .get(`/api/client/${testClient.id}/event?from=${beginYear}-${beginMonthString}-${beginDayString}&to=${endYear}-${endMonthString}-${endDayString}`)
             .set("Authorization", `Bearer ${associate.token}`);
         expect(res.status).toBe(200);
-        expect(res.body.data.events.length).toBe(1);
-        expect(res.body.data.events[0].id).toBe("T01");
+        expect(res.body.data.length).toBe(1);
+        expect(res.body.data[0].id).toBe("T01");
     });
 
     it("should return 400 if has a from and no to" , async () => {
@@ -151,33 +150,6 @@ describe("GET /client/:clientId/event", () => {
         expect(res.status).toBe(401);
     });
 
-    it("should return the proper page", async () => {
-        const beginDay = today.getDate() - 1;
-        const beginDayString = beginDay > 9 ? beginDay.toString() : "0" + beginDay.toString();
-        const beginMonth = today.getMonth() + 1;
-        const beginMonthString = beginMonth > 9 ? beginMonth.toString() : "0" + beginMonth.toString();
-        const beginYear = oneMonthFromToday.getFullYear();
-        const endDay = oneMonthFromToday.getDate() + 1;
-        const endDayString = endDay > 9 ? endDay.toString() : "0" + endDay.toString();
-        const endMonth = oneMonthFromToday.getMonth() + 1;
-        const endMonthString = endMonth > 9 ? endMonth.toString() : "0" + endMonth.toString();
-        const endYear = oneMonthFromToday.getFullYear();
-        const resPage1 = await request(app)
-            .get(`/api/client/${testClient.id}/event?from=${beginYear}-${beginMonthString}-${beginDayString}&to=${endYear}-${endMonthString}-${endDayString}&page=1&pageSize=1`)
-            .set("Authorization", `Bearer ${associate.token}`);
-        expect(resPage1.status).toBe(200);
-        expect(resPage1.body.data.events.length).toBe(1);
-        expect(resPage1.body.data.events[0].id).toBe("T01");
-        expect(resPage1.body.data.numPages).toBe(2);
-        const resPage2 = await request(app)
-            .get(`/api/client/${testClient.id}/event?from=${beginYear}-${beginMonthString}-${beginDayString}&to=${endYear}-${endMonthString}-${endDayString}&page=2&pageSize=1`)
-            .set("Authorization", `Bearer ${associate.token}`);
-        expect(resPage2.status).toBe(200);
-        expect(resPage2.body.data.events.length).toBe(1);
-        expect(resPage2.body.data.events[0].id).toBe("T02");
-        expect(resPage2.body.data.numPages).toBe(2);
-    });
-
     it("should handle server errors", async () => {
         jest.spyOn(require("../../../../services/client/client.service"), "getClientEventsInDateRange")
             .mockRejectedValue(new Error("Database connection failed"));
@@ -186,6 +158,4 @@ describe("GET /client/:clientId/event", () => {
             .set("Authorization", `Bearer ${associate.token}`);
         expect(res.status).toBe(500);
     });
-
-
 });

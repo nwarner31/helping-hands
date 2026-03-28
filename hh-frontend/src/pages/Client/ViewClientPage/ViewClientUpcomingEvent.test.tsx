@@ -23,7 +23,7 @@ const mockEvent: Event = {
     numberStaffRequired: 3,
 };
 
-const renderComponent = (isOdd: boolean) => {
+const renderComponent = () => {
     const testQuery = new QueryClient({
         defaultOptions: {
             queries: {
@@ -34,7 +34,7 @@ const renderComponent = (isOdd: boolean) => {
     return render (
         <QueryClientProvider client={testQuery}>
         <MemoryRouter>
-            <ViewClientUpcomingEvent event={mockEvent} isOdd={isOdd} />
+            <ViewClientUpcomingEvent event={mockEvent} />
         </MemoryRouter>
         </QueryClientProvider>
     );
@@ -42,7 +42,7 @@ const renderComponent = (isOdd: boolean) => {
 
 describe("ViewClientUpcomingEvent", () => {
     it("renders the event information", async () => {
-        renderComponent(false);
+        renderComponent();
         await waitFor(() => {
             expect(screen.getByText("e1")).toBeInTheDocument();
             expect(screen.getByText("Begin")).toBeInTheDocument();
@@ -57,19 +57,5 @@ describe("ViewClientUpcomingEvent", () => {
             expect(screen.getByText("3")).toBeInTheDocument();
         })
 
-    });
-
-    it("applies correct button classes when isOdd=false (even row)", async () => {
-        renderComponent(false);
-        await waitFor(() => {
-            expect(screen.getByText("e1")).toHaveClass("bg-secondary");
-        });
-    });
-
-    it("applies correct button classes when isOdd=true (odd row)", async () => {
-        renderComponent(true);
-        await waitFor(() => {
-            expect(screen.getByText("e1")).toHaveClass("bg-accent");
-        });
     });
 });

@@ -27,7 +27,7 @@ describe("ViewHouseListItem Component", () => {
     const mockRemoveManager = jest.fn();
 
     it("renders collapsed row with key info", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={house} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         expect(screen.getByText("House Id")).toBeInTheDocument();
         expect(screen.getByText("H001")).toBeInTheDocument();
         expect(screen.getByText("Safe Haven")).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("ViewHouseListItem Component", () => {
     });
 
     it("expands to show address, managers, and clients", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={house} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
         expect(screen.getByText("Address:")).toBeInTheDocument();
         expect(screen.getByText("123 Elm St, Apt 4B, Testville, TS")).toBeInTheDocument();
@@ -59,13 +59,22 @@ describe("ViewHouseListItem Component", () => {
         expect(screen.getByText("Empty")).toBeInTheDocument(); // one client slot left
     });
     it("shows no for houses that are not female only", () => {
-        render(<BrowserRouter><ViewHouseListItem house={{...house, femaleEmployeeOnly: false}} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={{...house, femaleEmployeeOnly: false}} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
         expect(screen.getAllByText("No")).toHaveLength(2);
-    })
+    });
+    it("shows N/A for houses that have no primary manager", () => {
+        const noManagerHouse = {...house, primaryHouseManager: undefined, primaryManagerId: undefined};
+        render(<BrowserRouter><ViewHouseListItem house={noManagerHouse} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        fireEvent.click(screen.getByRole("button", { name: /▶/i }));
+        expect(screen.getByTestId("primary-add")).toBeInTheDocument();
+        expect(screen.queryByTestId("primary-remove")).not.toBeInTheDocument();
+        expect(screen.getAllByText("N/A")).toHaveLength(2); // primary and secondary manager both show N/A
+    });
 
     it("renders correct number of Add and Remove buttons", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+
+        render(<BrowserRouter><ViewHouseListItem house={house} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
 
         const addButtons =  screen.getAllByTestId("client-add-button");
@@ -78,7 +87,7 @@ describe("ViewHouseListItem Component", () => {
     });
     it("displays the proper manager buttons (reverse of above test)", async () => {
         const houseData = {...house, primaryHouseManager: undefined, secondaryHouseManager: {name: "Mario Mario"} as any};
-        render(<BrowserRouter><ViewHouseListItem house={houseData} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={houseData} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
 
         expect(screen.getByTestId("primary-add")).toBeInTheDocument();
@@ -86,26 +95,17 @@ describe("ViewHouseListItem Component", () => {
     })
 
     it("hides Edit, Add, and Remove buttons when canEdit is false", async () => {
-        render(<BrowserRouter><ViewHouseListItem house={{...house, secondaryHouseManager: {name: "Ann Manager"} as any}} isOdd={false} canEdit={false} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
+        render(<BrowserRouter><ViewHouseListItem house={{...house, secondaryHouseManager: {name: "Ann Manager"} as any}} canEdit={false} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
         expect(screen.queryByText("Edit")).not.toBeInTheDocument();
         expect(screen.queryByText("Remove")).not.toBeInTheDocument();
         expect(screen.queryByText("Add")).not.toBeInTheDocument();
     });
 
-    it("applies the 'odd-row' button class when isOdd is true", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={true} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
-        expect(screen.getByRole("button").className).toContain("bg-accent");
-    });
-
-    it("applies the 'even-row' button class when isOdd is false", () => {
-        render(<BrowserRouter><ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} /></BrowserRouter>);
-        expect(screen.getByRole("button").className).toContain("bg-secondary");
-    });
     it("calls onRemoveClicked when a Remove button is clicked", async () => {
         render(
             <BrowserRouter>
-                <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
+                <ViewHouseListItem house={house} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
             </BrowserRouter>
         );
         await userEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -119,7 +119,7 @@ describe("ViewHouseListItem Component", () => {
     it("navigates to the edit page when Edit button is clicked", async () => {
         render(
             <BrowserRouter>
-                <ViewHouseListItem house={house} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
+                <ViewHouseListItem house={house} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
             </BrowserRouter>
         );
 
@@ -138,7 +138,6 @@ describe("ViewHouseListItem Component", () => {
                         element={
                             <ViewHouseListItem
                                 house={house}
-                                isOdd={false}
                                 canEdit={true}
                                 onRemoveClient={mockRemoveClient}
                                 onRemoveManager={mockRemoveManager}
@@ -170,7 +169,6 @@ describe("ViewHouseListItem Component", () => {
                         element={
                             <ViewHouseListItem
                                 house={house}
-                                isOdd={false}
                                 canEdit={true}
                                 onRemoveClient={mockRemoveClient}
                                 onRemoveManager={mockRemoveManager}
@@ -194,7 +192,7 @@ describe("ViewHouseListItem Component", () => {
 
         expect(screen.getByText("Add Client Page")).toBeInTheDocument();
     });
-    const partialEmployee = { id: "t100", email: "test@mail.com", position: "MANAGER", hireDate: "2024-01-01" }
+    const partialEmployee = { id: "t100", email: "test@mail.com", position: "MANAGER", hireDate: "2024-01-01", sex: "M" }
     const houseWithManagers = {
         ...house,
         primaryHouseManager: { name: "Jane Doe", ...partialEmployee },
@@ -203,7 +201,7 @@ describe("ViewHouseListItem Component", () => {
 
     it("displays manager names when present", () => {
         render(<BrowserRouter>
-            <ViewHouseListItem house={houseWithManagers} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
+            <ViewHouseListItem house={houseWithManagers} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
         </BrowserRouter>);
 
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -213,7 +211,7 @@ describe("ViewHouseListItem Component", () => {
     it("displays remove buttons when house has managers", () => {
         const houseNoClients = {...houseWithManagers, clients: []};
         render(<BrowserRouter>
-            <ViewHouseListItem house={houseNoClients} isOdd={false} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
+            <ViewHouseListItem house={houseNoClients} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
         </BrowserRouter>);
 
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -224,7 +222,7 @@ describe("ViewHouseListItem Component", () => {
     it("renders correctly when there are no clients", () => {
         const houseNoClients = { ...house, clients: [] };
         render(<BrowserRouter>
-            <ViewHouseListItem house={houseNoClients} isOdd={true} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
+            <ViewHouseListItem house={houseNoClients} canEdit={true} onRemoveClient={mockRemoveClient} onRemoveManager={mockRemoveManager} />
         </BrowserRouter>);
 
         fireEvent.click(screen.getByRole("button", { name: /▶/i }));
@@ -245,7 +243,6 @@ describe("ViewHouseListItem Component", () => {
              <BrowserRouter>
             <ViewHouseListItem
                 house={houseWithMissingAddress}
-                isOdd={true}
                 canEdit={false}
                 onRemoveClient={mockRemoveClient}
                 onRemoveManager={mockRemoveManager}
@@ -268,7 +265,6 @@ describe("ViewHouseListItem Component", () => {
             <BrowserRouter>
                 <ViewHouseListItem
                     house={houseWithManagers}
-                    isOdd={false}
                     canEdit={true}
                     onRemoveClient={mockRemoveClient}
                     onRemoveManager={mockRemoveManager}

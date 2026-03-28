@@ -27,7 +27,7 @@ describe("Client Routes - Update Client", () => {
             .set("Authorization", `Bearer ${admin.token}`)
             .send(updatedClient);
         expect(response.status).toBe(200);
-        expect(response.body.client.legalName).toBe("Updated Client");
+        expect(response.body.data.legalName).toBe("Updated Client");
     });
     it("should return 401 for no token", async () => {
         const updatedClient = {...client, legalName: "Updated Client"};

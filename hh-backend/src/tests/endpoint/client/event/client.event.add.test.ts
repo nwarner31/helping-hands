@@ -52,7 +52,7 @@ describe("Client Routes - Add Event", () => {
             .send(validEvent);
 
         expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty("event");
+        expect(response.body).toHaveProperty("data");
         expect(response.body.message).toBe("Event created");
     });
 
@@ -152,7 +152,7 @@ describe("Client Routes - Add Event", () => {
             });
 
         expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty("event");
+        expect(response.body).toHaveProperty("data");
         expect(response.body.message).toBe("Event created");
     });
 

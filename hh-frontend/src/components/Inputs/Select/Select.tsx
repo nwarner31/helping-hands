@@ -19,7 +19,7 @@ const Select: React.FC<SelectProps> = ({ name, label, options, value, error, cla
     const errorId = error ? `error-${name}` : undefined;
     return (
         <div className={clsx("flex flex-col", containerClass)}>
-            <label htmlFor={name} className="text-sm mb-2">{label}</label>
+            <label htmlFor={name} className="text-sm mb-0">{label}</label>
             <select
                 id={name}
                 name={name}
@@ -27,7 +27,7 @@ const Select: React.FC<SelectProps> = ({ name, label, options, value, error, cla
                 {...props}
                 aria-invalid={!!error}
                 aria-describedby={errorId}
-                className={clsx( "w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
+                className={clsx( "w-full px-3 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
                     error && "border-red-500 focus:ring-red-500 focus:border-red-500", className)}>
                 {options.map(({ value, label }) => (
                     <option key={value} value={value}>

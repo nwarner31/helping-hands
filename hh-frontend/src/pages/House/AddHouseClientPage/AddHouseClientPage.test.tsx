@@ -90,7 +90,7 @@ describe("AddHouseClientPage", () => {
         renderWithRouter();
 
         await waitFor(() => {
-            expect(screen.getByText("Add Client to House")).toBeInTheDocument();
+            expect(screen.getByText("Add Client")).toBeInTheDocument();
             expect(screen.getByText("Sunrise Home")).toBeInTheDocument();
             expect(screen.getByText("Alice Smith")).toBeInTheDocument();
             expect(screen.getByText("Bob Johnson")).toBeInTheDocument();
@@ -161,7 +161,7 @@ describe("AddHouseClientPage", () => {
         await waitFor(() => {
             expect(screen.getByText("house123")).toBeInTheDocument();
             expect(screen.getByText("Sunrise Home")).toBeInTheDocument();
-            expect(screen.getByText("Loading...")).toBeInTheDocument();
+            expect(screen.getAllByTestId("loading-skeleton")).toHaveLength(6)
         });
     })
 

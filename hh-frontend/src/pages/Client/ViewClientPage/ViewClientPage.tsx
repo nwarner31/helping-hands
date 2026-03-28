@@ -8,6 +8,8 @@ import PageCard from "../../../components/Cards/PageCard/PageCard";
 import NavButtons from "../../../components/Buttons/NavButtons/NavButtons";
 import {useQuery} from "@tanstack/react-query";
 import {getClient} from "../../../data/client.data";
+import ListItem from "../../../components/List/ListItem";
+import List from "../../../components/List/List";
 
 
 const ViewClientPage = () => {
@@ -38,7 +40,7 @@ const ViewClientPage = () => {
                         }
 
                         {client.house &&
-                        <Accordion id="house-info" header="House Info" variant="secondary" className="font-header mb-4 font-semibold">
+                        <Accordion id="house-info" header="House Info" variant="primary" className="font-header mb-4 font-semibold">
                             <div className="grid grid-cols-2 font-body">
                                 <div >House ID:</div><div>{client.house.id}</div>
                                 <div >Name:  </div><div>{client.house.name}</div>
@@ -65,11 +67,14 @@ const ViewClientPage = () => {
                                     {client.hasConflicts.hasConflicts ? `(${client.hasConflicts.numConflicts}) Upcoming Event Conflicts` : "No Upcoming Event Conflicts"}                                </LinkButton>}
 
                                 {canEdit && <LinkButton to={`/client/${clientId}/add-event`} state={{client: client}} variant="secondary">Add Event</LinkButton>}
-                                <LinkButton to={`/client/${clientId}/view-events`} variant="accent">View Events</LinkButton>
+                                <LinkButton to={`/client/${clientId}/view-events`} variant="primary">View Events</LinkButton>
                             </div>
 
                             {client.events && client.events.length > 0 ? (
-                                client.events.map((event, index) => <ViewClientUpcomingEvent key={event.id} event={{...event, client: client}} isOdd={index % 2 === 0} />)
+                                <List inset="none" borderVariant="secondary">
+                                    {client.events.map((event) => <ListItem id={event.id} key={event.id}> <ViewClientUpcomingEvent  event={{...event, client: client}} /></ListItem>)}
+                                </List>
+
                             ) : (
                                 <div className="text-center text-gray-500">No Upcoming Events</div>
                             )}

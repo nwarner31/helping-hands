@@ -17,4 +17,10 @@ describe("Admin Dashboard tests", () => {
         expect(manageHousesButton).toBeInTheDocument();
         expect(manageHousesButton).toHaveProperty("href", 'http://localhost/view-houses',)
     })
+    it("should render the manage employees button that links to view employees page", () => {
+        renderPage();
+        const manageEmployeesButton = screen.getByTestId("link-button-employee");
+        expect(manageEmployeesButton).toBeInTheDocument();
+        expect(manageEmployeesButton).toHaveProperty("href", 'http://localhost/view-employees',)
+    })
 })

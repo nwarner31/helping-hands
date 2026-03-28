@@ -38,7 +38,7 @@ const renderPage = () => {
 }
 
 describe("AddHouseManagePage tests", () => {
-    it("renders house data from location state and manager list", async () => {
+    it("renders house data and manager list", async () => {
         const house = { id: "H1", name: "Sample House" };
         const managers = [
             { id: "E1", employeeId: "EMP1", name: "Alice", position: "MANAGER" },
@@ -51,38 +51,13 @@ describe("AddHouseManagePage tests", () => {
 
         renderPage();
         await waitFor(() => {
-            expect(screen.getByText("Add House Manager")).toBeInTheDocument();
+            expect(screen.getByText("Add Manager")).toBeInTheDocument();
             expect(screen.getByText("H1")).toBeInTheDocument();
             expect(screen.getByText("Sample House")).toBeInTheDocument();
             expect(screen.getByText("Alice")).toBeInTheDocument();
             expect(screen.getByText("Bob")).toBeInTheDocument();
         })
 
-    });
-
-    it("fetches house data if not in location state", async () => {
-        const house = { houseId: "H2", name: "Fetched House" };
-        const managers = [{ id: "E1", employeeId: "EMP1", name: "Charlie", position: "MANAGER" }];
-
-        (reactRouterDom.useParams as jest.Mock).mockReturnValue({ houseId: "H2" });
-
-        (apiService.get as jest.Mock).mockImplementation(async (url: string) => {
-            if(url.includes("available-managers")) {
-                return ({ message: "Event found", data:  managers });
-            }
-            if(url.includes("house/H2")) {
-                return ({ message: "House found", data: house });
-            }
-            throw new Error("Not found");
-        });
-
-        renderPage();
-
-        await waitFor(() => {
-            expect(screen.getByText("Fetched House")).toBeInTheDocument();
-        });
-
-        expect(screen.getByText("Charlie")).toBeInTheDocument();
     });
 
     it("displays message when no managers are available", async () => {
@@ -94,10 +69,24 @@ describe("AddHouseManagePage tests", () => {
 
         renderPage();
         await waitFor(() => {
-            expect(screen.getByText("Add House Manager")).toBeInTheDocument();
+            expect(screen.getByText("Add Manager")).toBeInTheDocument();
             expect(screen.queryByText(/Alice|Bob|Charlie/)).not.toBeInTheDocument();
         })
     });
+    it("should display 6 loading skeletons when loading managers", async () => {
+        const house = { id: "H1", name: "Sample House" };
+        (reactRouterDom.useParams as jest.Mock).mockReturnValue({ houseId: "H3" });
+        (apiService.get as jest.Mock).mockResolvedValueOnce({ data: house  });
+        (apiService.get as jest.Mock).mockImplementationOnce(() => new Promise(() => {}));
+        renderPage();
+        //(apiService.get as jest.Mock).mockResolvedValue( { message: "Event found", data:  managers });
+        await waitFor(() => {
+            expect(screen.getByText("Sample House")).toBeInTheDocument()
+
+        })
+        expect(screen.getAllByTestId("loading-skeleton")).toHaveLength(6)
+
+    })
     it("should navigate back when cancel is clicked", async () => {
         (apiService.get as jest.Mock).mockResolvedValue({ data: [] });
         (reactRouterDom.useParams as jest.Mock).mockReturnValue({ houseId: "H3" });

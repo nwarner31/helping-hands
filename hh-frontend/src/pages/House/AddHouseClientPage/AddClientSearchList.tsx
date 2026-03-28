@@ -81,14 +81,14 @@ const AddClientSearchList: React.FC<Props> = ({ clients, houseId }) => {
                 <div></div>
             </div>
             <List inset="small" borderVariant="secondary">
-                {filteredClients.map((client, index) => (
+                {filteredClients.map((client) => (
                     <ListItem id={client.id} key={client.id}>
                         <div className={clsx("py-1", gridCols)}>
                             <div className={gridCells}>{client.id}</div>
                             <div className={gridCells}>{client.legalName}</div>
                             <div className={clsx("hidden sm:block", gridCells)}>{formatDate(client.dateOfBirth)}</div>
                             <div className={gridCells}>{client.sex}</div>
-                            <Button variant={index % 2 === 0 ? "primary" : "accent"} onClick={() => handleAddClick(client.id)}><div className="hidden sm:block">Add</div><div className="sm:hidden">+</div></Button>
+                            <Button variant="primary" onClick={() => handleAddClick(client.id)}><div className="hidden sm:block">Add</div><div className="sm:hidden">+</div></Button>
                         </div>
                     </ListItem>
                 ))}

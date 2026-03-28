@@ -2,6 +2,7 @@ import {useAuth} from "../../context/AuthContext";
 import AdminDashboard from "./AdminDashboard/AdminDashboard";
 import DirectorDashboard from "./DirectorDashboard/DirectorDashboard";
 import PageCard from "../../components/Cards/PageCard/PageCard";
+import AssociateDashboard from "./AssociateDashboard/AssociateDashboard";
 
 const DashboardPage = () => {
     const {employee} = useAuth();
@@ -10,6 +11,8 @@ const DashboardPage = () => {
         dashboard = <AdminDashboard />
     } else if (employee?.position === "DIRECTOR") {
         dashboard = <DirectorDashboard />
+    } else if (employee?.position === "ASSOCIATE") {
+        dashboard = <AssociateDashboard />
     }
 
     return (

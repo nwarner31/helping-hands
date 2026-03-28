@@ -14,10 +14,9 @@ describe("ProtectedRoute", () => {
         mockUseAuth.mockReturnValue({ accessToken: "valid-token" });
 
         render(
-            <MemoryRouter initialEntries={['/protected']}>
+            <MemoryRouter initialEntries={['/']}>
                 <Routes>
-                    <Route path="/" element={<ProtectedRoute />}>
-                        <Route path="protected" element={<div>Protected Content</div>} />
+                    <Route path="/" element={<ProtectedRoute ><div>Protected Content</div></ProtectedRoute>}>
                     </Route>
                 </Routes>
             </MemoryRouter>
@@ -36,9 +35,7 @@ describe("ProtectedRoute", () => {
         render(
             <MemoryRouter initialEntries={['/protected']}>
                 <Routes>
-                    <Route path="/" element={<ProtectedRoute redirect="/login" />}>
-                        <Route path="protected" element={<div>Protected Content</div>} />
-
+                    <Route path="/protected" element={<ProtectedRoute redirect="/login"><div>Protected Content</div></ProtectedRoute>}>
                     </Route>
                     <Route path="login" element={<div>Login Page</div>} />
                 </Routes>
@@ -51,4 +48,45 @@ describe("ProtectedRoute", () => {
         // Check if "Protected Content" is not rendered (because the user was redirected)
         expect(screen.queryByText("Protected Content")).not.toBeInTheDocument();
     });
+    describe("Role based Protections", () => {
+        it("should render the route if the user is authorized to (is in the allowed roles)", async () => {
+            // Mock the `useAuth` hook to simulate an unauthenticated user
+            const mockUseAuth = require("../../context/AuthContext").useAuth;
+            mockUseAuth.mockReturnValue({ accessToken: "token", employee: {position: "ADMIN"} });
+
+            render(
+                <MemoryRouter initialEntries={['/protected']}>
+                    <Routes>
+                        <Route path="/protected" element={<ProtectedRoute redirect="/login" rolesAllowed={["ADMIN"]}><div>Protected Content</div></ProtectedRoute>}>
+                        </Route>
+                        <Route path="login" element={<div>Login Page</div>} />
+                    </Routes>
+                </MemoryRouter>
+            );
+            expect(screen.getByText("Protected Content")).toBeInTheDocument();
+        })
+        it("should redirect if the user is not authorized (not in allowed roles)", async () => {
+            // Mock the `useAuth` hook to simulate an unauthenticated user
+            const mockUseAuth = require("../../context/AuthContext").useAuth;
+            mockUseAuth.mockReturnValue({ accessToken: "token", employee: {position: "ASSOCIATE"} });
+
+            render(
+                <MemoryRouter initialEntries={['/protected']}>
+                    <Routes>
+                        <Route path="/protected" element={<ProtectedRoute redirect="/login" rolesAllowed={["ADMIN"]}><div>Protected Content</div></ProtectedRoute>}>
+                        </Route>
+                        <Route path="login" element={<div>Login Page</div>} />
+                    </Routes>
+                </MemoryRouter>
+            );
+
+            // Wait for the redirection to happen and check if the login page is rendered
+            await waitFor(() => expect(screen.getByText("Login Page")).toBeInTheDocument());
+
+            // Check if "Protected Content" is not rendered (because the user was redirected)
+            expect(screen.queryByText("Protected Content")).not.toBeInTheDocument();
+        });
+    })
+
+
 });

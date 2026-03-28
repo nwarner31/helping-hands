@@ -10,6 +10,8 @@ import {useQuery} from "@tanstack/react-query"
 import apiService from "../../../utility/ApiService";
 import LoadingText from "../../../components/TextAreas/LoadingText/LoadingText";
 import {getHouse} from "../../../data/house.data";
+import ListItem from "../../../components/List/ListItem";
+import List from "../../../components/List/List";
 
 const AddHouseClientPage = () => {
     const { houseId } = useParams();
@@ -33,7 +35,7 @@ const AddHouseClientPage = () => {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-100">
-            <PageCard title="Add Client to House" size="lg" className="py-4 px-1 flex flex-col gap-y-3" >
+            <PageCard title="Add Client" size="lg" className="py-4 px-1 flex flex-col gap-y-3 max-h-screen" >
                 {house &&
                 <>
                     <div className="grid grid-cols-2 gap-x-2 text-center">
@@ -65,10 +67,15 @@ const AddHouseClientPage = () => {
                             ))}
                             </tbody>
                         </table>}
-                    {clients &&
-                        <AddClientSearchList clients={clients} houseId={house.id} />
-                    }
-                    {isLoadingClient && <LoadingText />}
+                    <div className="overflow-y-auto">
+                        {clients && <AddClientSearchList clients={clients} houseId={house.id} />}
+                    </div>
+
+                    {isLoadingClient &&
+                        <List borderVariant="secondary">
+                            {[1,2,3,4,5,6].map(n => (
+                                <ListItem id={`loading-${n}`} key={`loading-${n}`}><LoadingText bgColorType="primary" className="h-13 my-1" /></ListItem>))}
+                        </List> }
                 </>
                 }
                 {isLoadingHouse && <LoadingText />}

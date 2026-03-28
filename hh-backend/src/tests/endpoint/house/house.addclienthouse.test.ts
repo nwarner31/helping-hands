@@ -54,7 +54,7 @@ describe('HOUSE - add client to house', () => {
 
         expect(res.status).toBe(209);
         expect(res.body.message).toBe("client added to house");
-        expect(res.body.house).toHaveProperty("id", house.id);
+        expect(res.body.data).toHaveProperty("id", house.id);
     });
     it("should return 400 if house ID is invalid", async () => {
         const res = await request(app)

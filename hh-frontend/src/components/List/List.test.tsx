@@ -26,7 +26,7 @@ describe("List component", () => {
             </List>
         );
 
-        expect(screen.getByTestId("ctx")).toHaveTextContent("after:bg-primary-after:left-8 after:right-8");
+        expect(screen.getByTestId("ctx")).toHaveTextContent("after:bg-primary-500-after:left-8 after:right-8");
     });
 
     it("maps borderVariant='accent' and inset='small' to correct context values", () => {
