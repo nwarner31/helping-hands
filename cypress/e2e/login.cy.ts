@@ -7,8 +7,6 @@ describe("Login Page", () => {
         cy.task("db:teardown")
             .then(() => cy.task("db:seed"))
             .then(() => cy.visit("/login"));
-
-
     });
     it("should login as admin and redirect to admin dashboard", () => {
         cy.get("input[name=email]").type("admin@test.com");

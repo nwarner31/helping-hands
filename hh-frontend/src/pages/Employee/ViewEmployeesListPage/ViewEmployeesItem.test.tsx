@@ -54,7 +54,7 @@ describe("ViewEmployeesItem", () => {
         renderItem();
 
         const editLink = screen.getByRole("link", {name: "Edit"});
-        expect(editLink).toHaveAttribute("href", "/");
+        expect(editLink).toHaveAttribute("href", "/employee/E123");
     });
 });
 

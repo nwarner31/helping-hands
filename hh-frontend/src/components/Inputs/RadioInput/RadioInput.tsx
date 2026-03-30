@@ -13,7 +13,7 @@ interface RadioInputProps {
 }
 const RadioInput = ({label, onChange, value, name, isChecked, className, variant="primary", error}: RadioInputProps) => {
     const variantClasses: Record<NonNullable<RadioInputProps["variant"]>, string> = {
-        primary: "peer-checked:border-primary text-primary peer-focus:ring-primary",
+        primary: "peer-checked:border-primary-500 text-primary-500 peer-focus:ring-primary-500",
         secondary: "peer-checked:border-secondary text-secondary peer-focus:ring-secondary",
         accent: "peer-checked:border-accent text-accent peer-focus:ring-accent",
     };

@@ -6,13 +6,15 @@ import React, {useState} from "react";
 import {Client} from "../../../models/Client";
 import {useNavigate} from "react-router-dom";
 import {ValidationErrors} from "../../../utility/validation/utility.validation";
+import CheckBox from "../../Inputs/CheckBox/CheckBox";
 
 const emptyClient = {
     id: "",
     legalName: "",
     name: "",
     dateOfBirth: "",
-    sex: "F"
+    sex: "F",
+    requiresStaff: false
 }
 
 interface ClientFormProps {
@@ -44,6 +46,7 @@ const ClientForm = ({initialData = emptyClient, submitButtonText, errors, onSubm
                 <RadioInput label="Female" name="sex" value="F" onChange={updateClientData} isChecked={clientData.sex === "F"} className="w-1/2" />
                 <RadioInput label="Male" name="sex" value="M" onChange={updateClientData} isChecked={clientData.sex === "M"} className="w-1/2" />
             </div>
+            <CheckBox name="requiresStaff" label="Requires Staff" onChange={updateClientData} isChecked={clientData.requiresStaff} />
             <Button className="w-full">{submitButtonText}</Button>
             <Button className="w-full" variant="secondary" type="button" onClick={() => navigate(-1)}>Cancel</Button>
         </form>

@@ -24,3 +24,11 @@ export const RegisterSchema = z.object({
     hireDate: z.string().min(1, "Hire Date is required").pipe(z.coerce.date("Hire Date must be a valid date")),
     sex: z.enum(["M", "F"])
 }).and(passwordMatchSchema);
+
+
+export const EmployeeSchema = z.object({
+    name: z.string().trim().min(1, "Name is required"),
+    email: z.string().trim().min(1, "Email is required").pipe(z.email("Invalid email format")),
+    hireDate: z.string().min(1, "Hire Date is required").pipe(z.coerce.date("Hire Date must be a valid date")),
+    sex: z.enum(["M", "F"])
+});

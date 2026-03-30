@@ -5,6 +5,7 @@ import {createTokens} from "../services/utility/token.service";
 export type TestEmployee = {
     id: string;
     token: string;
+    email: string;
 };
 export const setupTestEmployees = async () => {
     await prisma.session.deleteMany();
@@ -53,13 +54,16 @@ export const setupTestEmployees = async () => {
     return {
         admin: {
             id: adminId,
-            token: adminTokens.sessionToken,},
+            token: adminTokens.sessionToken,
+            email: "admin@test.com"},
         director: {
             id: directorId,
-            token: directorTokens.sessionToken,},
+            token: directorTokens.sessionToken,
+            email: "director@test.com"},
         associate: {
             id: associateId,
-            token: associateTokens.sessionToken,}
+            token: associateTokens.sessionToken,
+            email: "associate@test.com"}
     };
 };
 

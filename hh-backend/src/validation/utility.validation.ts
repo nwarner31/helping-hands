@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-export const stringIsDefined = (value?: string) => {
-    return  !!(value && value.trim().length > 0);
-}
-
 export const isValidMonth = (value: string) => {
     const yearRegex = /^(19|20)\d{2}-(0[1-9]|1[0-2])/;
     return yearRegex.test(value);
@@ -19,10 +15,15 @@ export const optionalNullableString = (max: number) =>
 
 // helper to flatten errors into { field: "message" }
 export function flattenErrors(error: z.ZodError) {
-    const fieldErrors: Record<string, string | undefined> = {};
-    for (const issue of error.issues) {
-        const key = issue.path[0] as string;
-        fieldErrors[key] = issue.message;
-    }
-    return fieldErrors;
+        const fieldErrors: Record<string, string | undefined> = {};
+
+        for (const issue of error.issues) {
+            const field = issue.path.join(".");
+
+            if (!fieldErrors[field]) {
+                fieldErrors[field] = issue.message;
+            }
+        }
+
+        return fieldErrors;
 }

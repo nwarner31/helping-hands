@@ -12,6 +12,14 @@ export interface Employee {
     secondaryHouses?: House[];
 }
 
+export interface EmployeeFormData {
+    name: string,
+    email: string,
+    hireDate: string,
+    sex: string,
+    position: string
+}
+
 export interface Register {
     id: string;
     name: string;
@@ -20,4 +28,13 @@ export interface Register {
     confirmPassword: string;
     hireDate: string;
     sex: string;
+}
+
+export const positions = [ {label: "Associate", value: "ASSOCIATE"}, {label: "Manager", value: "MANAGER"}, {label: "Director", value: "DIRECTOR"}, {label: "Admin", value: "ADMIN"}];
+
+export const convertToEmployeeForm = (employee: Employee): EmployeeFormData => {
+    return {
+        ...employee,
+        hireDate: employee.hireDate.split("T")[0] //formatDate(employee.hireDate)
+    }
 }

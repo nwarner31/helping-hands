@@ -1,12 +1,14 @@
 import Button from "../Button/Button";
 import React, {useEffect, useState} from "react";
+import {clsx} from "clsx";
 
 interface PaginationButtonsProps {
    page: number;
    numPages: number;
    onPageChange: (pageNumber: number) => void;
+   className?: string;
 }
-const PaginationButtons = ({page, numPages, onPageChange}: PaginationButtonsProps) => {
+const PaginationButtons = ({page, numPages, onPageChange, className}: PaginationButtonsProps) => {
     const [pageNum, setPageNum] = useState<string>(page.toString())
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -23,7 +25,7 @@ const PaginationButtons = ({page, numPages, onPageChange}: PaginationButtonsProp
         setPageNum(e.target.value);
     }
     return (
-        <div className="flex items-center justify-center gap-x-2 my-1" data-testid="pagination-buttons">
+        <div className={clsx("flex items-center justify-center gap-x-2 my-1", className)}  data-testid="pagination-buttons" >
             <Button disabled={page < 2} onClick={() => onPageChange(page-1)} data-testid="pagination-previous">&lt;</Button>
             <form onSubmit={handleSubmit} data-testid="pagination-form">
                 <input type="number" className="border-1 w-10" onChange={handlePageChange} value={pageNum} data-testid="pagination-input"/> / {numPages}

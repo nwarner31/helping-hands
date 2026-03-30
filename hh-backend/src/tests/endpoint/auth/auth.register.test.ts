@@ -18,7 +18,6 @@ describe("Auth Routes - Register", () => {
     });
 
     it("should register an employee and return 201", async () => {
-        //await prisma.employee.deleteMany();
         const response = await request(app)
             .post("/api/auth/register")
             .send({

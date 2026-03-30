@@ -1,18 +1,21 @@
 import request from "supertest";
 import app from "../../../app";
-import {setupTestEmployees, teardownTestEmployees, TestEmployee} from "../../setuptestemployees";
+import { TestEmployee } from "../../setuptestemployees";
+import {employeeSetupTests, employeeTeardownTests} from "./employee.setuptest";
 
 
 describe("Employee Routes - GET /api/employee", () => {
     let admin: TestEmployee;
+    let associate: TestEmployee;
 
     beforeAll(async () => {
-        const employees = await setupTestEmployees();
+        const employees = await employeeSetupTests();
         admin = employees.admin;
+        associate = employees.associate;
     });
 
     afterAll(async () => {
-        await teardownTestEmployees();
+        await employeeTeardownTests();
     });
 
     afterEach(() => {
@@ -34,6 +37,11 @@ describe("Employee Routes - GET /api/employee", () => {
         const res = await request(app).get("/api/employee");
         expect(res.status).toBe(401);
     });
+    it("should return 403 for an associate", async () => {
+        const res = await request(app).get("/api/employee")
+            .set("Authorization", `Bearer ${associate.token}`);
+        expect(res.status).toBe(403);
+    })
 
     it("should return 500 when service throws", async () => {
         jest.spyOn(require("../../../services/employee.service"), "getEmployees")

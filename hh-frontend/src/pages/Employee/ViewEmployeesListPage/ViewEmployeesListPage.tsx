@@ -2,7 +2,7 @@ import PageCard from "../../../components/Cards/PageCard/PageCard";
 import {useCallback, useEffect, useState} from "react";
 import {useDebounce} from "../../../hooks/dounceHook/debounce.hook";
 import apiService from "../../../utility/ApiService";
-import {Employee} from "../../../models/Employee";
+import {Employee, positions} from "../../../models/Employee";
 import {useQuery} from "@tanstack/react-query";
 import List from "../../../components/List/List";
 import ListItem from "../../../components/List/ListItem";
@@ -12,13 +12,14 @@ import Select from "../../../components/Inputs/Select/Select";
 import LinkButton from "../../../components/Buttons/LinkButton/LinkButton";
 import PaginationButtons from "../../../components/Buttons/PaginationButtons/PaginationButtons";
 import ViewEmployeesItem from "./ViewEmployeesItem";
+import Card from "../../../components/Cards/Card/Card";
 
 
 const ViewEmployeesListPage = () => {
     const pageSize = 8;
     const sexes = [{label: "Both", value: "Both"}, {label: "Male", value: "M"}, {label: "Female", value: "F"}];
     const [sexFilter, setSexFilter] = useState<"Both"|"Male"|"Female">("Both");
-    const positions = [{label: "All", value: "ALL"}, {label: "Associate", value: "ASSOCIATE"}, {label: "Manager", value: "MANAGER"}, {label: "Director", value: "DIRECTOR"}, {label: "Admin", value: "ADMIN"}];
+    const positionOptions = [{label: "All", value: "ALL"}, ...positions]
     const [positionFilter, setPositionFilter] = useState<"ALL"|"ASSOCIATE"|"MANAGER"|"DIRECTOR"|"ADMIN">("ALL");
     const [nameText, setNameText] = useState("");
     const nameFilter = useDebounce(nameText, 500);
@@ -71,16 +72,16 @@ const ViewEmployeesListPage = () => {
     }, [page]);
     return (
         <div className="flex justify-center items-center bg-slate-100 min-h-screen">
-            <PageCard title="Employees" className="py-4 flex flex-col max-h-screen" size={"lg"}>
+            <PageCard title="Employees" className="py-4 flex flex-col max-h-screen" size="lg">
                 <div className="mx-3 mb-4">
-                    <LinkButton to="/dashboard" variant="secondary">Dashboard</LinkButton>
+                    <LinkButton to="/dashboard" variant="ghost-secondary">Dashboard</LinkButton>
                 </div>
-                <div className="flex gap-x-2 mb-5 justify-center items-end">
+                <div className="flex gap-x-2 mb-2 pb-3 justify-center items-end border-b-1 border-slate-500">
                     <Input label="Search Name" name="nameFilter" value={nameText} onChange={updateNameText} containerClassName="shrink-1" />
                     <Select name="sexFilter" label="Sex" options={sexes} value={sexFilter} onChange={updateSex} className="!px-0 xs:!px-2" />
-                    <Select name="positionFilter" label="Position" options={positions} value={positionFilter} onChange={updatePosition} className="!px-0 xs:!px-2" />
+                    <Select name="positionFilter" label="Position" options={positionOptions} value={positionFilter} onChange={updatePosition} className="!px-0 xs:!px-2" />
                 </div>
-                {paginatedEmployees.length > 0 &&
+                {paginatedEmployees.length > 1 &&
                 <div>
                     <List borderVariant="secondary" inset="small" >
                         {paginatedEmployees.map(employee =>
@@ -90,13 +91,18 @@ const ViewEmployeesListPage = () => {
                     </List>
                 </div>
                 }
-                {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={changePage} />}
+                {!isLoading && paginatedEmployees.length === 0 &&
+                    <Card className="flex items-center justify-center h-40 mx-2">
+                        <div className="text-xl font-semibold">No employees match criteria</div>
+                    </Card>
+                }
+                {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={changePage} className="border-t-1 pt-2 border-slate-500" />}
                 {isLoading &&
                     <div className="grow overflow-y-auto">
                     <List borderVariant="secondary" inset="small" >
                         {[1,2,3,4,5,6].map(n =>
                         <ListItem id={`loading-${n}`} key={`loading-${n}`}>
-                            <LoadingText className="h-15 m-2" bgColorType="primary" />
+                            <LoadingText className="h-15 m-2" />
                         </ListItem>)}
                     </List>
                     </div>

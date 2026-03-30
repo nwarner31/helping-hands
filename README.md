@@ -12,21 +12,19 @@ maintainability and scalability.
 * Backend: Hosted on Railway
 * Database: PostgreSQL (Supabase)
 
-## 🧠 Features
+## 📌 Overview
 
-* 🔐 Authentication (JWT-based with refresh tokens)
+This application allows administrators and managers to:
 
-* 👥 Client management (create, edit, view)
+* Manage clients, employees, and houses
+* Schedule and track events (including medical events)
+* Assign managers and clients to houses
+* Enforce role-based access control
+* Validate and handle complex business rules
 
-* 🏠 House management with client and manager assignment
-
-* 📅 Event scheduling with conflict detection
-
-* 📄 Pagination for large datasets
-
-* 🔔 Toast notifications for user feedback
-
-* 🧪 Extensive automated testing (unit, integration, and E2E)
+The project emphasizes real-world backend structure, 
+robust validation, and high test coverage, making it 
+representative of production-grade systems.
 
 ## 🛠 Tech Stack
 
@@ -36,9 +34,9 @@ maintainability and scalability.
 
 * Tailwind CSS
 
-* Custom hooks for data fetching and state management
+* Context API for state management
 
-* React Toastify
+* Custom reusable component system
 
 ### Backend
 
@@ -47,27 +45,68 @@ maintainability and scalability.
 * Prisma ORM
 
 * PostgreSQL
+* Zod validation
 
 ### Testing
+* Jest + Supertest (backend unit and integration tests)
+* React Testing Library (frontend component tests)
+* Cypress (end-to-end tests)
 
-* Jest (unit + integration tests)
+## ✨ Key Features
+### 🔐 Authentication & Security
+* JWT-based authentication
+* Hybrid token strategy:
+  * Access token (in-memory)
+  * Refresh token (HTTP-only cookie)
+* Role-based route protection (Admin / Manager)
+### 🧩 Modular Backend Architecture
+* Controller → Service → Data layer separation
+* Centralized error handling middleware
+* Reusable validation schemas (Zod)
+### 📊 Advanced Validation
+* Frontend + backend validation coverage
+* Conditional validation (e.g., Medical Events)
+* Protection against duplicate records
+### 🧑‍💼 Admin Capabilities
+* Full CRUD for employees, clients, houses, events
+* Assign/remove managers and clients from houses
+* Edit employee roles and information
 
-* Supertest (API testing)
 
-* Cypress (end-to-end testing)
+## 🧪 Testing Strategy
+
+This project uses a layered testing approach:
+
+### Unit / Integration Tests
+* Business logic tested via service and controller layers
+* API endpoints tested with Supertest
+* Validation and edge cases covered extensively
+### Frontend Tests
+* Component behavior testing with React Testing Library
+* Form validation and user interaction coverage
+### End-to-End Tests (Cypress)
+
+Covers critical user flows:
+
+* Authentication (login/register)
+* Creating and editing entities
+* Assigning relationships (e.g., house managers)
+* Validation failure scenarios
 
 ## 📊 Test Coverage
 
 * Backend: 
-  * ~98% coverage
+  * ~99% statements coverage
+  * ~92% branches coverage
   * 251 unit and endpoint tests
 
 * Frontend: 
-  * ~98% coverage
+  * ~99% statements coverage
+  * ~92% branches coverage
   * 357 unit tests for components, and hooks
 
 * E2E: Core user flows covered with Cypress
-  * 14 end-to-end tests simulating real user interactions
+  * 20 end-to-end tests simulating real user interactions
 
 This project emphasizes reliability and correctness through comprehensive testing.
 
@@ -137,18 +176,6 @@ in the base folder of the project:
 npm run start
 ```
 
-## 🧩 Architecture Highlights
-
-* Layered backend structure (controllers → services → data access)
-
-* Separation of concerns with reusable hooks on the frontend
-
-* Centralized error handling and validation
-
-* Token-based authentication with refresh flow
-
-* Background job (cron) for token cleanup
-
 ## 📌 Current Status (Pre v0.1)
 
 This version is functional but still evolving. It is designed as an internal tool rather than a production-ready SaaS product.
@@ -205,15 +232,21 @@ This version is functional but still evolving. It is designed as an internal too
   * Allow managers to view client notes and important information about their care
   * Allow employees to log information about client daily activity (eg., showering, brushing teeth, client goals, etc.)
 
-## 🎯 Purpose
+## 👤 Author
 
-This project was built to:
+### Nathan Warner
 
-* Demonstrate full-stack development skills
+* Full-stack developer focused on building production-ready applications
+* Strong emphasis on testing, architecture, and real-world problem solving
 
-* Showcase production-style architecture and testing
+## 💼 Why This Project Matters
 
-* Serve as a portfolio piece for software engineering roles
+This project demonstrates:
+
+* Ability to design and build a full-stack system from scratch
+* Strong understanding of backend architecture and API design
+* Real-world testing practices (unit, integration, and E2E)
+* Attention to scalability, validation, and security
 
 ## FAQ
 
@@ -224,7 +257,3 @@ events functionality because events will change the scheduling needs for a house
 The financials features are dependent on the client, house, and events functions. A client
 financial request could be tied to a particular event. The bill functionality which 
 will be reflected in both the house and client financial information.
-
-## 📄 License
-
-MIT License

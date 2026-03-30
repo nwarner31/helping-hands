@@ -6,8 +6,8 @@ import {formatDate} from "../../../utility/formatting";
 const ViewEmployeesItem = ({employee}: {employee: Employee}) => {
 
     return (
-        <div className="grid font-body grid-cols-[2fr_2fr_3fr_1fr] sm:grid-cols-[2fr_2fr_3fr_1fr_2fr] md:grid-cols-[2fr_2fr_3fr_1fr_2fr_2fr] lg:grid-cols-[2fr_2fr_3fr_1fr_2fr_3fr_2fr] m-1 gap-x-1">
-            <LinkButton to="" >Edit</LinkButton>
+        <div className="grid font-body grid-cols-[3fr_3fr_5fr_2fr] sm:grid-cols-[2fr_2fr_3fr_1fr_2fr] md:grid-cols-[2fr_2fr_3fr_1fr_2fr_2fr] lg:grid-cols-[1fr_2fr_3fr_1fr_2fr_3fr_2fr] m-1 gap-x-1">
+            <LinkButton to={`/employee/${employee.id}`} className="text-sm !py-1" >Edit</LinkButton>
             <div>
                 <div className="text-xs text-slate-700 font-semibold">Employee Id</div>
                 <div className="text-sm">{employee.id}</div>

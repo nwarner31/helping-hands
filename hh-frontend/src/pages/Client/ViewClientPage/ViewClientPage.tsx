@@ -36,7 +36,7 @@ const ViewClientPage = () => {
                             <div>Sex: {client.sex}</div>
                     </div>
                         {canEdit &&
-                            <LinkButton to={`/edit-client/${clientId}`} state={{client: client}} variant="accent" className="mb-4">Edit Client</LinkButton>
+                            <LinkButton to={`/edit-client/${clientId}`} variant="primary" className="mb-4">Edit Client</LinkButton>
                         }
 
                         {client.house &&

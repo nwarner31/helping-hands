@@ -7,6 +7,7 @@ export const ClientInputSchema = z.object({
     name: z.string().nullish().transform(val => val ?? undefined),
     dateOfBirth: z.string().nullish().transform(val => val ?? undefined),
     sex: z.string().nullish().transform(val => val ?? undefined),
+    requiresStaff: z.boolean().default(false),
 }).superRefine((data, ctx) => {
     if(!data.id) {
         ctx.addIssue({code: "custom", path: ["id"], message: "Client ID is required"});

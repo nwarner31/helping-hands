@@ -14,8 +14,8 @@ const NavButtons = ({showBackButton = true, className}: NavButtonsProps) => {
     return (
         <nav aria-label="Primary navigation" className={clsx("mb-4", className)}>
             <ul className="list-none flex gap-2">
-                {showBackButton && <li className="grow"><Button onClick={() => navigate(-1)} className="w-full">Go Back</Button></li>}
-                <li className="grow"><LinkButton to="/dashboard" className="w-full h-full" variant="secondary">Dashboard</LinkButton></li>
+                {showBackButton && <li className="grow"><Button onClick={() => navigate(-1)} className="w-full" variant="ghost-secondary">Go Back</Button></li>}
+                <li className="grow"><LinkButton to="/dashboard" className="w-full h-full" variant="ghost-secondary">Dashboard</LinkButton></li>
             </ul>
         </nav>
     );

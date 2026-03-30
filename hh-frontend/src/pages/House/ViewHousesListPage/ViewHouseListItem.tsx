@@ -48,7 +48,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, canEdit, onRemoveClient, on
         <div className="p-1 font-body text-center py-2">
 
             <div className={clsx("grid grid-rows-2 gap-x-1 gap-y-0", canEdit ? "grid-cols-[65px_1fr_1fr_90px] sm:grid-cols-[65px_1fr_1fr_1fr_110px] md-lg:grid-cols-[65px_1fr_1fr_1fr_1fr_110px]" : "grid-cols-[65px_1fr_1fr_1fr] sm:grid-cols-[65px_1fr_1fr_1fr_1fr]")}>
-                <Button onClick={toggleExpanded} className="row-span-2" variant={buttonVariant}>
+                <Button onClick={toggleExpanded} className="row-span-2 text-sm" variant={buttonVariant}>
                     {expanded ? '▼' : '▶'}
                 </Button>
                 <div className="font-semibold text-xs">House Id</div>
@@ -66,7 +66,7 @@ const ViewHouseListItem: React.FC<Props> = ({ house, canEdit, onRemoveClient, on
                 </div>
                 {canEdit &&
                     <div className="col-start-4 sm:col-start-5 md-lg:col-start-6 row-start-1 row-span-2">
-                        <LinkButton to={`/edit-house/${house.id}`} state={{house: house}} variant={buttonVariant}>Edit</LinkButton>
+                        <LinkButton to={`/edit-house/${house.id}`} className="text-sm" variant={buttonVariant}>Edit</LinkButton>
 
                     </div>
                    }

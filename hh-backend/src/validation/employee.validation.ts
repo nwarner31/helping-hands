@@ -14,3 +14,12 @@ export const EmployeeSchema = z.object({
         message: "Passwords do not match",
         path: ["confirmPassword"],
     });
+
+
+export const EmployeeUpdateSchema = z.object({
+    name: z.string().min(1, "Name is required").max(50, "Legal name must be at most 50 characters"),
+    sex: z.enum(["M", "F"], {message: "Not a valid sex"}),
+    hireDate: z.coerce.date({invalid_type_error: "Hire date must be a valid date"}),
+    position: z.enum(["ASSOCIATE", "MANAGER", "DIRECTOR", "ADMIN"], {message: "Not a valid position"}),
+    email: z.string().email("Invalid email format").max(65, "Email must be at most 65 characters"),
+});

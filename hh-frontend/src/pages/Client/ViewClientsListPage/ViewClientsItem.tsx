@@ -8,9 +8,9 @@ const ViewClientsItem = ({client}: {client: Client}) => {
 
     return(
             <div
-                className="items-center my-2 mx-1 font-body grid grid-cols-[4fr_5fr_3fr] sm:grid-cols-[3fr_5fr_3fr_1fr] md:grid-cols-[3fr_5fr_3fr_3fr_1fr] gap-x-2"
+                className="items-center my-2 mx-1 font-body grid grid-cols-[4fr_5fr_3fr] sm:grid-cols-[3fr_5fr_3fr_1fr] md:grid-cols-[3fr_5fr_3fr_3fr_2fr] gap-x-2"
                 data-testid="view-clients-item">
-                <LinkButton to={`/view-client/${client.id}`} state={{client: client}} className="row-span-2" variant="primary">
+                <LinkButton to={`/view-client/${client.id}`} className="row-span-2 text-sm" variant="primary">
                     {client.id}
                 </LinkButton>
                 <div className="display-block">

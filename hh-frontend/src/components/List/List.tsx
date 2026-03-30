@@ -16,7 +16,7 @@ interface ListProps {
 const List = ({children, borderVariant = "primary", inset = "medium"}: ListProps) => {
     const dividerColors = {
         primary: "after:bg-primary-500",
-        secondary: "after:bg-secondary/50",
+        secondary: "after:bg-secondary-500/50",
         accent: "after:bg-accent",
     }
     const dividerInsets = {

@@ -44,6 +44,7 @@ const ViewHousesListPage = () => {
         }
     }, [data]);
     useEffect(() => {
+        console.log("Page changed: ", page);
         if(page !== 0) {
             const startIndex = (page - 1) * pageSize;
             setPageHouseList(houseList.slice(startIndex, startIndex + pageSize));
@@ -95,7 +96,7 @@ const ViewHousesListPage = () => {
             <PageCard size="md-lg" className="py-5 px-2" title="Houses" >
                 <div className="flex mx-4 gap-x-2 mb-3">
                     {canEdit && <LinkButton to="/add-house" className="grow basis-0">Add House</LinkButton>}
-                    <LinkButton to="/dashboard" variant="secondary" className="font-header font-bold grow basis-0">Dashboard</LinkButton>
+                    <LinkButton to="/dashboard" variant="ghost-secondary" className="font-header font-bold grow basis-0">Dashboard</LinkButton>
                 </div>
                 {!isLoading &&
                     <>
@@ -106,7 +107,7 @@ const ViewHousesListPage = () => {
                                 </ListItem>   )}
                         </List>
                         {houseList.length > pageSize &&
-                            <PaginationButtons page={page} numPages={pages} onPageChange={handlePageChange} />}
+                            <PaginationButtons page={page} numPages={pages} className="border-t-1 mt-2 pt-2 border-slate-500" onPageChange={handlePageChange} />}
                     </>
                 }
                 {isLoading &&
@@ -114,7 +115,7 @@ const ViewHousesListPage = () => {
                         <List inset="small" borderVariant="secondary">
                             {[1,2,3,4,5, 6].map(n =>
                                 <ListItem id={`loading-${n}`} key={`loading-${n}`}>
-                                    <LoadingText className="h-15 m-2" bgColorType="primary" />
+                                    <LoadingText className="h-15 m-2" />
                                 </ListItem>)}
                         </List>
                     </div>

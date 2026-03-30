@@ -3,10 +3,11 @@ import request from "supertest";
 import app from "../../../app";
 import {clientSetupTests, clientTeardownTests} from "./client.setuptest";
 import {TestEmployee} from "../../setuptestemployees";
+import {undefined} from "zod";
 
 
 describe("Client Routes - Add Client",  () => {
-    const validClient = {id: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "M"};
+    const validClient = {id: "T12345", legalName: "Test Client", dateOfBirth: "2000-04-12", sex: "M", name: "Testman"};
     let admin: TestEmployee;
     let associate: TestEmployee;
     beforeAll(async () => {
@@ -25,6 +26,14 @@ describe("Client Routes - Add Client",  () => {
         const response = await request(app).post("/api/client")
             .set("Authorization", `Bearer ${admin.token}`)
             .send(validClient);
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("data");
+        expect(response.body.message).toBe("Client added");
+    });
+    it("should still successfully add a client with name as undefined and admin", async () => {
+        const response = await request(app).post("/api/client")
+            .set("Authorization", `Bearer ${admin.token}`)
+            .send({...validClient, name: ""});
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("data");
         expect(response.body.message).toBe("Client added");

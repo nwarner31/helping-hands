@@ -1,11 +1,11 @@
 import { z } from "zod";
-import {isValidDate, isValidMonth, stringIsDefined} from "./utility.validation";
+import {isValidDate, isValidMonth} from "./utility.validation";
 
 const EventTypeEnum = z.enum(["WORK", "MEDICAL", "SOCIAL", "OTHER"]);
 const TimeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 export const MedicalEventSchema = z.object({
-    recordNumber: z.string().max(10),
+    recordNumber: z.string({message: "Record number is required"}).max(10),
     recordPrintedDate: z.coerce.date().nullish(),
     recordPrintedEmpId: z.string().max(40).nullish(),
     recordTakenToHouseDate: z.coerce.date().nullish(),
@@ -13,9 +13,9 @@ export const MedicalEventSchema = z.object({
     appointmentCompletedByEmpId: z.string().max(40).nullish(),
     recordFiledDate: z.coerce.date().nullish(),
     recordFiledEmpId: z.string().max(40).nullish(),
-    doctor: z.string().max(60),
-    doctorType: z.string().max(30),
-    appointmentForCondition: z.string().max(50),
+    doctor: z.string({message: "Doctor is required"}).max(60),
+    doctorType: z.string({message: "Doctor type is required"}).max(30),
+    appointmentForCondition: z.string({message: "A condition is required"}).max(50),
     appointmentResults: z.string().nullish(),
 });
 
@@ -35,6 +35,7 @@ export const EventSchema = z.object({
 export const FullEventSchema = EventSchema.superRefine((data, ctx) => {
     if (data.type === "MEDICAL") {
         if (!data.medical) {
+            console.log(data);
             ctx.addIssue({
                 path: ["medical"],
                 code: z.ZodIssueCode.custom,

@@ -20,8 +20,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
         const parseResult = FullEventSchema.safeParse(rawData);
 
         if (!parseResult.success) {
-            console.log(parseResult.error.format())
-            return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
+            return next({status: 400, message: "Validation failed", errors: flattenErrors(parseResult.error)});
         }
 
         const eventWithSameId = await getEventById(req.body.id);

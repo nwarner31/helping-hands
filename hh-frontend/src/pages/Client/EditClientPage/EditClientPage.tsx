@@ -38,7 +38,6 @@ const EditClientPage = () => {
         } catch (error: any) {
             throw error;
         }
-
     }
 
     const {mutate} = useMutation<Client, {errors: Record<string, string>}, Client>({

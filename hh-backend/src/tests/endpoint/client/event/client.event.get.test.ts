@@ -115,7 +115,6 @@ describe("GET /client/:clientId/event", () => {
             .set("Authorization", `Bearer ${associate.token}`);
         expect(res.status).toBe(400);
         expect(res.body.errors.fromDate).toBeDefined();
-
     });
 
     it("should return 400 for errors in date format of to and from", async () => {
@@ -135,6 +134,15 @@ describe("GET /client/:clientId/event", () => {
         expect(res.status).toBe(400);
         expect(res.body.errors.month).toBeDefined();
     });
+    it("should return 400 for a from date after the to date", async () => {
+        const res = await request(app)
+            .get(`/api/client/${testClient.id}/event?from=2025-02-01&to=2025-01-01`)
+            .set("Authorization", `Bearer ${associate.token}`);
+        expect(res.status).toBe(400);
+        expect(res.body.errors.fromDate).not.toBeDefined();
+        expect(res.body.errors.toDate).toBeDefined();
+        expect(res.body.errors.toDate).toMatch(/to date must be after from date/i);
+    })
 
     it("returns 404 for non-existent client", async () => {
         const res = await request(app)

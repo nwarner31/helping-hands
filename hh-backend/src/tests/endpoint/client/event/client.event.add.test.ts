@@ -6,6 +6,7 @@ import {addEvent} from "../../../../services/event.service";
 import {TestEmployee} from "../../../setuptestemployees";
 import {setupTestClients, teardownTestClients } from "../../../setuptestclients";
 import {Client} from "@prisma/client";
+import {undefined} from "zod";
 
 describe("Client Routes - Add Event", () => {
     let testClient: Client;
@@ -131,10 +132,27 @@ describe("Client Routes - Add Event", () => {
             .post(`/api/client/${testClient.id}/event`)
             .set("Authorization", `Bearer ${admin.token}`)
             .send(invalidData);
-
+        console.log(response.body.errors.medical)
         expect(response.status).toBe(400);
         expect(response.body.errors).toHaveProperty("medical");
     });
+    it("should return 400 when the medical fields are missing for a medical event", async () => {
+        const invalidData = { ...validEvent, type: "MEDICAL", medical: {recordNumber: undefined}};
+        const response = await request(app)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
+            .send(invalidData);
+        console.log(response.body.errors)
+        expect(response.status).toBe(400);
+        expect(response.body.errors).toHaveProperty(["medical.recordNumber"]);
+        expect(response.body.errors["medical.recordNumber"]).toBe("Record number is required");
+        expect(response.body.errors).toHaveProperty(["medical.doctor"]);
+        expect(response.body.errors["medical.doctor"]).toBe("Doctor is required");
+        expect(response.body.errors).toHaveProperty(["medical.doctorType"]);
+        expect(response.body.errors["medical.doctorType"]).toBe("Doctor type is required");
+        expect(response.body.errors).toHaveProperty(["medical.appointmentForCondition"]);
+        expect(response.body.errors["medical.appointmentForCondition"]).toBe("A condition is required");
+    })
 
     it("should return 201 when type is MEDICAL and medical is included", async () => {
         const response = await request(app)

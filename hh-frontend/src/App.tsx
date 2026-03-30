@@ -24,6 +24,7 @@ import AddClientPage from "./pages/Client/AddClientPage/AddClientPage";
 import EditClientPage from "./pages/Client/EditClientPage/EditClientPage";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import ViewEmployeesListPage from "./pages/Employee/ViewEmployeesListPage/ViewEmployeesListPage";
+import EditEmployeePage from "./pages/Employee/EditEmployeePage/EditEmployeePage";
 
 function App() {
     const queryClient = new QueryClient();
@@ -51,7 +52,8 @@ function App() {
         {path: "/house/:houseId/add-client", element: <AddHouseClientPage />},
         {path: "/house/:houseId/add-manager", element: <AddHouseManagerPage />},
         // Employee routes
-        {path: "/view-employees", element: <ProtectedRoute rolesAllowed={["ADMIN"]}><ViewEmployeesListPage /></ProtectedRoute>}
+        {path: "/view-employees", element: <ProtectedRoute rolesAllowed={["ADMIN"]}><ViewEmployeesListPage /></ProtectedRoute>},
+        {path: "/employee/:employeeId", element: <ProtectedRoute rolesAllowed={["ADMIN"]} ><EditEmployeePage /></ProtectedRoute>}
          ]);
   return (
       <QueryClientProvider client={queryClient}>

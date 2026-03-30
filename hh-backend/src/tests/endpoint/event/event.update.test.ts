@@ -4,7 +4,7 @@ import prisma from "../../../utility/prisma";
 import {TestClient} from "../../setuptestclients";
 import request from "supertest";
 import app from "../../../app";
-import {TestEvent} from "../../setuptestevents";
+import {setupTestEvents, teardownTestEvents, TestEvent} from "../../setuptestevents";
 
 
 describe("PUT /events/:id - update event", () => {
@@ -24,16 +24,20 @@ describe("PUT /events/:id - update event", () => {
         numberStaffRequired: 1
     }
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         const {employees, clients, events} = await eventSetupTests();
         admin = employees.admin;
         associate = employees.associate;
         client = clients.client1;
+    })
+
+    beforeEach(async () => {
+        const events = await setupTestEvents(client.id, client.id, client.id);
         eventId = events[0].id;
     })
 
     afterEach(async () => {
-        await eventTeardownTests();
+        await teardownTestEvents();
     });
     it("should update event successfully for ADMIN", async () => {
         const res = await request(app)

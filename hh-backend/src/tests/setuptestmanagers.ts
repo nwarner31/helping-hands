@@ -5,6 +5,7 @@ import {generateToken} from "../utility/token.utility";
 export type TestEmployee = {
     id: string;
     token: string;
+    email: string;
 };
 export const setupTestManagers = async () => {
     const manager1Id = "m123";
@@ -49,13 +50,16 @@ export const setupTestManagers = async () => {
     return {
         manager1: {
             id: manager1Id,
-            token: generateToken(manager1Id).sessionToken,},
+            token: generateToken(manager1Id).sessionToken,
+            email: "bob@manager.com",},
         manager2: {
             id: manager2Id,
-            token: generateToken(manager2Id).sessionToken,},
+            token: generateToken(manager2Id).sessionToken,
+            email: "sarah@manager.com",},
         manager3: {
             id: manager3Id,
-            token: generateToken(manager3Id).sessionToken,}
+            token: generateToken(manager3Id).sessionToken,
+            email: "tom@manager.com",}
     };
 };
 

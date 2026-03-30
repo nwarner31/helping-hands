@@ -19,7 +19,7 @@ describe("HOUSE - add house", () => {
     afterAll(async () => {
         await teardownHouseTests();
     });
-    const validHouse = { id: "H1234", name: "Testtopia", street1: "123 Test Loop", city: "Seattle", state: "WA", maxClients: 2, femaleEmployeeOnly: false};
+    const validHouse = { id: "H1234", name: "Testtopia", street1: "123 Test Loop", street2: "Apt 1701", city: "Seattle", state: "WA", maxClients: 2, femaleEmployeeOnly: false};
     it("should successfully add the house for a director", async () => {
         const response = await request(app).post("/api/house")
             .set("Authorization", `Bearer ${director.token}`)
@@ -28,6 +28,15 @@ describe("HOUSE - add house", () => {
         expect(response.body).toHaveProperty("data");
         expect(response.body.message).toBe("House successfully added");
     });
+    it("should successfully add the house without the optional street2 field", async () => {
+        const {street2, ...noStreet2} = validHouse;
+        const response = await request(app).post("/api/house")
+            .set("Authorization", `Bearer ${director.token}`)
+            .send(noStreet2);
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("data");
+        expect(response.body.message).toBe("House successfully added");
+    })
     it("should return a 401 if no token provided", async () => {
         const response = await request(app).post("/api/house")
             .send(validHouse);

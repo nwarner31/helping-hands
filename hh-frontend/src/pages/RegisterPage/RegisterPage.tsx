@@ -53,7 +53,6 @@ const RegisterPage: React.FC = () => {
                         </div>
                         <Button type="submit" variant="primary" className="w-full" disabled={status === "loading"}>{status === "loading" ? "Registering..." : "Register"}</Button>
                         <LinkButton to="/login" className="w-full" variant="secondary" >Login</LinkButton>
-
                       </form>
             </PageCard>
         </div>

@@ -44,6 +44,8 @@ export const EventInputSchema = z
         const edError = validateDate(data.endDate ?? "", "End date", "future");
         if (edError) {
             ctx.addIssue({ code: "custom", path: ["endDate"], message: edError });
+        } else if (data.endDate && data.beginDate && new Date(data.endDate) < new Date(data.beginDate)) {
+            ctx.addIssue({code: "custom", path: ["endDate"], message: "End date must be after begin date"});
         }
 
         const btError = validateTime(data.beginTime ?? "", "Begin time");

@@ -7,6 +7,7 @@ export interface Client {
     name?: string;
     dateOfBirth: string;
     sex: string;
+    requiresStaff: boolean;
     houseId?: string;
     house?: House;
     events?: Event[];

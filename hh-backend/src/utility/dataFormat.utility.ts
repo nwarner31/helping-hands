@@ -8,18 +8,3 @@ export function convertTimeToDate(timeString: string): Date {
     date.setMilliseconds(0);
     return date;
 }
-
-/**
- * Normalize a date range to inclusive full-day boundaries
- *
- * @param from - Start date (inclusive)
- * @param to   - End date (inclusive)
- * @returns { fromDate, toDate }
- */
-export function normalizeDateRange(from: Date, to: Date) {
-    return {
-        fromDate: startOfDay(from),
-        toDate: endOfDay(to),
-    };
-}
-

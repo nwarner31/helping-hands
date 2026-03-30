@@ -74,9 +74,9 @@ const ViewClientsListPage = () => {
 
                     <div className="flex mx-4 gap-x-2 mb-3">
                         {employee?.position === "ADMIN" && <LinkButton to="/add-client" className=" grow basis-0">Add Client</LinkButton>}
-                        <LinkButton to="/dashboard" variant="secondary" className="font-header font-bold grow basis-0">Dashboard</LinkButton>
+                        <LinkButton to="/dashboard" variant="ghost-secondary" className="font-header font-bold grow basis-0">Dashboard</LinkButton>
                     </div>
-                    <div className="flex gap-x-4 mb-5 justify-center items-end">
+                    <div className="flex gap-x-4 mb-2 pb-3 justify-center items-end border-b-1 border-b-slate-500">
                         <Input label="Search Name" name="nameFilter" value={nameText} onChange={updateNameText} />
                         <Select name="sexFilter" label="Sex" options={sexes} value={sexFilter} onChange={updateSex} />
                     </div>
@@ -89,7 +89,7 @@ const ViewClientsListPage = () => {
                                 </ListItem> ))}
                         </List>
                     </div>}
-                    {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={changePage} />}
+                    {numPages > 1 && <PaginationButtons page={page} numPages={numPages} onPageChange={changePage} className="border-t-1 pt-2 border-slate-500" />}
                     {isLoading &&
                         <div className="grow overflow-y-auto">
                         <List inset="small" borderVariant="secondary">

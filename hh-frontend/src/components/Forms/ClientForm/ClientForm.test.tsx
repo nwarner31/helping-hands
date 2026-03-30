@@ -21,6 +21,7 @@ const createClient = (overrides: Partial<Client> = {}): Client => ({
     name: "Jane",
     dateOfBirth: "1999-06-15",
     sex: "F",
+    requiresStaff: false,
     ...overrides,
 });
 
@@ -69,9 +70,10 @@ describe("ClientForm", () => {
         expect(screen.getByLabelText("Date of Birth")).toHaveValue(initialData.dateOfBirth);
         expect(screen.getByLabelText("Male")).toBeChecked();
         expect(screen.getByLabelText("Female")).not.toBeChecked();
+        expect(screen.getByLabelText("Requires Staff")).not.toBeChecked();
     });
 
-    it("updates text, date, and sex fields before submit", async () => {
+    it("updates text, date, sex, and requiresStaff fields before submit", async () => {
         render(
             <ClientForm
                 errors={{}}
@@ -85,6 +87,7 @@ describe("ClientForm", () => {
         await userEvent.type(screen.getByLabelText("Preferred Name"), "Sam");
         await userEvent.type(screen.getByLabelText("Date of Birth"), "2001-01-20");
         await userEvent.click(screen.getByLabelText("Male"));
+        await userEvent.click(screen.getByLabelText("Requires Staff"));
 
         expect(screen.getByLabelText("Client ID")).toHaveValue("C999");
         expect(screen.getByLabelText("Legal Name")).toHaveValue("Sam Taylor");
@@ -92,6 +95,7 @@ describe("ClientForm", () => {
         expect(screen.getByLabelText("Date of Birth")).toHaveValue("2001-01-20");
         expect(screen.getByLabelText("Male")).toBeChecked();
         expect(screen.getByLabelText("Female")).not.toBeChecked();
+        expect(screen.getByLabelText("Requires Staff")).toBeChecked();
     });
 
     it("submits the current client data", async () => {
@@ -110,6 +114,7 @@ describe("ClientForm", () => {
         await userEvent.type(screen.getByLabelText("Preferred Name"), "Chris");
         await userEvent.type(screen.getByLabelText("Date of Birth"), "1995-12-05");
         await userEvent.click(screen.getByLabelText("Male"));
+        await userEvent.click(screen.getByLabelText("Requires Staff"));
 
         await userEvent.click(screen.getByRole("button", { name: "Add Client" }));
 
@@ -120,6 +125,7 @@ describe("ClientForm", () => {
             name: "Chris",
             dateOfBirth: "1995-12-05",
             sex: "M",
+            requiresStaff: true
         });
     });
 
