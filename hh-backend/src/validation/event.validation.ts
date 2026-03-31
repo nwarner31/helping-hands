@@ -35,7 +35,6 @@ export const EventSchema = z.object({
 export const FullEventSchema = EventSchema.superRefine((data, ctx) => {
     if (data.type === "MEDICAL") {
         if (!data.medical) {
-            console.log(data);
             ctx.addIssue({
                 path: ["medical"],
                 code: z.ZodIssueCode.custom,

@@ -1,4 +1,3 @@
-import {Event, MedicalEvent} from "@prisma/client";
 import prisma from "../utility/prisma";
 import {HttpError} from "../utility/httperror";
 import {EventInput} from "../validation/event.validation";
@@ -6,7 +5,7 @@ import {convertTimeToDate} from "../utility/dataFormat.utility";
 
 // Note: Ignored lines are intentional — they may later include logging or
 // standardized error wrapping and will be tested at that time.
-export const addEvent = async (eventData: EventInput) => {
+export const addEvent = async (eventData: EventInput, log: any) => {
     try {
         return await prisma.$transaction(async (tx) => {
             const { medical, clientId, ...event } = eventData;
@@ -32,7 +31,7 @@ export const addEvent = async (eventData: EventInput) => {
 
                 });
             }
-
+            log.info(`Event created: (Event: ${newEvent.id}, Client: ${clientId})`);
             return newEvent;
         });
     } catch (error) {
@@ -41,7 +40,7 @@ export const addEvent = async (eventData: EventInput) => {
     }
 }
 
-export const updateEvent = async (eventData: EventInput) => {
+export const updateEvent = async (eventData: EventInput, log: any) => {
     try {
         await prisma.$transaction(async (tx) => {
             const { medical, clientId, ...event } = eventData;
@@ -74,6 +73,7 @@ export const updateEvent = async (eventData: EventInput) => {
 
 
         });
+        log.info(`Event updated: (Event: ${eventData.id})`);
         return getEventById(eventData.id);
     } catch (error) {
         // istanbul ignore next
@@ -102,8 +102,9 @@ export const getEventById = async (eventId: string) => {
     }
 }
 
-export const recordEventAction = async (eventId: string, empId: string, action: string, results?: string) => {
+export const recordEventAction = async (eventId: string, empId: string, data: {action: string, results?: string} , log: any) => {
     try {
+        const { action, results} = data;
         const event = await prisma.event.findUnique({where: {id: eventId}, include: {medical: true}});
         if (!event) {
             throw new HttpError(404, "Event not found");
@@ -118,14 +119,23 @@ export const recordEventAction = async (eventId: string, empId: string, action: 
         if (action === "FILE" && !results) {
             throw new HttpError(400, "Results are required for FILE action");
         }
+        let actionString = ""
         let updateData = {}
-        if (action === "PRINT") { updateData = {recordPrintedEmpId: empId, recordPrintedDate: new Date()} }
-        else if (action === "TAKE_TO_HOUSE") { updateData = {recordTakenEmpId: empId, recordTakenToHouseDate: new Date()} }
-        else if (action === "FILE") { updateData = {recordFiledEmpId: empId, recordFiledDate: new Date(), appointmentResults: results} }
+        if (action === "PRINT") {
+            actionString = "Print";
+            updateData = {recordPrintedEmpId: empId, recordPrintedDate: new Date()}
+        } else if (action === "TAKE_TO_HOUSE") {
+            actionString = "Take to house";
+            updateData = {recordTakenEmpId: empId, recordTakenToHouseDate: new Date()}
+        } else if (action === "FILE") {
+            actionString = "File";
+            updateData = {recordFiledEmpId: empId, recordFiledDate: new Date(), appointmentResults: results}
+        }
         await prisma.medicalEvent.update({
             where: { id: eventId },
             data: updateData,
         });
+        log.info(`${actionString} recorded: (Event: ${eventId}, Employee: ${empId})`);
         return await getEventById(eventId);
     } catch (error) {
         // istanbul ignore next

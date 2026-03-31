@@ -73,7 +73,6 @@ describe("Client Routes - Add Client",  () => {
             .send(invalidDateClient);
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("message");
-        console.log(response.body.errors);
         expect(response.body.errors).toHaveProperty("dateOfBirth");
     });
     it("should return an error for duplicate client id", async () => {

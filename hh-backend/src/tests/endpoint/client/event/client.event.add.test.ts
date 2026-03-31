@@ -7,6 +7,7 @@ import {TestEmployee} from "../../../setuptestemployees";
 import {setupTestClients, teardownTestClients } from "../../../setuptestclients";
 import {Client} from "@prisma/client";
 import {undefined} from "zod";
+import {setupTestEvents, TestEvent} from "../../../setuptestevents";
 
 describe("Client Routes - Add Event", () => {
     let testClient: Client;
@@ -23,6 +24,7 @@ describe("Client Routes - Add Event", () => {
 
     let admin: TestEmployee;
     let associate: TestEmployee;
+    let event: TestEvent;
 
     beforeAll(async () => {
 
@@ -37,6 +39,8 @@ describe("Client Routes - Add Event", () => {
     beforeEach(async () => {
         await prisma.medicalEvent.deleteMany();
         await prisma.event.deleteMany();
+        const events = await setupTestEvents(testClient.id, testClient.id, testClient.id);
+        event = events[0];
     });
 
     afterAll(async () => {
@@ -101,6 +105,19 @@ describe("Client Routes - Add Event", () => {
         });
     });
 
+    it("should return 400 for a duplicate id", async () => {
+        const duplicateId = {...validEvent, id: event.id};
+        const response = await request(app)
+            .post(`/api/client/${testClient.id}/event`)
+            .set("Authorization", `Bearer ${admin.token}`)
+            .send(duplicateId);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("errors");
+        expect(response.body.errors).toHaveProperty("id");
+        expect(response.body.errors.id).toBe("Event ID already exists");
+    });
+
     it("should return 400 when numberStaffRequired is not a number", async () => {
         const invalidData = { ...validEvent, numberStaffRequired: "two" };
 
@@ -132,7 +149,6 @@ describe("Client Routes - Add Event", () => {
             .post(`/api/client/${testClient.id}/event`)
             .set("Authorization", `Bearer ${admin.token}`)
             .send(invalidData);
-        console.log(response.body.errors.medical)
         expect(response.status).toBe(400);
         expect(response.body.errors).toHaveProperty("medical");
     });
@@ -142,7 +158,6 @@ describe("Client Routes - Add Event", () => {
             .post(`/api/client/${testClient.id}/event`)
             .set("Authorization", `Bearer ${admin.token}`)
             .send(invalidData);
-        console.log(response.body.errors)
         expect(response.status).toBe(400);
         expect(response.body.errors).toHaveProperty(["medical.recordNumber"]);
         expect(response.body.errors["medical.recordNumber"]).toBe("Record number is required");

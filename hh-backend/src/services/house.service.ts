@@ -4,11 +4,12 @@ import {HttpError} from "../utility/httperror";
 
 // Note: Ignored lines are intentional — they may later include logging or
 // standardized error wrapping and will be tested at that time.
-export const addHouse = async (house: House) => {
+export const addHouse = async (house: House, log: any) => {
     try {
         const newHouse = await prisma.house.create({
             data: { ...house }
         });
+        log.info(`House successfully created: ${house.id}-${house.name}`);
         return newHouse;
     } catch (error) {
         // istanbul ignore next
@@ -25,14 +26,16 @@ export const getHouses = async () => {
     }
 }
 
-export const updateHouse = async (house: House) => {
+export const updateHouse = async (house: House, log: any) => {
     try {
         const houseWithSameName = await prisma.house.findFirst({where: {name: house.name}});
         if(houseWithSameName && houseWithSameName.id !== house.id) {
             throw new HttpError(400, "invalid input", {name: "House name already exists"});
         }
-        return await prisma.house.update({where: {id: house.id}, data: house,
+        const updatedHouse = await prisma.house.update({where: {id: house.id}, data: house,
             include: { primaryHouseManager: true, secondaryHouseManager: true, clients: true }});
+        log.info(`House updated: (House: ${house.id})`);
+        return updatedHouse;
     } catch (error) {
         // istanbul ignore next
         throw error;
@@ -49,9 +52,10 @@ export const getHouseByHouseId = async (houseId: string) => {
     }
 }
 
-export const addHouseClient = async (house: House, clientId: string) => {
+export const addHouseClient = async (house: House, clientId: string, log: any) => {
     try {
         await prisma.client.update({where: {id: clientId}, data: {houseId: house.id}});
+        log.info(`Client added to house: (House: ${house.id}, Client: ${clientId})`);
         return await getHouseByHouseId(house.id);
     } catch (error) {
         // istanbul ignore next
@@ -59,9 +63,10 @@ export const addHouseClient = async (house: House, clientId: string) => {
     }
 }
 
-export const removeHouseClient = async (houseId: string, clientId: string) => {
+export const removeHouseClient = async (houseId: string, clientId: string, log: any) => {
     try {
         await prisma.client.update({where: {id: clientId}, data: {houseId: null}});
+        log.info(`Client added to house: (House: ${houseId}, Client: ${clientId})`)
         return await getHouseByHouseId(houseId);
     } catch (error) {
         // istanbul ignore next
@@ -85,7 +90,7 @@ export const getAvailableManagers = async (houseId: string) => {
 
 }
 
-export const addHouseManager = async (houseId: string, employeeId: string, positionType: string) => {
+export const addHouseManager = async (houseId: string, employeeId: string, positionType: string, log: any) => {
     try {
         // Check for house
         const house = await prisma.house.findFirst({where: {id: houseId}});
@@ -102,25 +107,30 @@ export const addHouseManager = async (houseId: string, employeeId: string, posit
             {primaryManagerId: manager.id} :
             {secondaryManagerId: manager.id}
 
-        return await prisma.house.update({where: {id: houseId}, data: updateData,
+        const returnHouse = await prisma.house.update({where: {id: houseId}, data: updateData,
             include: { primaryHouseManager: true, secondaryHouseManager: true, clients: true }});
+        const position = positionType.charAt(0).toUpperCase() + positionType.slice(1);
+        log.info(`${position} manager has been added to house: (House: ${houseId}, Manager: ${employeeId})`)
+        return returnHouse;
     } catch (error) {
         throw error;
     }
 }
 
-export const removeHouseManager = async (houseId: string, managerId: string) => {
+export const removeHouseManager = async (houseId: string, managerId: string, log: any) => {
     try {
         // Check for house
         const house = await prisma.house.findFirst({where: {id: houseId}});
         if(!house) throw new HttpError(400, "invalid input", {houseId: "House ID does not exist"});
-
+        let position = "";
         const manager = await prisma.employee.findFirst({where: {id: managerId}});
         if(!manager) throw new HttpError(400, "invalid input", {managerId: "Manager ID does not exist"})
         const updateData: any = {};
         if(house.primaryManagerId === manager.id) {
+            position = "Primary";
             updateData.primaryManagerId = null;
         } else if (house.secondaryManagerId === manager.id) {
+            position = "Secondary";
             updateData.secondaryManagerId = null;
         } else {
             throw new HttpError(400, "invalid input", {employeeId: "Employee is not a manager in the house"});
@@ -131,8 +141,10 @@ export const removeHouseManager = async (houseId: string, managerId: string) => 
             throw new HttpError(500, "server error")
         }
 
-        return await prisma.house.update({where: {id: houseId}, data: updateData,
+        const returnHouse = await prisma.house.update({where: {id: houseId}, data: updateData,
             include: { primaryHouseManager: true, secondaryHouseManager: true, clients: true }});
+        log.info(`${position} manager removed from house: (House: ${houseId}, Manager: ${managerId})`)
+        return returnHouse;
     } catch (error) {
         throw error;
     }

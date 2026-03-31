@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import prisma from "../utility/prisma";
 import {HttpError} from "../utility/httperror";
 import {capitalizeFirst} from "../utility/stringFormat.utility";
+import {logger} from "../utility/logger";
 
 
 export const registerEmployee = async (employee: Employee ) => {
@@ -12,6 +13,7 @@ export const registerEmployee = async (employee: Employee ) => {
         const newEmployee = await prisma.employee.create({
             data: { ...employee }
         });
+        logger.info(`Employee successfully registered: ${employee.email}`);
         return newEmployee;
     }
     catch (error) {
@@ -28,6 +30,7 @@ export const loginEmployee = async (data: { email: string; password: string }) =
     try {
         const employee = await prisma.employee.findUnique({ where: { email: data.email } });
         if (!employee || !(await bcrypt.compare(data.password, employee.password))) {
+            logger.warn(`Failed login attempt for email: ${data.email}`);
             throw new Error("Invalid credentials");
         }
         return employee;

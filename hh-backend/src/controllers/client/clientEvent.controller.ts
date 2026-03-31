@@ -28,7 +28,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
             return next({status: 400, message: "invalid data", errors: {id: "Event ID already exists"}});
         }
 
-        const newEvent = await addEvent(parseResult.data);
+        const newEvent = await addEvent(parseResult.data, req.log);
 
         res.status(201).json({ message: "Event created", data: newEvent });
     } catch (error) {

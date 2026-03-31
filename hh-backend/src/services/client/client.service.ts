@@ -5,12 +5,13 @@ import {ClientResponse} from "../../types/client.type";
 
 // Note: Ignored lines are intentional — they may later include logging or
 // standardized error wrapping and will be tested at that time.
-export const addClient = async (client: Client) => {
+export const addClient = async (client: Client, log: any) => {
     try {
-        return await prisma.client.create({
+        const newClient = await prisma.client.create({
             data: { ...client }
         });
-
+        log.info(`Client created: (Client: ${client.id})`)
+        return newClient;
     } catch (error) {
         // istanbul ignore next
         throw error;
@@ -88,10 +89,11 @@ export const getClientEventsInDateRange = async (clientId: string, startDate: Da
     }
 }
 
-export const updateClient = async (client: Client) => {
+export const updateClient = async (client: Client, log: any) => {
     try {
-        return await prisma.client.update({where: {id: client.id}, data: client});
-
+        const updatedClient = await prisma.client.update({where: {id: client.id}, data: client});
+        log.info(`Client updated: (Client: ${client.id})`)
+        return updatedClient;
     } catch(error) {
         // istanbul ignore next
         throw error;

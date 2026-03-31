@@ -27,16 +27,15 @@ function findConflicts(events: any[]) {
         for (let j = i + 1; j < events.length; j++) {
             const e2 = events[j];
 
-            // If e2 starts after e1 ends → no more conflicts possible
-            if (e2.beginDateTime >= e1.endDateTime) break;
+
+            // If e2 starts after e1 ends → no more conflicts possible e2.beginDateTime >= e1.endDateTime
+            if (e2.beginDate > e1.endDate || e2.beginTime > e1.endTime) break;
 
             // Check overlap
             // const overlap =
             //     e1.beginDateTime < e2.endDateTime &&
             //     e2.beginDateTime < e1.endDateTime;
             const overlap = e1.endDate.toDateString() === e2.beginDate.toDateString() && e1.endTime.getTime() > e2.beginTime.getTime();
-             console.log(e1.endDate);
-            console.log(e2.beginDate);
             if (overlap) conflicts.push(e2);
         }
 

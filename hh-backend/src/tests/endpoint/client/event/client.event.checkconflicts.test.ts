@@ -57,7 +57,6 @@ describe("GET /client/:clientId/event/has-conflicts - Check Conflicts", () => {
         expect(res.body.message).toBe("Event conflict data found");
         expect(res.body.conflicts.hasConflicts).toBe(true);
         expect(res.body.conflicts.numConflicts).toBe(1);
-        console.log(res.body);
     });
 
     it("should get the correct conflicts if only the begin date is provided", async () => {

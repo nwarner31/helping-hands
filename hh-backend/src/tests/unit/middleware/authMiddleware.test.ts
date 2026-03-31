@@ -53,7 +53,6 @@ describe("AUTH Middleware - authenticateToken", () => {
     });
 
     afterAll(async () => {
-
         await prisma.employee.deleteMany();
     });
 
@@ -62,6 +61,14 @@ describe("AUTH Middleware - authenticateToken", () => {
             .get("/api/house") // protected route
             .set("Authorization", `Bearer ${sessionToken}`)
             .set("Cookie", refreshCookie);
+
+        expect(res.status).toBe(200);
+    });
+    it("allows access with valid refresh token but no session", async () => {
+        const res = await request(app)
+            .get("/api/house") // protected route
+            //.set("Authorization", `Bearer ${sessionToken}`)
+            .set("Cookie", refreshCookie); // clear refresh token
 
         expect(res.status).toBe(200);
     });
@@ -119,7 +126,6 @@ describe("AUTH Middleware - authenticateToken", () => {
         const res = await request(app)
             .get("/api/house")
             .set("Authorization", "Bearer not-a-real-jwt")
-            //.set("Cookie", refreshCookie);
 
         expect(res.status).toBe(403);
     });

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import {HttpError} from "../utility/httperror";
+import {logger} from "../utility/logger";
 
 const isDev = process.env.NODE_ENV?.toLowerCase() !== "production";
 // Custom error-handling middleware
@@ -8,7 +9,7 @@ const errorMiddleware = (err: HttpError, req: Request, res: Response, next: Next
     const statusCode = err.status ?? 500;
 
     if (!err.status) {
-        console.error("Unexpected error:", err);
+        logger.error(`Unexpected error without status code: ${ err}`);
     }
     res.status(statusCode).json({
         success: false,

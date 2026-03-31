@@ -40,6 +40,8 @@ describe("GET /client/:clientId/event/getConflicts - Get Conflicts", () => {
                     beginDate: monthFromToday, endDate: monthFromToday},
                 {...sharedEventData, id: "T006", beginTime: "2025-01-01T09:00:00.000Z", endTime: "2025-01-01T11:00:00.000Z", clientId: client1.id,
                     beginDate: monthFromToday, endDate: monthFromToday},
+                {...sharedEventData, id: "T007", beginTime: "2025-01-01T11:00:00.000Z", endTime: "2025-01-01T12:00:00.000Z", clientId: client1.id,
+                beginDate: addDays(today, 2), endDate: addDays(today, 2)}
             ]
         })
     });

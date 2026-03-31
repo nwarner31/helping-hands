@@ -56,6 +56,19 @@ describe("PUT /events/:id - update event", () => {
         expect(res.body).toHaveProperty("data");
         expect(res.body.data.id).toBe(eventId);
     });
+    it("should update a medical event successfully for an admin", async () => {
+        const medicalEvent = {...testEventData, id: eventId, type: "MEDICAL", beginTime: "10:00", endTime: "11:00", clientId: client.id,
+            medical: {recordNumber: "r1000", doctor: "Dr Seus", doctorType: "Primary", appointmentForCondition: "Health", id: eventId}};
+        const res = await request(app).put(`${endpoint}/${medicalEvent.id}`)
+            .set("Authorization", `Bearer ${admin.token}`)
+            .send({...medicalEvent});
+        expect(res.status).toBe(200);
+        expect(res.body.message).toBe("Event updated");
+        expect(res.body).toHaveProperty("data");
+        expect(res.body.data.id).toBe(eventId);
+        expect(res.body.data.medical).toBeDefined();
+        expect(res.body.data.medical.recordNumber).toBe("r1000");
+    })
     it("should return 401 if no token provided", async () => {
         const res = await request(app)
             .put(`${endpoint}/${eventId}`)
@@ -114,7 +127,6 @@ describe("PUT /events/:id - update event", () => {
 
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("errors");
-            console.log(response.body);
             expect(response.body.errors).toHaveProperty(field);
         });
     });

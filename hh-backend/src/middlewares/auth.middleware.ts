@@ -5,7 +5,10 @@ import {
     refreshTokens,
     retrieveTokens,
 } from "../services/utility/token.service";
-import {RefreshToken, Session} from "@prisma/client";
+import {Employee, RefreshToken, Session} from "@prisma/client";
+import {logger} from "../utility/logger";
+
+
 
 
 export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
@@ -32,7 +35,6 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
 
         // If no session token or it is invalid/expired
         if (!tokens.session || !tokens.session.isValid || tokens.session.expiresAt < now) {
-
             // If no refresh token or is revoked/expired, deny access
             if(!tokens.refresh || tokens.refresh.expiresAt < now || tokens.refresh.revoked) {
                 res.sendStatus(401);
@@ -56,7 +58,7 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
         req.employee = employee;
         next();
     } catch (err) {
-        console.error(err);
+        logger.error(`Error in authenticateToken middleware: ${err}`);
         res.sendStatus(500);
         return;
     }
@@ -66,8 +68,8 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
 export function requirePositions(...allowedPositions: string[]) {
     return (req: Request, res: Response, next: NextFunction) => {
         // This should normally not happen if authenticateToken is used before this middleware
+        // istanbul ignore if
         if (!req.employee) {
-            // istanbul ignore next
             res.sendStatus(401);
             return;
         }
@@ -81,3 +83,19 @@ export function requirePositions(...allowedPositions: string[]) {
         next();
     };
 }
+
+export interface AuthenticatedRequest extends Request {
+    employee: Employee;
+}
+
+export const withAuth =
+    (handler: (req: AuthenticatedRequest, res: Response, next: NextFunction) => any) =>
+        (req: Request, res: Response, next: NextFunction) => {
+            // This should normally not happen if authenticateToken is used before this middleware
+            // istanbul ignore if
+            if (!req.employee) {
+                return res.status(401).json({ message: "Unauthorized" });
+            }
+
+            return handler(req as AuthenticatedRequest, res, next);
+        };

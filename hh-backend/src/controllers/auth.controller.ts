@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { registerEmployee, loginEmployee} from "../services/auth.service";
-import { generateToken } from "../utility/token.utility";
-import {Employee} from "@prisma/client";
 import {EmployeeSchema} from "../validation/employee.validation";
 import {createTokens, revokeTokens} from "../services/utility/token.service";
 
@@ -23,6 +21,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         const {confirmPassword, ...employeeData} = parseResult.data;
         const {password, ...employee} = await registerEmployee(employeeData);
         const {sessionToken, refreshToken} = await createTokens(employee.id);
+
         res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: process.env.NODE_ENV === "production" });
         res.status(201).json({ message: "Employee registered successfully", sessionToken, employee });
     } catch (error) {
@@ -45,7 +44,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             errors.password = "Password is required.";
         }
         if (Object.keys(errors).length > 0) {
-
             return next({status: 400, message: errors});
         }
         const {password, ...employee} = await loginEmployee(req.body);
@@ -54,6 +52,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         res.status(200).json({ message: "Login successful", sessionToken, employee });
     } catch (error) {
         if (error instanceof Error && error.message === "Invalid credentials") {
+
             return next ({status: 400, message: error.message});
         }
         next(error);

@@ -41,7 +41,6 @@ describe("GET /event/:eventId", () => {
         const res = await request(app)
             .get(`${ENDPOINT}/%20`) // notice the space = trimmed empty
             .set("Authorization", `Bearer ${admin.token}`);
-        console.log(res.body);
         expect(res.status).toBe(400);
         expect(res.body.message).toMatch(/Event Id is required/i);
     });

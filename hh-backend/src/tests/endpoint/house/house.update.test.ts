@@ -109,6 +109,17 @@ describe("HOUSE - update house", () => {
         expect(response.body.errors).toHaveProperty("houseId");
     });
 
+    it("should return 400 for a duplicate name", async () => {
+        const duplicateName = {...updatedHouse, name: "Test House 1"};
+        const response = await request(app)
+            .put("/api/house/H1234")
+            .set("Authorization", `Bearer ${director.token}`)
+            .send(duplicateName);
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe("invalid input");
+        expect(response.body.errors).toHaveProperty("name");
+    });
+
     it("should handle server errors", async () => {
         jest.spyOn(require("../../../services/house.service"), "updateHouse")
             .mockRejectedValue(new Error("Database connection failed"));

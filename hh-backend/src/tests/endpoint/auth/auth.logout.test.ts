@@ -43,10 +43,8 @@ describe("AUTH - Logout", () => {
     });
 
     it("should successfully logout and invalidate the token", async () => {
-        console.log(token);
         const logoutRes = await agent.post("/api/auth/logout")
             .set("Authorization", `Bearer ${token}`);
-        console.log(logoutRes.body);
         expect(logoutRes.status).toBe(204);
         const rawCookies = logoutRes.headers['set-cookie'];
 

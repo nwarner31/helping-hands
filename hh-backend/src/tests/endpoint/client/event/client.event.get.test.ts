@@ -3,7 +3,7 @@ import app from "../../../../app";
 import prisma from "../../../../utility/prisma";
 import {Client, Event} from "@prisma/client";
 import {clientSetupTests, clientTeardownTests} from "../client.setuptest";
-import { addDays, addMonths } from "date-fns";
+import {addDays, addHours, addMonths} from "date-fns";
 import {TestEmployee} from "../../../setuptestemployees";
 import {setupTestClients, teardownTestClients} from "../../../setuptestclients";
 
@@ -12,11 +12,11 @@ describe("GET /client/:clientId/event", () => {
     let testClient: Client;
     let admin: TestEmployee;
     let associate: TestEmployee;
-// Tomorrow
-    const today = new Date();
+    // Today (the minus hours are to reduce to local time instead of utc)
+    const today = addHours(new Date(), -7);
 
 // One month from today
-    const oneMonthFromToday = addMonths(new Date(), 1);
+    const oneMonthFromToday = addMonths(new Date().setDate(1), 1);
 
     beforeAll(async () => {
         const employees = await clientSetupTests();
@@ -83,14 +83,14 @@ describe("GET /client/:clientId/event", () => {
     });
 
     it("returns events for a from/to range", async () => {
-        const beginDay = today.getDate() - 1;
-        const beginDayString = beginDay > 9 ? beginDay.toString() : "0" + beginDay.toString();
-        const beginMonth = today.getMonth() + 1;
+        const beginDate = addDays(today, - 1);
+        const beginDayString = beginDate.getDate() > 9 ? beginDate.getDate().toString() : "0" + beginDate.getDate().toString();
+        const beginMonth = beginDate.getMonth() + 1;
         const beginMonthString = beginMonth > 9 ? beginMonth.toString() : "0" + beginMonth.toString();
-        const beginYear = oneMonthFromToday.getFullYear();
-        const endDay = oneMonthFromToday.getDate() - 1;
-        const endDayString = endDay > 9 ? endDay.toString() : "0" + endDay.toString();
-        const endMonth = oneMonthFromToday.getMonth() + 1;
+        const beginYear = beginDate.getFullYear();
+        const endDate = addDays(oneMonthFromToday, - 1);
+        const endDayString = endDate.getDate() > 9 ? endDate.getDate().toString() : "0" + endDate.getDate().toString();
+        const endMonth = endDate.getMonth() + 1;
         const endMonthString = endMonth > 9 ? endMonth.toString() : "0" + endMonth.toString();
         const endYear = oneMonthFromToday.getFullYear();
         const res = await request(app)
@@ -148,7 +148,6 @@ describe("GET /client/:clientId/event", () => {
         const res = await request(app)
             .get(`/api/client/nonexistentclient/event`)
             .set("Authorization", `Bearer ${associate.token}`);
-        console.log(res.body)
         expect(res.status).toBe(404);
     });
 

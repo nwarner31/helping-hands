@@ -3,6 +3,7 @@ import {addClient, getClients, getClientByClientId, updateClient, getHomelessCli
 import {ClientSchema} from "../../validation/client.validation";
 import {flattenErrors} from "../../validation/utility.validation";
 import {checkClientEventConflicts} from "../../services/client/clientEvent.service";
+import {AuthenticatedRequest} from "../../middlewares/auth.middleware";
 
 export const createClient = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -14,7 +15,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
         if (clientWithSameId) {
             return next({status: 400, message: "invalid data", errors: {id: "Client ID already exists"}});
         }
-        const newClient = await addClient(parseResult.data);
+        const newClient = await addClient(parseResult.data, req.log);
         res.status(201).json({message: "Client added", data: newClient})
     } catch (error) {
         return next(error);
@@ -36,19 +37,18 @@ export const putClient = async (req: Request, res: Response, next: NextFunction)
     try {
         const parseResult = ClientSchema.safeParse(req.body);
         if (!parseResult.success) {
-            console.log(parseResult.error.format());
             return next({status: 400, message: "Validation failed", errors: flattenErrors(parseResult.error)});
         }
-        const updatedClient = await updateClient(parseResult.data);
+        const updatedClient = await updateClient(parseResult.data, req.log);
         res.status(200).json({message: "client updated successfully", data: updatedClient});
     } catch (error) {
         return next(error);
     }
 }
-export const getClient = async (req: Request, res: Response, next: NextFunction) => {
+export const getClient = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
         const clientId= req.params.clientId;
-        const employeeRole = req.employee?.position ?? "";
+        const employeeRole = req.employee.position;
         if (!clientId.trim()) return next({status: 400, message: "Invalid data", errors: "Client Id is required"});
         let client = await getClientByClientId(clientId, employeeRole);
         if(!client) return next({status: 404, message: "client not found"});

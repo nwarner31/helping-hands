@@ -131,7 +131,7 @@ const ViewHousesListPage = () => {
                                {modalData.displayPerson && <p>{modalData.type}: {modalData.displayPerson.id} - {modalData.displayPerson.name}</p>}
                         </div>
                         <div className="flex flex-col gap-y-3 sm:flex-row sm:gap-x-2 mt-4">
-                            <Button className="grow" onClick={() => removeHandler(modalData.type)}>Remove</Button>
+                            <Button className="grow" onClick={() => removeHandler(modalData.type)} data-testid="modal-remove">Remove</Button>
                             <Button className="grow" onClick={closeModal} variant="accent">Cancel</Button>
                         </div>
 

@@ -49,7 +49,6 @@ export const setupTestEmployees = async () => {
         ],
         skipDuplicates: true,
     });
-    console.log("Test employees created");
     const [adminTokens, directorTokens, associateTokens] = await Promise.all([createTokens(adminId), createTokens(directorId), createTokens(associateId)]);
     return {
         admin: {

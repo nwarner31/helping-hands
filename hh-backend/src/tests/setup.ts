@@ -12,7 +12,6 @@ beforeAll(async () => {
     if (process.env.NODE_ENV !== "test") {
         throw new Error("Tests should be run in a test environment.");
     }
-    console.log("Using test DB:", process.env.DATABASE_URL);
     execSync("npx prisma db push --accept-data-loss", { stdio: "inherit" });
 });
 

@@ -31,7 +31,7 @@ export const createHouse = async (req: Request, res: Response, next: NextFunctio
         if(Object.keys(duplicate).length > 0) {
             return next({status: 400, message: "invalid data", errors: duplicate});
         }
-        const newHouse = await addHouse(parseResult.data);
+        const newHouse = await addHouse(parseResult.data, req.log);
         res.status(201).json({message: "House successfully added", data: newHouse});
     } catch (error) {
         return next(error);
@@ -66,7 +66,7 @@ export const putHouse = async (req: Request, res: Response, next: NextFunction) 
         }
         const houseIdCheck = await getHouseByHouseId(req.body.houseId);
         if (!houseIdCheck) return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
-        const updatedHouse = await updateHouse(parseResult.data);
+        const updatedHouse = await updateHouse(parseResult.data, req.log);
         res.status(200).json({message: "House successfully updated", data: updatedHouse});
     } catch (error) {
         return next(error);
@@ -81,7 +81,7 @@ export const addClientToHouse = async (req: Request, res: Response, next: NextFu
         if(!houseIdCheck)  return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
         const clientIdCheck = await getClientByClientId(clientId);
         if(!clientIdCheck) return next({status: 400, message: "invalid data", errors: {clientId: "Client ID not found"}});
-        const house = await addHouseClient(houseIdCheck, clientId);
+        const house = await addHouseClient(houseIdCheck, clientId, req.log);
         res.status(209).json({message: "client added to house", data: house});
     } catch (error) {
         return next(error);
@@ -96,7 +96,7 @@ export const removeClientFromHouse = async (req: Request, res: Response, next: N
         if(!houseIdCheck)  return next({status: 400, message: "invalid data", errors: {houseId: "House ID not found"}});
         const clientIdCheck = await getClientByClientId(clientId);
         if(!clientIdCheck) return next({status: 400, message: "invalid data", errors: {clientId: "Client ID not found"}});
-        const house = await removeHouseClient(houseId, clientId);
+        const house = await removeHouseClient(houseId, clientId, req.log);
         res.status(209).json({message: "client removed from house", data: house});
     } catch (error) {
         return next(error);
@@ -125,7 +125,7 @@ export const addManagerToHouse = async (req: Request, res: Response, next: NextF
             return next({status: 400, message: "invalid data", errors: {positionType: "invalid position type"}});
         }
 
-        const updatedHouse = await addHouseManager(houseId, employeeId, positionType);
+        const updatedHouse = await addHouseManager(houseId, employeeId, positionType, req.log);
         res.status(200).json({message: "manager added to house", data: updatedHouse});
     } catch (error) {
         return next(error);
@@ -137,7 +137,7 @@ export const removeManagerFromHouse = async (req: Request, res: Response, next: 
         const houseId = req.params.houseId;
         const managerId = req.params.managerId;
 
-        const updatedHouse = await removeHouseManager(houseId, managerId);
+        const updatedHouse = await removeHouseManager(houseId, managerId, req.log);
         res.status(200).json({message: "manager removed from house", data: updatedHouse})
     } catch (error) {
         return next(error);

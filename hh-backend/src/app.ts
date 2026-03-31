@@ -6,6 +6,7 @@ import helmet from "helmet";
 import routes from "./routes/index";
 import errorMiddleware from "./middlewares/error.middleware";
 import cookieParser from 'cookie-parser';
+import {requestLogger} from "./middlewares/requestLogger.middleware";
 // Load environment variables
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(helmet() as express.RequestHandler); // Security headers
 app.use(express.json()); // Body parsing middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(requestLogger);
 
 // API routes
 app.use("/api", routes);

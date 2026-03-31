@@ -26,7 +26,7 @@ export const putEvent = async (req: Request, res: Response, next: NextFunction) 
         if (!parseResult.success) {
             return next({status: 400, message: "Validation failed", errors: parseResult.error.format()});
         }
-        const updatedEvent = await updateEvent(parseResult.data);
+        const updatedEvent = await updateEvent(parseResult.data, req.log);
         res.status(200).json({message: "Event updated", data: updatedEvent});
     } catch(error) {
         return next(error);
@@ -39,7 +39,7 @@ export const recordAction = async (req: Request, res: Response, next: NextFuncti
         const { action, results } = req.body;
         const empId = req.employee!.id;
 
-        const updatedEvent = await recordEventAction( eventId, empId, action, results);
+        const updatedEvent = await recordEventAction( eventId, empId, {action, results}, req.log);
         res.status(200).json({message: "Event action recorded", data: updatedEvent});
     } catch(error) {
         return next(error);

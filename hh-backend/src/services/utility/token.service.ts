@@ -2,6 +2,7 @@ import prisma from "../../utility/prisma";
 import {HttpError} from "../../utility/httperror";
 import {generateToken} from "../../utility/token.utility";
 import jwt from "jsonwebtoken";
+import {logger} from "../../utility/logger";
 
 
 export async function cleanupOldTokens() {
@@ -49,8 +50,8 @@ export async function cleanupOldTokens() {
             }
         });
 
-        console.log(`🧹 Deleted ${deletedSession.count} old sessions`);
-        console.log(`🧹 Deleted ${deletedRefresh.count} old refresh tokens`);
+        logger.info(`🧹 Deleted ${deletedSession.count} old sessions`);
+        logger.info(`🧹 Deleted ${deletedRefresh.count} old refresh tokens`);
 }
 
 export async function createTokens(employeeId: string) {
@@ -97,7 +98,7 @@ export async function retrieveTokens(tokens: {sessionToken?: string, refreshToke
         return result;
     } catch (error) {
         // istanbul ignore next
-        console.error("Error retrieving tokens:", error);
+        logger.error(`Error retrieving tokens: ${error}`);
         throw new HttpError(500, "Failed to retrieve tokens");
     }
 }
